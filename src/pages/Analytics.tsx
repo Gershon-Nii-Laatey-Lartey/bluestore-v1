@@ -165,9 +165,6 @@ const Analytics = () => {
             <div className="flex items-center space-x-2">
               <BarChart3 className="h-6 w-6 text-primary" />
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Analytics</h1>
-              <Badge variant="outline" className="text-purple-600 border-purple-300">
-                Premium Feature
-              </Badge>
             </div>
             <Button
               onClick={loadAnalytics}

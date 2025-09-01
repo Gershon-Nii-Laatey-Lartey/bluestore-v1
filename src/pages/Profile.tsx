@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
 import { MobileHeader } from "@/components/MobileHeader";
 import { User, Settings, Plus, Bell, HelpCircle, LogOut, Package, ShoppingBag, Store, Edit, Calendar, MapPin, Phone, Mail, BarChart3, Shield, Users, MessageSquare } from "lucide-react";
@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfileStats } from "@/hooks/useProfileStats";
-
+import { dataService } from "@/services/dataService";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +28,7 @@ const Profile = () => {
     { icon: ShoppingBag, label: "My Ads", href: "/my-ads", description: "Manage your published advertisements" },
     { icon: Store, label: "My Vendor Profile", href: `/vendor/${user?.id}`, description: "View and edit your vendor profile" },
     { icon: Package, label: "Active Packages", href: "/active-packages", description: "Track your subscription packages" },
+    { icon: BarChart3, label: "Analytics", href: "/analytics", description: "Track the performance of your ads" },
     { icon: Bell, label: "Notifications", href: "/notifications", description: "View your notifications and alerts" },
     { icon: Settings, label: "Settings", href: "/settings", description: "Manage your account settings" },
     { icon: HelpCircle, label: "Help & Support", href: "/support", description: "Get help and contact support" },
@@ -60,9 +61,35 @@ const Profile = () => {
   };
 
   // Check user roles and permissions
-  const isAdmin = user?.role === 'admin';
-  const isCSWorker = user?.role === 'cs_worker';
-  const hasAnalyticsAccess = user?.role === 'admin' || user?.role === 'cs_worker' || profile?.has_analytics_access;
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isCSWorker, setIsCSWorker] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Check admin and CS worker status
+  useEffect(() => {
+    const checkUserStatus = async () => {
+      if (user) {
+        try {
+          const [adminStatus, csWorkerStatus] = await Promise.all([
+            dataService.isAdmin(),
+            dataService.isCSWorker()
+          ]);
+          
+          setIsAdmin(adminStatus);
+          setIsCSWorker(csWorkerStatus);
+        } catch (error) {
+          setIsAdmin(false);
+          setIsCSWorker(false);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
+    };
+
+    checkUserStatus();
+  }, [user]);
 
   // Dashboard links based on user type
   const getDashboardLinks = () => {
@@ -90,16 +117,7 @@ const Profile = () => {
       });
     }
     
-    if (hasAnalyticsAccess) {
-      links.push({
-        icon: BarChart3,
-        label: "Analytics",
-        href: "/analytics",
-        description: "View detailed analytics and insights",
-        color: "text-purple-600",
-        bgColor: "bg-purple-100"
-      });
-    }
+
     
     return links;
   };
@@ -167,7 +185,7 @@ const Profile = () => {
             </div>
 
             {/* Dashboard Links */}
-            {dashboardLinks.length > 0 && (
+            {!loading && dashboardLinks.length > 0 && (
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">Dashboard Access</h3>
                 <div className="space-y-3">
@@ -335,7 +353,7 @@ const Profile = () => {
                     </div>
 
                     {/* Dashboard Access */}
-                    {dashboardLinks.length > 0 && (
+                    {!loading && dashboardLinks.length > 0 && (
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900 mb-4">Dashboard Access</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

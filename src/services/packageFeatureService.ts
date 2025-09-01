@@ -63,7 +63,8 @@ export const packageFeatureService = {
    * Check if package supports analytics
    */
   async hasAnalytics(packageId: string): Promise<boolean> {
-    return this.packageHasFeature(packageId, 'analytics');
+    // Analytics is now available to everyone
+    return true;
   },
 
   /**

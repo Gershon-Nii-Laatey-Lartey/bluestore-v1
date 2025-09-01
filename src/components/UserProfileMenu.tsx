@@ -15,7 +15,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { dataService } from "@/services/dataService";
 import { paymentService } from "@/services/paymentService";
-import { packageFeatureService } from "@/services/packageFeatureService";
 
 
 
@@ -24,7 +23,7 @@ export const UserProfileMenu = () => {
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activePackage, setActivePackage] = useState<any>(null);
-  const [hasAnalytics, setHasAnalytics] = useState(false);
+
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
   const { user, profile, signOut } = useAuth();
@@ -49,11 +48,7 @@ export const UserProfileMenu = () => {
           setIsAdmin(adminStatus);
           setActivePackage(userPackage);
           
-          if (userPackage) {
-            // Check if package supports analytics
-            const analyticsSupport = await packageFeatureService.hasAnalytics(userPackage.plan_type);
-            setHasAnalytics(analyticsSupport);
-          }
+
         } catch (error) {
           setIsAdmin(false);
           setActivePackage(null);
@@ -173,20 +168,18 @@ export const UserProfileMenu = () => {
             </Link>
           )}
 
-          {/* Analytics - Only visible to users with analytics packages */}
-          {hasAnalytics && (
-            <Link
-              to="/analytics"
-              onClick={() => setOpen(false)}
-              className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-            >
-              <BarChart3 className="h-4 w-4 text-blue-500" />
-              <div className="flex items-center space-x-2">
-                <span>Analytics</span>
-                <Sparkles className="h-3 w-3 text-blue-500" />
-              </div>
-            </Link>
-          )}
+          {/* Analytics - Available to all users */}
+          <Link
+            to="/analytics"
+            onClick={() => setOpen(false)}
+            className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          >
+            <BarChart3 className="h-4 w-4 text-blue-500" />
+            <div className="flex items-center space-x-2">
+              <span>Analytics</span>
+              <Sparkles className="h-3 w-3 text-blue-500" />
+            </div>
+          </Link>
         </div>
 
         <div className="border-t border-gray-100 dark:border-gray-700">
