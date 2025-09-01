@@ -54,7 +54,7 @@ const LocationManagement = () => {
       setRegionChildren(regionCitiesMap);
       
       // Group towns by city
-      const cityTownsMap: Record<string, Location[]>({});
+      const cityTownsMap: Record<string, Location[]> = {};
       towns.forEach(town => {
         if (town.parent_id) {
           if (!cityTownsMap[town.parent_id]) {
