@@ -9,10 +9,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Users, UserPlus, Settings, Activity, MessageSquare, Shield, Eye, EyeOff, Copy, Key } from "lucide-react";
+import { Users, UserPlus, Settings, Activity, MessageSquare, Shield, Eye, EyeOff, Copy, Key, MoreVertical, Phone } from "lucide-react";
 import { CSWorker, csService } from "@/services/csService";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AuditLog } from "./AuditLog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const CSWorkerManagement = () => {
   const [workers, setWorkers] = useState<CSWorker[]>([]);
@@ -211,7 +217,8 @@ export const CSWorkerManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Customer Service Workers</h2>
           <p className="text-gray-600">Manage CS workers and their roles</p>
@@ -219,12 +226,12 @@ export const CSWorkerManagement = () => {
         
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="flex items-center space-x-2">
+            <Button className="flex items-center space-x-2 w-full sm:w-auto">
               <UserPlus className="h-4 w-4" />
               <span>Add CS Worker</span>
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md mx-4">
             <DialogHeader>
               <DialogTitle>Create New CS Worker</DialogTitle>
             </DialogHeader>
@@ -317,43 +324,58 @@ export const CSWorkerManagement = () => {
         </Dialog>
       </div>
 
+      {/* Tabs Section */}
       <Tabs defaultValue="workers" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="workers" className="flex items-center space-x-2">
+          <TabsTrigger value="workers" className="flex items-center space-x-2 text-xs sm:text-sm">
             <Users className="h-4 w-4" />
-            <span>Workers ({workers.length})</span>
+            <span className="hidden sm:inline">Workers</span>
+            <span className="sm:hidden">({workers.length})</span>
           </TabsTrigger>
-          <TabsTrigger value="performance" className="flex items-center space-x-2">
+          <TabsTrigger value="performance" className="flex items-center space-x-2 text-xs sm:text-sm">
             <Activity className="h-4 w-4" />
-            <span>Performance</span>
+            <span className="hidden sm:inline">Performance</span>
+            <span className="sm:hidden">Perf</span>
           </TabsTrigger>
-          <TabsTrigger value="audit" className="flex items-center space-x-2">
+          <TabsTrigger value="audit" className="flex items-center space-x-2 text-xs sm:text-sm">
             <Shield className="h-4 w-4" />
-            <span>Audit Log</span>
+            <span className="hidden sm:inline">Audit Log</span>
+            <span className="sm:hidden">Audit</span>
           </TabsTrigger>
         </TabsList>
         
+        {/* Workers Tab */}
         <TabsContent value="workers">
-          <div className="grid gap-4">
-            {workers.map((worker) => (
-              <Card key={worker.id}>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <Users className="h-5 w-5 text-blue-600" />
+          <div className="space-y-4">
+            {/* Mobile Layout - Cards */}
+            <div className="block md:hidden space-y-4">
+              {workers.map((worker) => (
+                <Card key={worker.id} className="border-2 border-gray-100 hover:border-blue-200 transition-colors">
+                  <CardContent className="p-4">
+                    {/* Worker Info */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                          <Users className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900 text-base">{worker.full_name}</h3>
+                          <p className="text-sm text-gray-600">{worker.email}</p>
+                          {worker.employee_id && (
+                            <p className="text-sm text-gray-500">ID: {worker.employee_id}</p>
+                          )}
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900">{worker.full_name}</h3>
-                        <p className="text-sm text-gray-600">{worker.email}</p>
-                        {worker.employee_id && (
-                          <p className="text-sm text-gray-500">ID: {worker.employee_id}</p>
-                        )}
-                      </div>
+                      
+                      {/* Status Badge */}
+                      <Badge className={getStatusColor(worker.status)} variant="secondary">
+                        {worker.status}
+                      </Badge>
                     </div>
                     
-                    <div className="flex items-center space-x-3">
-                      <div className="flex flex-wrap gap-1">
+                    {/* Roles */}
+                    <div className="mb-4">
+                      <div className="flex flex-wrap gap-2">
                         {worker.roles?.map((role) => (
                           <Badge 
                             key={role.id} 
@@ -364,43 +386,111 @@ export const CSWorkerManagement = () => {
                           </Badge>
                         ))}
                       </div>
+                    </div>
+                    
+                    {/* Actions */}
+                    <div className="flex items-center justify-between">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedWorkerForPasswordChange(worker);
+                          setShowPasswordChangeDialog(true);
+                        }}
+                        className="h-10 px-3 text-sm"
+                      >
+                        <Key className="h-4 w-4 mr-2" />
+                        Change Password
+                      </Button>
                       
-                      <Badge className={getStatusColor(worker.status)} variant="secondary">
-                        {worker.status}
-                      </Badge>
+                      <Select
+                        value={worker.status}
+                        onValueChange={(value) => handleStatusChange(worker.id, value as any)}
+                      >
+                        <SelectTrigger className="w-32 h-10">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                          <SelectItem value="suspended">Suspended</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Desktop Layout - Cards */}
+            <div className="hidden md:grid gap-4">
+              {workers.map((worker) => (
+                <Card key={worker.id}>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                          <Users className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900">{worker.full_name}</h3>
+                          <p className="text-sm text-gray-600">{worker.email}</p>
+                          {worker.employee_id && (
+                            <p className="text-sm text-gray-500">ID: {worker.employee_id}</p>
+                          )}
+                        </div>
+                      </div>
                       
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedWorkerForPasswordChange(worker);
-                            setShowPasswordChangeDialog(true);
-                          }}
-                        >
-                          <Key className="h-4 w-4 mr-1" />
-                          Change Password
-                        </Button>
+                      <div className="flex items-center space-x-3">
+                        <div className="flex flex-wrap gap-1">
+                          {worker.roles?.map((role) => (
+                            <Badge 
+                              key={role.id} 
+                              className={getRoleColor(role.role)}
+                              variant="secondary"
+                            >
+                              {availableRoles.find(r => r.value === role.role)?.label || role.role}
+                            </Badge>
+                          ))}
+                        </div>
                         
-                        <Select
-                          value={worker.status}
-                          onValueChange={(value) => handleStatusChange(worker.id, value as any)}
-                        >
-                          <SelectTrigger className="w-32">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="active">Active</SelectItem>
-                            <SelectItem value="inactive">Inactive</SelectItem>
-                            <SelectItem value="suspended">Suspended</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <Badge className={getStatusColor(worker.status)} variant="secondary">
+                          {worker.status}
+                        </Badge>
+                        
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedWorkerForPasswordChange(worker);
+                              setShowPasswordChangeDialog(true);
+                            }}
+                          >
+                            <Key className="h-4 w-4 mr-1" />
+                            Change Password
+                          </Button>
+                          
+                          <Select
+                            value={worker.status}
+                            onValueChange={(value) => handleStatusChange(worker.id, value as any)}
+                          >
+                            <SelectTrigger className="w-32">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="active">Active</SelectItem>
+                              <SelectItem value="inactive">Inactive</SelectItem>
+                              <SelectItem value="suspended">Suspended</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
             
             {workers.length === 0 && (
               <Card>
@@ -418,9 +508,11 @@ export const CSWorkerManagement = () => {
           </div>
         </TabsContent>
         
+        {/* Performance Tab */}
         <TabsContent value="performance">
-          <div className="grid gap-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-6">
+            {/* Performance Metrics - Mobile Optimized */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Total Assignments</CardTitle>
@@ -455,42 +547,81 @@ export const CSWorkerManagement = () => {
               </Card>
             </div>
             
+            {/* Worker Performance - Mobile Optimized */}
             <Card>
               <CardHeader>
                 <CardTitle>Worker Performance</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {workers.map((worker) => (
-                    <div key={worker.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                          <Users className="h-4 w-4 text-blue-600" />
+                  {/* Mobile Layout */}
+                  <div className="block md:hidden space-y-3">
+                    {workers.map((worker) => (
+                      <div key={worker.id} className="p-4 border rounded-lg bg-gray-50">
+                        <div className="flex items-center space-x-3 mb-3">
+                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <Users className="h-5 w-5 text-blue-600" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900">{worker.full_name}</p>
+                            <p className="text-sm text-gray-500">{worker.email}</p>
+                          </div>
+                          <Badge className={getStatusColor(worker.status)} variant="secondary">
+                            {worker.status}
+                          </Badge>
                         </div>
-                        <div>
-                          <p className="font-medium">{worker.full_name}</p>
-                          <p className="text-sm text-gray-500">{worker.email}</p>
+                        
+                        <div className="grid grid-cols-3 gap-2 text-center">
+                          <div className="bg-white p-2 rounded border">
+                            <p className="font-semibold text-lg">0</p>
+                            <p className="text-xs text-gray-500">Assigned</p>
+                          </div>
+                          <div className="bg-white p-2 rounded border">
+                            <p className="font-semibold text-lg">0</p>
+                            <p className="text-xs text-gray-500">Completed</p>
+                          </div>
+                          <div className="bg-white p-2 rounded border">
+                            <p className="font-semibold text-lg">-</p>
+                            <p className="text-xs text-gray-500">Avg Time</p>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-6 text-sm">
-                        <div className="text-center">
-                          <p className="font-medium">0</p>
-                          <p className="text-gray-500">Assigned</p>
+                    ))}
+                  </div>
+                  
+                  {/* Desktop Layout */}
+                  <div className="hidden md:block space-y-4">
+                    {workers.map((worker) => (
+                      <div key={worker.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <Users className="h-4 w-4 text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium">{worker.full_name}</p>
+                            <p className="text-sm text-gray-500">{worker.email}</p>
+                          </div>
                         </div>
-                        <div className="text-center">
-                          <p className="font-medium">0</p>
-                          <p className="text-gray-500">Completed</p>
+                        <div className="flex items-center space-x-6 text-sm">
+                          <div className="text-center">
+                            <p className="font-medium">0</p>
+                            <p className="text-gray-500">Assigned</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="font-medium">0</p>
+                            <p className="text-gray-500">Completed</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="font-medium">-</p>
+                            <p className="text-gray-500">Avg Time</p>
+                          </div>
+                          <Badge className={getStatusColor(worker.status)} variant="secondary">
+                            {worker.status}
+                          </Badge>
                         </div>
-                        <div className="text-center">
-                          <p className="font-medium">-</p>
-                          <p className="text-gray-500">Avg Time</p>
-                        </div>
-                        <Badge className={getStatusColor(worker.status)} variant="secondary">
-                          {worker.status}
-                        </Badge>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                   
                   {workers.length === 0 && (
                     <div className="text-center py-8">
@@ -504,6 +635,7 @@ export const CSWorkerManagement = () => {
           </div>
         </TabsContent>
         
+        {/* Audit Tab */}
         <TabsContent value="audit">
           <AuditLog />
         </TabsContent>
@@ -512,7 +644,7 @@ export const CSWorkerManagement = () => {
       {/* Password Display Dialog */}
       {showPassword && generatedPassword && (
         <Dialog open={showPassword} onOpenChange={setShowPassword}>
-          <DialogContent>
+          <DialogContent className="mx-4">
             <DialogHeader>
               <DialogTitle>CS Worker Created Successfully</DialogTitle>
             </DialogHeader>
@@ -552,7 +684,7 @@ export const CSWorkerManagement = () => {
 
       {/* Password Change Dialog */}
       <Dialog open={showPasswordChangeDialog} onOpenChange={setShowPasswordChangeDialog}>
-        <DialogContent>
+        <DialogContent className="mx-4">
           <DialogHeader>
             <DialogTitle>Change CS Worker Password</DialogTitle>
           </DialogHeader>
