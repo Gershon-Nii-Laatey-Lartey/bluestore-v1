@@ -19,6 +19,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { getMainImageWithFallback } from "@/utils/imageUtils";
+import { useChatStore } from "@/utils/chatUtils";
 
 interface ChatRoom {
   id: string;
@@ -36,9 +37,10 @@ interface ChatRoom {
 
 interface ChatSidebarProps {
   currentRoomId?: string;
+  onRefresh?: () => void;
 }
 
-export const ChatSidebar = ({ currentRoomId }: ChatSidebarProps) => {
+export const ChatSidebar = ({ currentRoomId, onRefresh }: ChatSidebarProps) => {
   const [chatRooms, setChatRooms] = useState<ChatRoom[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -50,6 +52,16 @@ export const ChatSidebar = ({ currentRoomId }: ChatSidebarProps) => {
   const { toast } = useToast();
   const observer = useRef<IntersectionObserver>();
   const loadingRef = useRef<HTMLDivElement>(null);
+  const { refreshTrigger } = useChatStore();
+
+  // Refresh chat rooms when refreshTrigger changes
+  useEffect(() => {
+    if (refreshTrigger > 0) {
+      fetchChatRooms(true);
+    }
+  }, [refreshTrigger]);
+
+
 
   const ITEMS_PER_PAGE = 8;
 

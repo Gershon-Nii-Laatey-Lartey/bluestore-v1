@@ -1,4 +1,4 @@
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MessageCircle, Clock, Loader2 } from "lucide-react";
 import { useChatRooms } from "@/hooks/useChatRooms";
 import { Card, CardContent } from "@/components/ui/card";
+import { useChatStore } from "@/utils/chatUtils";
 
 interface ChatRoom {
   id: string;
@@ -24,9 +25,17 @@ interface ChatRoom {
 export const ChatRoomList = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { chatRooms, isLoading, isFetching, error } = useChatRooms();
+  const { chatRooms, isLoading, isFetching, error, refetch } = useChatRooms();
   const observer = useRef<IntersectionObserver>();
   const loadingRef = useRef<HTMLDivElement>(null);
+  const { refreshTrigger } = useChatStore();
+
+  // Refresh chat rooms when refreshTrigger changes
+  useEffect(() => {
+    if (refreshTrigger > 0) {
+      refetch();
+    }
+  }, [refreshTrigger, refetch]);
 
   const handleRoomClick = (room: ChatRoom) => {
     const otherUserId = room.buyer_id === user?.id ? room.seller_id : room.buyer_id;

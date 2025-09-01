@@ -15,6 +15,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 import { adAnalyticsService } from "@/services/adAnalyticsService";
 import { getMainImageWithFallback } from "@/utils/imageUtils";
+import { useChatStore } from "@/utils/chatUtils";
 
 const Chat = () => {
   const { sellerId } = useParams();
@@ -27,6 +28,7 @@ const Chat = () => {
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const { triggerRefresh } = useChatStore();
   
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<any[]>([]);
@@ -169,6 +171,29 @@ const Chat = () => {
     }
   };
 
+  const markMessagesAsRead = async (roomId: string) => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('chat_messages')
+        .update({ read: true })
+        .eq('room_id', roomId)
+        .eq('receiver_id', user.id)
+        .eq('read', false);
+      
+      if (error) {
+        console.error('Error marking messages as read:', error);
+      } else {
+        console.log('Messages marked as read for room:', roomId);
+        // Trigger refresh of chat rooms to update unread counts
+        triggerRefresh();
+      }
+    } catch (error) {
+      console.error('Error marking messages as read:', error);
+    }
+  };
+
   const fetchMessages = async (roomId: string) => {
     try {
       setMessagesLoading(true);
@@ -181,6 +206,9 @@ const Chat = () => {
 
       if (error) throw error;
       setMessages(messagesData || []);
+      
+      // Mark messages as read after fetching them
+      await markMessagesAsRead(roomId);
     } catch (error) {
       console.error('Error fetching messages:', error);
       toast({
