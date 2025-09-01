@@ -63,7 +63,7 @@ export const ProfileEditModal = ({ open, onOpenChange }: ProfileEditModalProps) 
           <div className="flex flex-col items-center space-y-4">
             <div className="relative">
               <Avatar className="h-20 w-20">
-                <AvatarImage src={avatarUrl || "/lovable-uploads/c6148684-f71d-4b35-be45-ed4848d5e86d.png"} />
+                <AvatarImage src={avatarUrl} />
                 <AvatarFallback className="bg-blue-100 text-blue-600 text-xl font-semibold">
                   {initials}
                 </AvatarFallback>

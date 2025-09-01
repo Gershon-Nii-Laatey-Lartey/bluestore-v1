@@ -139,7 +139,7 @@ const Profile = () => {
               <CardContent className="p-6">
                 <div className="flex items-center space-x-4">
                   <Avatar className="h-16 w-16">
-                    <AvatarImage src={profile?.avatar_url || "/lovable-uploads/c6148684-f71d-4b35-be45-ed4848d5e86d.png"} />
+                    <AvatarImage src={profile?.avatar_url} />
                     <AvatarFallback className="bg-blue-100 text-blue-600 text-xl font-semibold">
                       {initials}
                     </AvatarFallback>
@@ -268,7 +268,7 @@ const Profile = () => {
                   <CardContent className="p-6">
                     <div className="text-center mb-6">
                                         <Avatar className="h-24 w-24 mx-auto mb-4">
-                    <AvatarImage src={profile?.avatar_url || "/lovable-uploads/c6148684-f71d-4b35-be45-ed4848d5e86d.png"} />
+                    <AvatarImage src={profile?.avatar_url} />
                     <AvatarFallback className="bg-blue-100 text-blue-600 text-2xl font-semibold">
                       {initials}
                     </AvatarFallback>

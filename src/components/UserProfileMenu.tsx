@@ -115,7 +115,7 @@ export const UserProfileMenu = () => {
           )}
         >
           <Avatar className="h-8 w-8">
-            <AvatarImage src={profile?.avatar_url || "/lovable-uploads/c6148684-f71d-4b35-be45-ed4848d5e86d.png"} />
+            <AvatarImage src={profile?.avatar_url} />
             <AvatarFallback className="bg-orange-100 text-orange-600 text-sm font-medium">
               {initials}
             </AvatarFallback>
@@ -132,8 +132,8 @@ export const UserProfileMenu = () => {
         <div className="p-4 border-b border-gray-100 dark:border-gray-700">
           <div className="flex items-center space-x-3">
             <Avatar className="h-10 w-10">
-              <AvatarImage src={profile?.avatar_url || "/lovable-uploads/c6148684-f71d-4b35-be45-ed4848d5e86d.png"} />
-              <AvatarFallback className="bg-orange-100 text-orange-600 text-sm font-medium">
+              <AvatarImage src={profile?.avatar_url} />
+              <AvatarFallback className="bg-orange-600 text-sm font-medium">
                 {initials}
               </AvatarFallback>
             </Avatar>
