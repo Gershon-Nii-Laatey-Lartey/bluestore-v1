@@ -4,9 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Tag, Plus, ChevronRight, ChevronDown, Edit, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
+import { Tag, Plus, ChevronRight, ChevronDown, Edit, Trash2, ToggleLeft, ToggleRight, MoreVertical } from "lucide-react";
 import { categoryService, Category } from "@/services/categoryService";
 import { CategoryFormModal } from "./CategoryFormModal";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const CategoryManagement = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -162,7 +168,7 @@ const CategoryManagement = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
             <div>
               <CardTitle className="flex items-center space-x-2">
                 <Tag className="h-5 w-5" />
@@ -172,7 +178,7 @@ const CategoryManagement = () => {
                 Manage categories, subcategories, and sub-subcategories hierarchically
               </p>
             </div>
-            <Button onClick={handleAddCategory}>
+            <Button onClick={handleAddCategory} className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Add Category
             </Button>
@@ -183,12 +189,12 @@ const CategoryManagement = () => {
             {categories.map((category) => (
               <div key={category.id} className="border rounded-lg">
                 <div className="flex items-center justify-between p-4 hover:bg-gray-50">
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-3 flex-1 min-w-0">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => toggleCategory(category.id)}
-                      className="p-1"
+                      className="p-2 h-10 w-10 flex-shrink-0"
                     >
                       {expandedCategories.has(category.id) ? (
                         <ChevronDown className="h-4 w-4" />
@@ -196,18 +202,19 @@ const CategoryManagement = () => {
                         <ChevronRight className="h-4 w-4" />
                       )}
                     </Button>
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <span className="font-medium">{category.name}</span>
-                        <Badge variant="outline">Category</Badge>
-                        {!category.active && <Badge variant="destructive">Inactive</Badge>}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="font-medium truncate">{category.name}</span>
+                        <Badge variant="outline" className="text-xs">Category</Badge>
+                        {!category.active && <Badge variant="destructive" className="text-xs">Inactive</Badge>}
                       </div>
                       <div className="text-sm text-gray-500">
                         {categoryChildren[category.id]?.length || 0} subcategories
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  {/* Desktop Actions */}
+                  <div className="hidden sm:flex items-center space-x-2">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -234,6 +241,38 @@ const CategoryManagement = () => {
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
+                  </div>
+                  
+                  {/* Mobile Actions - Dropdown Menu */}
+                  <div className="sm:hidden">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-10 w-10 p-0">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem onClick={() => handleToggleActive(category)}>
+                          {category.active ? (
+                            <ToggleLeft className="h-4 w-4 mr-2" />
+                          ) : (
+                            <ToggleRight className="h-4 w-4 mr-2" />
+                          )}
+                          {category.active ? 'Deactivate' : 'Activate'}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEditCategory(category)}>
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleDeleteCategory(category)}
+                          className="text-red-600 focus:text-red-600"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
                 
