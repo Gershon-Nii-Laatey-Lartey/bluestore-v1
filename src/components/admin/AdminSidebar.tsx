@@ -19,7 +19,8 @@ import {
   ChevronRight,
   User,
   LogOut,
-  Gift
+  Gift,
+  History
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminSidebar } from "@/hooks/useAdminSidebar";
@@ -137,6 +138,11 @@ export const AdminSidebar = ({
           id: "terms",
           label: "Terms & Conditions",
           icon: FileText
+        },
+        {
+          id: "audit-log",
+          label: "Audit Log",
+          icon: History
         }
       ]
     },

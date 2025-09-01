@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Users, UserPlus, Settings, Activity, MessageSquare, Shield, Eye, EyeOff, Copy, Key, MoreVertical, Phone } from "lucide-react";
 import { CSWorker, csService } from "@/services/csService";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { AuditLog } from "./AuditLog";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -326,7 +326,7 @@ export const CSWorkerManagement = () => {
 
       {/* Tabs Section */}
       <Tabs defaultValue="workers" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="workers" className="flex items-center space-x-2 text-xs sm:text-sm">
             <Users className="h-4 w-4" />
             <span className="hidden sm:inline">Workers</span>
@@ -336,11 +336,6 @@ export const CSWorkerManagement = () => {
             <Activity className="h-4 w-4" />
             <span className="hidden sm:inline">Performance</span>
             <span className="sm:hidden">Perf</span>
-          </TabsTrigger>
-          <TabsTrigger value="audit" className="flex items-center space-x-2 text-xs sm:text-sm">
-            <Shield className="h-4 w-4" />
-            <span className="hidden sm:inline">Audit Log</span>
-            <span className="sm:hidden">Audit</span>
           </TabsTrigger>
         </TabsList>
         
@@ -635,10 +630,7 @@ export const CSWorkerManagement = () => {
           </div>
         </TabsContent>
         
-        {/* Audit Tab */}
-        <TabsContent value="audit">
-          <AuditLog />
-        </TabsContent>
+
       </Tabs>
 
       {/* Password Display Dialog */}

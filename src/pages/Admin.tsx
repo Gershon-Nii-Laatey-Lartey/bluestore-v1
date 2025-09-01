@@ -41,8 +41,10 @@ import {
   Flag,
   MessageSquare,
   FileText,
-  Gift
+  Gift,
+  History
 } from "lucide-react";
+import { AuditLog } from "@/components/admin/AuditLog";
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("products");
@@ -290,6 +292,11 @@ const Admin = () => {
           icon: Settings
         },
         {
+          id: "audit-log",
+          label: "Audit Log",
+          icon: History
+        },
+        {
           id: "analytics",
           label: "Analytics",
           icon: TrendingUp
@@ -385,6 +392,8 @@ const Admin = () => {
         return <PackageManagement />;
       case "terms":
         return <TermsManagement />;
+      case "audit-log":
+        return <AuditLog />;
       case "analytics":
         return <PaymentAnalytics />;
       case "tools":
