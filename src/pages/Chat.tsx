@@ -6,12 +6,28 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Send, MessageCircle } from "lucide-react";
+import { 
+  ArrowLeft, 
+  Send, 
+  MessageCircle, 
+  Search, 
+  Edit3, 
+  Phone, 
+  Video, 
+  Info,
+  Mic,
+  Smile,
+  Paperclip,
+  MapPin,
+  MoreVertical
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ChatSidebar } from "@/components/chat/ChatSidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 import { adAnalyticsService } from "@/services/adAnalyticsService";
 import { getMainImageWithFallback } from "@/utils/imageUtils";
@@ -39,6 +55,7 @@ const Chat = () => {
   const [loading, setLoading] = useState(false);
   const [messagesLoading, setMessagesLoading] = useState(true);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [selectedChatRoom, setSelectedChatRoom] = useState<any>(null);
   const subscriptionRef = useRef<any>(null);
 
   const scrollToBottom = () => {
@@ -113,6 +130,15 @@ const Chat = () => {
       fetchMessages(chatRoom.id);
     }
   }, [chatRoom]);
+
+  // Handle desktop chat room selection
+  useEffect(() => {
+    if (selectedChatRoom && isDesktop) {
+      fetchMessages(selectedChatRoom.id);
+      // Mark messages as read when selecting a chat room
+      markMessagesAsRead(selectedChatRoom.id);
+    }
+  }, [selectedChatRoom, isDesktop]);
 
   const findOrCreateChatRoom = async () => {
     if (!user || !sellerId) return null;
@@ -345,19 +371,23 @@ const Chat = () => {
   };
 
   const sendMessage = async () => {
-    if (!message.trim() || !chatRoom || !user) return;
+    // Determine which chat room to use based on mode
+    const activeRoom = isDesktop ? selectedChatRoom : chatRoom;
+    if (!message.trim() || !activeRoom || !user) return;
 
     console.log('Sending message:', message.trim());
-    console.log('Chat room:', chatRoom.id);
+    console.log('Chat room:', activeRoom.id);
     console.log('User:', user.id);
 
     try {
       const { data: newMessage, error } = await supabase
         .from('chat_messages')
         .insert({
-          room_id: chatRoom.id,
+          room_id: activeRoom.id,
           sender_id: user.id,
-          receiver_id: sellerId,
+          receiver_id: isDesktop ? 
+            (activeRoom.buyer_id === user.id ? activeRoom.seller_id : activeRoom.buyer_id) : 
+            sellerId,
           message_text: message.trim()
         })
         .select()
@@ -379,8 +409,6 @@ const Chat = () => {
           console.error('Error tracking message:', error);
         });
       }
-
-
 
       setMessage("");
       
@@ -516,57 +544,83 @@ const Chat = () => {
     );
   }
 
-  return (
-    <Layout>
-      <div className="md:hidden">
-        <MobileHeader />
-      </div>
-      <div className="flex h-screen">
-        {/* Sidebar */}
-        {!isMobile && (
-          <div className="w-80 border-r bg-gray-50">
-            <ChatSidebar currentRoomId={chatRoom?.id} />
+  // Desktop Chat Interface Components
+  const DesktopChatList = () => (
+    <div className="w-80 border-r bg-white flex flex-col">
+      {/* Chat List Header */}
+      <div className="p-4 border-b">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-900">Messages</h2>
+          <div className="flex items-center space-x-2">
+            <Button variant="ghost" size="sm" className="p-2">
+              <Edit3 className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="sm" className="p-2">
+              <Search className="h-4 w-4" />
+            </Button>
           </div>
-        )}
+        </div>
         
-        {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col">
-          {/* Header */}
-          <div className="border-b p-4 bg-white">
-            <div className="flex items-center space-x-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate(-1)}
-                className="md:hidden"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              
-              {productImage && (
-                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
-                  <img 
-                    src={productImage} 
-                    alt={productTitle}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-              
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-gray-900 truncate">
-                  {sellerName || 'Seller'}
-                </h3>
-                {productTitle && (
-                  <p className="text-sm text-gray-500 truncate">
-                    {productTitle}
+        {/* Search Input */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Search messages..."
+            className="pl-10 bg-gray-50 border-0 focus:bg-white focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+
+      {/* Chat Rooms List */}
+      <div className="flex-1 overflow-y-auto">
+        <ChatSidebar 
+          currentRoomId={selectedChatRoom?.id} 
+          onRoomSelect={setSelectedChatRoom}
+          isDesktop={true}
+        />
+      </div>
+    </div>
+  );
+
+  const DesktopChatConversation = () => (
+    <div className="flex-1 flex flex-col bg-white">
+      {selectedChatRoom ? (
+        <>
+          {/* Chat Header */}
+          <div className="p-4 border-b bg-white">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={selectedChatRoom.product_image} />
+                  <AvatarFallback className="bg-orange-100 text-orange-600 font-semibold">
+                    {selectedChatRoom.other_user_name?.charAt(0) || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="font-semibold text-gray-900">
+                    {selectedChatRoom.other_user_name || 'User'}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    {selectedChatRoom.product_title || 'Product'}
                   </p>
-                )}
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Button variant="ghost" size="sm" className="p-2">
+                  <Phone className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="sm" className="p-2">
+                  <Video className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="sm" className="p-2">
+                  <Info className="h-4 w-4" />
+                </Button>
               </div>
             </div>
           </div>
-          
-          {/* Messages */}
+
+          {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
             {messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
@@ -577,51 +631,220 @@ const Chat = () => {
                 </div>
               </div>
             ) : (
-              messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex ${msg.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-xs px-4 py-2 rounded-lg ${
-                      msg.sender_id === user.id
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-white text-gray-900 shadow-sm'
-                    }`}
-                  >
-                    <p className="text-sm">{msg.message_text}</p>
-                    <p className={`text-xs mt-1 ${
-                      msg.sender_id === user.id ? 'text-blue-100' : 'text-gray-500'
-                    }`}>
-                      {new Date(msg.sent_at).toLocaleTimeString([], { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                      })}
-                    </p>
-                  </div>
+              <>
+                {/* Date Separator */}
+                <div className="text-center">
+                  <Badge variant="secondary" className="bg-gray-200 text-gray-600">
+                    Today, {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  </Badge>
                 </div>
-              ))
+                
+                {/* Messages */}
+                {messages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`flex ${msg.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div className={`flex items-end space-x-2 ${msg.sender_id === user.id ? 'flex-row-reverse space-x-reverse' : ''}`}>
+                      {msg.sender_id !== user.id && (
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={selectedChatRoom.product_image} />
+                          <AvatarFallback className="bg-orange-100 text-orange-600 text-xs">
+                            {selectedChatRoom.other_user_name?.charAt(0) || 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                      
+                      <div
+                        className={`max-w-xs px-4 py-2 rounded-lg ${
+                          msg.sender_id === user.id
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-white text-gray-900 shadow-sm'
+                        }`}
+                      >
+                        <p className="text-sm">{msg.message_text}</p>
+                        <p className={`text-xs mt-1 ${
+                          msg.sender_id === user.id ? 'text-blue-100' : 'text-gray-500'
+                        }`}>
+                          {new Date(msg.sent_at).toLocaleTimeString([], { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </>
             )}
             <div ref={messagesEndRef} />
           </div>
-          
+
           {/* Message Input */}
-          <div className="border-t p-4 bg-white">
-            <div className="flex space-x-2">
-              <Input
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Type your message..."
-                className="flex-1"
-              />
-              <Button onClick={sendMessage} disabled={!message.trim()}>
-                <Send className="h-4 w-4" />
+          <div className="p-4 border-t bg-white">
+            <div className="flex items-center space-x-3">
+              <Button variant="ghost" size="sm" className="p-2">
+                <Mic className="h-4 w-4" />
               </Button>
+              
+              <div className="flex-1 relative">
+                <Input
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Type a message..."
+                  className="border-0 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              
+              <div className="flex items-center space-x-1">
+                <Button variant="ghost" size="sm" className="p-2">
+                  <Smile className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="sm" className="p-2">
+                  <Paperclip className="h-4 w-4" />
+                </Button>
+                <Button 
+                  onClick={sendMessage} 
+                  disabled={!message.trim()}
+                  className="bg-blue-500 hover:bg-blue-600 text-white"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="sm" className="p-2">
+                  <MapPin className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </>
+      ) : (
+        // No Chat Selected State
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <MessageCircle className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-medium text-gray-900 mb-2">Select a conversation</h3>
+            <p className="text-gray-500">Choose a chat from the list to start messaging</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <Layout>
+      <div className="md:hidden">
+        <MobileHeader />
+      </div>
+      
+      {/* Desktop Chat Interface */}
+      {!isMobile ? (
+        <div className="flex h-screen">
+          <DesktopChatList />
+          <DesktopChatConversation />
+        </div>
+      ) : (
+        /* Mobile Chat Interface - Keep existing mobile layout */
+        <div className="flex h-screen">
+          {/* Sidebar */}
+          <div className="w-80 border-r bg-gray-50">
+            <ChatSidebar currentRoomId={chatRoom?.id} />
+          </div>
+          
+          {/* Main Chat Area */}
+          <div className="flex-1 flex flex-col">
+            {/* Header */}
+            <div className="border-b p-4 bg-white">
+              <div className="flex items-center space-x-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate(-1)}
+                  className="md:hidden"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                
+                {productImage && (
+                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                    <img 
+                      src={productImage} 
+                      alt={productTitle}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-gray-900 truncate">
+                    {sellerName || 'Seller'}
+                  </h3>
+                  {productTitle && (
+                    <p className="text-sm text-gray-500 truncate">
+                      {productTitle}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+              {messages.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Start a conversation</h3>
+                    <p className="text-gray-500">Send a message to begin chatting</p>
+                  </div>
+                </div>
+              ) : (
+                messages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`flex ${msg.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-xs px-4 py-2 rounded-lg ${
+                        msg.sender_id === user.id
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-white text-gray-900 shadow-sm'
+                      }`}
+                    >
+                      <p className="text-sm">{msg.message_text}</p>
+                      <p className={`text-xs mt-1 ${
+                        msg.sender_id === user.id ? 'text-blue-100' : 'text-gray-500'
+                      }`}>
+                        {new Date(msg.sent_at).toLocaleTimeString([], { 
+                          hour: '2-digit', 
+                          minute: '2-digit' 
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+            
+            {/* Message Input */}
+            <div className="border-t p-4 bg-white">
+              <div className="flex space-x-2">
+                <Input
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Type your message..."
+                  className="flex-1"
+                />
+                <Button onClick={sendMessage} disabled={!message.trim()}>
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </Layout>
   );
 };

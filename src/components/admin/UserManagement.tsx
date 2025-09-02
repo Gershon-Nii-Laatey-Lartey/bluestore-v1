@@ -84,24 +84,24 @@ export const UserManagement = () => {
 
   return (
     <>
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center space-x-2">
-              <User className="h-5 w-5" />
-              <span>User Management</span>
-            </CardTitle>
-            <div className="flex items-center space-x-3">
-              <Badge variant="secondary" className="text-sm">
-                Total Users: {users.length}
-              </Badge>
-              <Button onClick={loadUsers} variant="outline" size="sm">
-                Refresh
-              </Button>
-            </div>
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center space-x-2">
+            <User className="h-5 w-5" />
+            <span>User Management</span>
+          </CardTitle>
+          <div className="flex items-center space-x-3">
+            <Badge variant="secondary" className="text-sm">
+              Total Users: {users.length}
+            </Badge>
+            <Button onClick={loadUsers} variant="outline" size="sm">
+              Refresh
+            </Button>
           </div>
-        </CardHeader>
-        <CardContent>
+        </div>
+      </CardHeader>
+      <CardContent>
           {/* Mobile Layout - Cards */}
           <div className="md:hidden space-y-4">
             {users.map((user) => (
@@ -149,67 +149,67 @@ export const UserManagement = () => {
 
           {/* Desktop Layout - Table */}
           <div className="hidden md:block">
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>User</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {users.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell>
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                            <User className="h-4 w-4 text-blue-600" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">
-                              {user.full_name || 'No name provided'}
-                            </p>
-                            <p className="text-sm text-gray-500">ID: {user.id.slice(0, 8)}...</p>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Mail className="h-4 w-4 text-gray-400" />
-                          <span className="text-sm">{user.email || 'No email'}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">Regular User</Badge>
-                      </TableCell>
-                      <TableCell>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>User</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <User className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          {user.full_name || 'No name provided'}
+                        </p>
+                        <p className="text-sm text-gray-500">ID: {user.id.slice(0, 8)}...</p>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-2">
+                      <Mail className="h-4 w-4 text-gray-400" />
+                      <span className="text-sm">{user.email || 'No email'}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">Regular User</Badge>
+                  </TableCell>
+                  <TableCell>
                         <Button 
                           onClick={() => openUserDetails(user)} 
                           variant="outline" 
                           size="sm"
                         >
                           <Eye className="h-4 w-4 mr-2" />
-                          View Details
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                      View Details
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
             </div>
+        </div>
+        
+        {users.length === 0 && (
+          <div className="text-center py-12 text-gray-500">
+            <User className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+            <p className="text-lg font-medium">No users found</p>
+            <p className="text-sm">Check back later for registered users</p>
           </div>
-          
-          {users.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
-              <User className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-              <p className="text-lg font-medium">No users found</p>
-              <p className="text-sm">Check back later for registered users</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        )}
+      </CardContent>
+    </Card>
 
       {/* User Details Dialog */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
