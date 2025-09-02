@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, Phone, Mail, Package, Shield, Edit, MessageCircle, Calendar } from "lucide-react";
+import { MapPin, Phone, Mail, Package, Shield, Edit, MessageCircle, Calendar, Share2 } from "lucide-react";
 import { SEOHead } from "@/components/SEOHead";
 import { useAuth } from "@/hooks/useAuth";
 import { dataService, VendorProfile as VendorProfileType } from "@/services/dataService";
@@ -19,12 +19,15 @@ import { ProductSubmission } from "@/types/product";
 import { paymentService } from "@/services/paymentService";
 import { getMainImageWithFallback } from "@/utils/imageUtils";
 import { formatPrice } from "@/utils/formatters";
+import { shareProfile } from "@/utils/shareUtils";
+import { useToast } from "@/hooks/use-toast";
 
 
 const VendorProfile = () => {
   const { vendorId } = useParams<{ vendorId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
 
 
 
@@ -187,6 +190,39 @@ const VendorProfile = () => {
         </span>
       </div>
     );
+  };
+
+  const handleShareProfile = async () => {
+    const profileName = vendor.business_name || vendor.profiles?.full_name || 'Vendor Profile';
+    const profileUrl = window.location.href;
+    
+    const success = await shareProfile(
+      profileName,
+      profileUrl,
+      () => {
+        toast({
+          title: "Shared!",
+          description: "Vendor profile shared successfully"
+        });
+      },
+      (error) => {
+        console.error('Error sharing profile:', error);
+        toast({
+          title: "Error",
+          description: "Failed to share profile. Please try again.",
+          variant: "destructive"
+        });
+      }
+    );
+
+    if (!success) {
+      // Fallback to copy URL if Web Share API is not supported
+      navigator.clipboard.writeText(profileUrl);
+      toast({
+        title: "Link copied!",
+        description: "Profile URL copied to clipboard"
+      });
+    }
   };
 
   // SEO data for vendor profile
@@ -365,6 +401,28 @@ const VendorProfile = () => {
                   >
                     <Package className="h-4 w-4" />
                     <span>My Ads</span>
+                  </Button>
+                  <Button 
+                    onClick={() => handleShareProfile()}
+                    variant="outline"
+                    className="flex items-center space-x-2"
+                  >
+                    <Share2 className="h-4 w-4" />
+                    <span>Share Profile</span>
+                  </Button>
+                </div>
+              )}
+              
+              {/* Action buttons for other profiles */}
+              {!isOwnProfile && (
+                <div className="flex items-center justify-center space-x-4 mb-6">
+                  <Button 
+                    onClick={() => handleShareProfile()}
+                    variant="outline"
+                    className="flex items-center space-x-2"
+                  >
+                    <Share2 className="h-4 w-4" />
+                    <span>Share Profile</span>
                   </Button>
                 </div>
               )}

@@ -4,9 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { storefrontService } from "@/services/storefrontService";
-import { Store, Copy, ExternalLink, Settings, Palette, BarChart3 } from "lucide-react";
+import { Store, Copy, ExternalLink, Settings, Palette, BarChart3, Share2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { StorefrontCustomizer } from "./StorefrontCustomizer";
+import { shareStorefront } from "@/utils/shareUtils";
 
 interface StorefrontManagerProps {
   vendorProfile: any;
@@ -70,6 +71,31 @@ export const StorefrontManager = ({
       title: "Copied!",
       description: "Storefront URL copied to clipboard"
     });
+  };
+
+  const handleShareStorefront = async () => {
+    const success = await shareStorefront(
+      vendorProfile?.business_name || 'My Store',
+      fullStorefrontUrl,
+      () => {
+        toast({
+          title: "Shared!",
+          description: "Storefront shared successfully"
+        });
+      },
+      (error) => {
+        toast({
+          title: "Error",
+          description: "Failed to share storefront. Please try again.",
+          variant: "destructive"
+        });
+      }
+    );
+
+    if (!success) {
+      // Fallback to copy if Web Share API is not supported
+      copyStorefrontUrl();
+    }
   };
 
   const handleCustomizationSave = (customization: any) => {
@@ -160,10 +186,18 @@ export const StorefrontManager = ({
                 >
                   <Copy className="h-3 w-3" />
                 </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleShareStorefront}
+                  className="flex-shrink-0"
+                >
+                  <Share2 className="h-3 w-3" />
+                </Button>
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
               <Button
                 variant="outline"
                 onClick={() => window.open(fullStorefrontUrl, '_blank')}
@@ -197,6 +231,14 @@ export const StorefrontManager = ({
                   />
                 </DialogContent>
               </Dialog>
+              <Button
+                variant="outline"
+                onClick={handleShareStorefront}
+                className="flex-1"
+              >
+                <Share2 className="h-4 w-4 mr-2" />
+                Share
+              </Button>
               <Button
                 variant="outline"
                 className="flex-1"
