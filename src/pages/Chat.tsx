@@ -19,7 +19,7 @@ import { useChatStore } from "@/utils/chatUtils";
 
 const Chat = () => {
   const { sellerId } = useParams();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const productId = searchParams.get('productId');
   const roomId = searchParams.get('roomId');
   const createOnMessage = searchParams.get('createOnMessage');
@@ -65,20 +65,18 @@ const Chat = () => {
 
 
 
-  const ChatSkeleton = () => (
+  const MobileChatSkeleton = () => (
     <div className="h-screen flex flex-col">
       {/* Mobile Header Skeleton */}
-      {isMobile && (
-        <div className="bg-white border-b p-4">
-          <div className="animate-pulse flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
-            <div className="flex-1">
-              <div className="h-5 bg-gray-200 rounded w-1/3 mb-1"></div>
-              <div className="h-3 bg-gray-200 rounded w-1/4"></div>
-            </div>
+      <div className="bg-white border-b p-4">
+        <div className="animate-pulse flex items-center space-x-3">
+          <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+          <div className="flex-1">
+            <div className="h-5 bg-gray-200 rounded w-1/3 mb-1"></div>
+            <div className="h-3 bg-gray-200 rounded w-1/4"></div>
           </div>
         </div>
-      )}
+      </div>
       
       {/* Messages Skeleton */}
       <div className="flex-1 p-4 space-y-4">
@@ -97,6 +95,64 @@ const Chat = () => {
         <div className="animate-pulse flex space-x-2">
           <div className="flex-1 h-10 bg-gray-200 rounded"></div>
           <div className="w-10 h-10 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const DesktopChatSkeleton = () => (
+    <div className="flex h-screen">
+      {/* Sidebar Skeleton */}
+      <div className="w-80 border-r bg-gray-50">
+        <div className="p-4 border-b border-gray-200">
+          <div className="animate-pulse">
+            <div className="h-6 bg-gray-200 rounded w-32 mb-4"></div>
+            <div className="space-y-3">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <div key={index} className="flex items-center space-x-3 p-3">
+                  <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                  <div className="flex-1">
+                    <div className="h-4 bg-gray-200 rounded w-24 mb-1"></div>
+                    <div className="h-3 bg-gray-200 rounded w-32"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Main Chat Area Skeleton */}
+      <div className="flex-1 flex flex-col">
+        {/* Header Skeleton */}
+        <div className="border-b p-4 bg-white">
+          <div className="animate-pulse flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+            <div className="flex-1">
+              <div className="h-5 bg-gray-200 rounded w-1/3 mb-1"></div>
+              <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Messages Skeleton */}
+        <div className="flex-1 p-4 space-y-4 bg-gray-50">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div key={index} className={`flex ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
+              <div className={`max-w-xs ${index % 2 === 0 ? 'bg-gray-100' : 'bg-blue-500'} rounded-lg p-3`}>
+                <div className="h-4 bg-gray-200 rounded w-32"></div>
+                <div className="h-3 bg-gray-200 rounded w-16 mt-1"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        {/* Input Skeleton */}
+        <div className="border-t p-4 bg-white">
+          <div className="animate-pulse flex space-x-2">
+            <div className="flex-1 h-10 bg-gray-200 rounded"></div>
+            <div className="w-10 h-10 bg-gray-200 rounded"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -190,7 +246,74 @@ const Chat = () => {
         triggerRefresh();
       }
     } catch (error) {
-      console.error('Error marking messages as read:', error);
+        console.error('Error marking messages as read:', error);
+    }
+  };
+
+  const handleRoomChange = async (newRoomId: string, newProductId: string, newSellerId: string) => {
+    // Update URL params without full page refresh
+    setSearchParams({
+      productId: newProductId,
+      roomId: newRoomId
+    });
+    
+    // Update local state
+    setChatRoom(null);
+    setMessages([]);
+    setSellerName('');
+    setProductTitle('');
+    setProductImage('');
+    
+    // Fetch new room data
+    try {
+      const { data: room } = await supabase
+        .from('chat_rooms')
+        .select('*')
+        .eq('id', newRoomId)
+        .single();
+      
+      if (room) {
+        setChatRoom(room);
+        
+        // Get seller and product info
+        if (newProductId) {
+          const { data: product } = await supabase
+            .from('product_submissions')
+            .select('title, images, main_image_index')
+            .eq('id', newProductId)
+            .single();
+          
+          if (product) {
+            setProductTitle(product.title);
+            if (product.images && product.images.length > 0) {
+              setProductImage(getMainImageWithFallback(product.images, product.main_image_index));
+            }
+          }
+        }
+        
+        // Get seller name
+        const { data: sellerProfile } = await supabase
+          .from('vendor_profiles')
+          .select('business_name')
+          .eq('user_id', newSellerId)
+          .maybeSingle();
+        
+        if (sellerProfile?.business_name) {
+          setSellerName(sellerProfile.business_name);
+        } else {
+          const { data: userProfile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', newSellerId)
+            .maybeSingle();
+          
+          if (userProfile?.full_name) {
+            setSellerName(userProfile.full_name);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error changing room:', error);
     }
   };
 
@@ -407,7 +530,15 @@ const Chat = () => {
   };
 
   if (loading || messagesLoading) {
-    return <ChatSkeleton />;
+    if (isMobile) {
+      return <MobileChatSkeleton />;
+    } else {
+      return (
+        <Layout>
+          <DesktopChatSkeleton />
+        </Layout>
+      );
+    }
   }
 
   if (!user) {
@@ -522,12 +653,15 @@ const Chat = () => {
         <MobileHeader />
       </div>
       <div className="flex h-screen">
-        {/* Sidebar */}
-        {!isMobile && (
-          <div className="w-80 border-r bg-gray-50">
-            <ChatSidebar currentRoomId={chatRoom?.id} />
-          </div>
-        )}
+                 {/* Sidebar */}
+         {!isMobile && (
+           <div className="w-80 border-r bg-gray-50">
+             <ChatSidebar 
+               currentRoomId={chatRoom?.id} 
+               onRoomChange={handleRoomChange}
+             />
+           </div>
+         )}
         
         {/* Main Chat Area */}
         <div className="flex-1 flex flex-col">

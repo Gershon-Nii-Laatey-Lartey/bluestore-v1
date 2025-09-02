@@ -38,9 +38,10 @@ interface ChatRoom {
 interface ChatSidebarProps {
   currentRoomId?: string;
   onRefresh?: () => void;
+  onRoomChange?: (roomId: string, productId: string, sellerId: string) => void;
 }
 
-export const ChatSidebar = ({ currentRoomId, onRefresh }: ChatSidebarProps) => {
+export const ChatSidebar = ({ currentRoomId, onRefresh, onRoomChange }: ChatSidebarProps) => {
   const [chatRooms, setChatRooms] = useState<ChatRoom[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -261,7 +262,14 @@ export const ChatSidebar = ({ currentRoomId, onRefresh }: ChatSidebarProps) => {
 
   const handleRoomClick = (room: ChatRoom) => {
     const otherUserId = room.buyer_id === user?.id ? room.seller_id : room.buyer_id;
-    navigate(`/chat/${otherUserId}?productId=${room.product_id}&roomId=${room.id}`);
+    
+    if (onRoomChange) {
+      // Desktop mode: use callback to change room without page refresh
+      onRoomChange(room.id, room.product_id, otherUserId);
+    } else {
+      // Mobile mode: navigate to chat page
+      navigate(`/chat/${otherUserId}?productId=${room.product_id}&roomId=${room.id}`);
+    }
   };
 
   const formatTime = (timestamp: string) => {
