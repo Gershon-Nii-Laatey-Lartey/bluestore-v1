@@ -245,6 +245,17 @@ const PublishAd = () => {
   const handleSaveAsDraft = async () => {
     if (savingDraft) return;
 
+    // Check if user has a vendor profile
+    if (!vendorProfile) {
+      toast({
+        title: "Vendor Profile Required",
+        description: "You must create a vendor profile before saving drafts. Please create your vendor profile first.",
+        variant: "destructive"
+      });
+      navigate('/create-vendor-profile');
+      return;
+    }
+
     try {
       setSavingDraft(true);
       
@@ -360,6 +371,17 @@ const PublishAd = () => {
   const handleContinueToPackageSelection = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Check if user has a vendor profile
+    if (!vendorProfile) {
+      toast({
+        title: "Vendor Profile Required",
+        description: "You must create a vendor profile before publishing ads. Please create your vendor profile first.",
+        variant: "destructive"
+      });
+      navigate('/create-vendor-profile');
+      return;
+    }
+    
     // If promo code is applied (100% discount), skip to package selection and immediately publish
     if (appliedPromoCode) {
       setCurrentStep(2);
@@ -382,6 +404,17 @@ const PublishAd = () => {
   const handleCreateProduct = async () => {
     if (submitting) {
       console.log('Submission already in progress, ignoring submit');
+      return;
+    }
+
+    // Check if user has a vendor profile
+    if (!vendorProfile) {
+      toast({
+        title: "Vendor Profile Required",
+        description: "You must create a vendor profile before publishing ads. Please create your vendor profile first.",
+        variant: "destructive"
+      });
+      navigate('/create-vendor-profile');
       return;
     }
 
@@ -521,7 +554,30 @@ const PublishAd = () => {
         </div>
 
         {currentStep === 1 && (
-          <form onSubmit={handleContinueToPackageSelection} className="space-y-6">
+          <div>
+            {!vendorProfile && !loadingProfile && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <div className="flex items-center gap-2">
+                  <XCircle className="h-5 w-5 text-yellow-600" />
+                  <div>
+                    <h3 className="text-sm font-medium text-yellow-800">
+                      Vendor Profile Required
+                    </h3>
+                    <p className="text-sm text-yellow-700 mt-1">
+                      You need to create a vendor profile before publishing ads. 
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto text-yellow-700 underline hover:text-yellow-800 ml-1"
+                        onClick={() => navigate('/create-vendor-profile')}
+                      >
+                        Create your vendor profile now
+                      </Button>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+            <form onSubmit={handleContinueToPackageSelection} className="space-y-6">
             <BasicInformationForm 
               formData={formData} 
               onInputChange={handleInputChange} 
@@ -617,7 +673,7 @@ const PublishAd = () => {
               <Button 
                 type="submit" 
                 className="flex-1 bg-green-600 hover:bg-green-700"
-                disabled={submitting || loadingProfile}
+                disabled={submitting || loadingProfile || !vendorProfile}
               >
                 {appliedPromoCode ? (
                   <>
@@ -634,7 +690,7 @@ const PublishAd = () => {
                 variant="outline" 
                 className="flex-1"
                 onClick={handleSaveAsDraft}
-                disabled={savingDraft || loadingProfile}
+                disabled={savingDraft || loadingProfile || !vendorProfile}
               >
                 {savingDraft ? (
                   <>Saving Draft...</>
@@ -646,7 +702,8 @@ const PublishAd = () => {
                 )}
               </Button>
             </div>
-          </form>
+                      </form>
+          </div>
         )}
 
         {currentStep === 2 && (

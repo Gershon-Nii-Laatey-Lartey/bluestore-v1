@@ -1,8 +1,11 @@
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ProductSubmission } from "@/types/product";
 import { Link } from "react-router-dom";
 import { formatPrice } from "@/utils/formatters";
+import { ProductSubmission } from "@/types/product";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Phone, LogIn } from "lucide-react";
 
 interface ProductInfoProps {
   product: ProductSubmission;
@@ -11,6 +14,8 @@ interface ProductInfoProps {
 }
 
 export const ProductInfo = ({ product, vendorName, vendorId }: ProductInfoProps) => {
+  const { user } = useAuth();
+  
   if (!product) {
     return <div>Loading product information...</div>;
   }
@@ -97,7 +102,22 @@ export const ProductInfo = ({ product, vendorName, vendorId }: ProductInfoProps)
           </div>
           <div>
             <span className="text-gray-600 dark:text-gray-400">Phone:</span>
-            <span className="ml-2 font-medium text-gray-900 dark:text-gray-100">{product.phone}</span>
+            {user ? (
+              <span className="ml-2 font-medium text-gray-900 dark:text-gray-100">{product.phone}</span>
+            ) : (
+              <div className="ml-2 flex items-center gap-2">
+                <span className="text-gray-500 dark:text-gray-400">Login to view</span>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-6 px-2 text-xs"
+                  onClick={() => window.location.href = '/auth'}
+                >
+                  <LogIn className="h-3 w-3 mr-1" />
+                  Login
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 

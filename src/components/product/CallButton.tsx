@@ -4,6 +4,8 @@ import { Phone, Copy, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { adAnalyticsService } from "@/services/adAnalyticsService";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 interface CallButtonProps {
   phoneNumber: string;
@@ -16,8 +18,21 @@ export const CallButton = ({ phoneNumber, productId, className = "" }: CallButto
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleClick = async () => {
+    // Check if user is authenticated
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to view seller contact information",
+        variant: "destructive"
+      });
+      navigate('/auth');
+      return;
+    }
+
     if (!showNumber) {
       // First click: reveal number and copy to clipboard
       try {
@@ -70,6 +85,17 @@ export const CallButton = ({ phoneNumber, productId, className = "" }: CallButto
 
   const handleCopyClick = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the main button click
+    
+    // Check if user is authenticated
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to view seller contact information",
+        variant: "destructive"
+      });
+      navigate('/auth');
+      return;
+    }
     
     try {
       // Check if clipboard API is available

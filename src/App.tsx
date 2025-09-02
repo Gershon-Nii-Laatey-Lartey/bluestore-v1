@@ -135,14 +135,14 @@ const App = () => (
               </ProtectedRoute>
             } />
             <Route path="/my-ads" element={
-              <ProtectedRoute>
+              <VendorProtectedRoute>
                 <MyAds />
-              </ProtectedRoute>
+              </VendorProtectedRoute>
             } />
             <Route path="/publish-ad" element={
-              <ProtectedRoute>
+              <VendorProtectedRoute>
                 <PublishAd />
-              </ProtectedRoute>
+              </VendorProtectedRoute>
             } />
             <Route path="/favorites" element={
               <ProtectedRoute>
@@ -160,19 +160,19 @@ const App = () => (
               </ProtectedRoute>
             } />
             <Route path="/package-selection" element={
-              <ProtectedRoute>
+              <VendorProtectedRoute>
                 <PackageSelection />
-              </ProtectedRoute>
+              </VendorProtectedRoute>
             } />
             <Route path="/active-packages" element={
-              <ProtectedRoute>
+              <VendorProtectedRoute>
                 <ActivePackages />
-              </ProtectedRoute>
+              </VendorProtectedRoute>
             } />
             <Route path="/analytics" element={
-              <ProtectedRoute>
+              <VendorProtectedRoute>
                 <Analytics />
-              </ProtectedRoute>
+              </VendorProtectedRoute>
             } />
             <Route path="/chat" element={
               <ProtectedRoute>
