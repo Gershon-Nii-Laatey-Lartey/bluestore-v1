@@ -38,11 +38,9 @@ interface ChatRoom {
 interface ChatSidebarProps {
   currentRoomId?: string;
   onRefresh?: () => void;
-  onRoomSelect?: (room: ChatRoom) => void;
-  isDesktop?: boolean;
 }
 
-export const ChatSidebar = ({ currentRoomId, onRefresh, onRoomSelect, isDesktop }: ChatSidebarProps) => {
+export const ChatSidebar = ({ currentRoomId, onRefresh }: ChatSidebarProps) => {
   const [chatRooms, setChatRooms] = useState<ChatRoom[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -262,14 +260,8 @@ export const ChatSidebar = ({ currentRoomId, onRefresh, onRoomSelect, isDesktop 
   }, [user]);
 
   const handleRoomClick = (room: ChatRoom) => {
-    if (isDesktop && onRoomSelect) {
-      // Desktop mode: call the onRoomSelect callback
-      onRoomSelect(room);
-    } else {
-      // Mobile mode: navigate to chat page
-      const otherUserId = room.buyer_id === user?.id ? room.seller_id : room.buyer_id;
-      navigate(`/chat/${otherUserId}?productId=${room.product_id}&roomId=${room.id}`);
-    }
+    const otherUserId = room.buyer_id === user?.id ? room.seller_id : room.buyer_id;
+    navigate(`/chat/${otherUserId}?productId=${room.product_id}&roomId=${room.id}`);
   };
 
   const formatTime = (timestamp: string) => {
@@ -314,95 +306,6 @@ export const ChatSidebar = ({ currentRoomId, onRefresh, onRoomSelect, isDesktop 
     );
   }
 
-  // Desktop layout - full height, no borders
-  if (isDesktop) {
-    return (
-      <div className="flex-1 overflow-y-auto">
-        {chatRooms.length === 0 ? (
-          <div className="text-center py-8 px-4">
-            <MessageCircle className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">No conversations yet</p>
-          </div>
-        ) : (
-          <div className="space-y-1">
-            {chatRooms.map((room, index) => (
-              <div
-                key={room.id}
-                ref={index === chatRooms.length - 1 ? lastElementRef : null}
-                onClick={() => handleRoomClick(room)}
-                className={`flex items-center p-3 hover:bg-gray-50 cursor-pointer transition-colors ${
-                  currentRoomId === room.id ? 'bg-blue-50 border-r-2 border-blue-500' : ''
-                }`}
-              >
-                <Avatar className="h-10 w-10 mr-3">
-                  <AvatarImage 
-                    src={room.product_image || "/lovable-uploads/c6148684-f71d-4b35-be45-ed4848d5e86d.png"} 
-                    alt={room.product_title || room.other_user_name}
-                  />
-                  <AvatarFallback className="bg-blue-100 text-blue-600 text-xs">
-                    {room.other_user_name.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium text-gray-900 truncate">
-                      {room.other_user_name}
-                    </h3>
-                    <div className="flex items-center space-x-1">
-                      {room.unread_count > 0 && (
-                        <span className="bg-blue-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-medium">
-                          {room.unread_count > 9 ? '9+' : room.unread_count}
-                        </span>
-                      )}
-                      <span className="text-xs text-gray-500 flex items-center">
-                        {formatTime(room.last_updated)}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  {room.product_title && (
-                    <div className="flex items-center gap-2 mt-1">
-                      {room.product_image && (
-                        <img 
-                          src={room.product_image} 
-                          alt={room.product_title}
-                          className="w-3 h-3 object-cover rounded"
-                        />
-                      )}
-                      <p className="text-xs text-gray-500 truncate">
-                        About: {room.product_title}
-                      </p>
-                    </div>
-                  )}
-                  
-                  <p className="text-sm text-gray-600 truncate mt-1">
-                    {room.last_message || "No messages yet"}
-                  </p>
-                </div>
-              </div>
-            ))}
-            
-            {/* Loading indicator for infinite scroll */}
-            {loadingMore && (
-              <div ref={loadingRef} className="flex items-center justify-center p-3">
-                <span className="ml-2 text-xs text-gray-500">Loading...</span>
-              </div>
-            )}
-            
-            {/* End of list indicator */}
-            {!hasMore && chatRooms.length > 0 && (
-              <div className="text-center py-3 text-xs text-gray-500">
-                End of conversations
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // Mobile layout - card with borders
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 h-96 flex flex-col">
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
@@ -448,7 +351,7 @@ export const ChatSidebar = ({ currentRoomId, onRefresh, onRoomSelect, isDesktop 
                         </span>
                       )}
                       <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                        {/* <Clock className="h-3 w-4 mr-1" /> */}
+                        {/* <Clock className="h-3 w-3 mr-1" /> */}
                         {formatTime(room.last_updated)}
                       </span>
                     </div>
