@@ -21,7 +21,19 @@ export const CallButton = ({ phoneNumber, productId, className = "" }: CallButto
     if (!showNumber) {
       // First click: reveal number and copy to clipboard
       try {
-        await navigator.clipboard.writeText(phoneNumber);
+        // Check if clipboard API is available
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(phoneNumber);
+        } else {
+          // Fallback for browsers without clipboard API
+          const textArea = document.createElement('textarea');
+          textArea.value = phoneNumber;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+        }
+        
         setCopied(true);
         setShowNumber(true);
         
@@ -38,9 +50,12 @@ export const CallButton = ({ phoneNumber, productId, className = "" }: CallButto
         // Reset copied state after 2 seconds
         setTimeout(() => setCopied(false), 2000);
       } catch (error) {
+        console.error('Error copying phone number:', error);
+        // Still show the number even if copy fails
+        setShowNumber(true);
         toast({
-          title: "Error",
-          description: "Failed to copy phone number to clipboard",
+          title: "Phone number revealed",
+          description: "Phone number is now visible (copy to clipboard failed)",
           variant: "destructive"
         });
       }
@@ -57,7 +72,19 @@ export const CallButton = ({ phoneNumber, productId, className = "" }: CallButto
     e.stopPropagation(); // Prevent triggering the main button click
     
     try {
-      await navigator.clipboard.writeText(phoneNumber);
+      // Check if clipboard API is available
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(phoneNumber);
+      } else {
+        // Fallback for browsers without clipboard API
+        const textArea = document.createElement('textarea');
+        textArea.value = phoneNumber;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+      
       setCopied(true);
       
       toast({
@@ -68,8 +95,9 @@ export const CallButton = ({ phoneNumber, productId, className = "" }: CallButto
       // Reset copied state after 2 seconds
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
+      console.error('Error copying phone number:', error);
       toast({
-        title: "Error",
+        title: "Copy failed",
         description: "Failed to copy phone number to clipboard",
         variant: "destructive"
       });

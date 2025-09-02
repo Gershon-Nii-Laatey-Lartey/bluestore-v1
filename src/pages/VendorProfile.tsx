@@ -207,21 +207,49 @@ const VendorProfile = () => {
       },
       (error) => {
         console.error('Error sharing profile:', error);
-        toast({
-          title: "Error",
-          description: "Failed to share profile. Please try again.",
-          variant: "destructive"
-        });
+        // Don't show error toast for unsupported Web Share API - this is expected
+        if (error.message !== 'Web Share API is not supported in this browser') {
+          toast({
+            title: "Error",
+            description: "Failed to share profile. Please try again.",
+            variant: "destructive"
+          });
+        }
       }
     );
 
     if (!success) {
       // Fallback to copy URL if Web Share API is not supported
-      navigator.clipboard.writeText(profileUrl);
-      toast({
-        title: "Link copied!",
-        description: "Profile URL copied to clipboard"
-      });
+      try {
+        // Check if clipboard API is available
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(profileUrl);
+          toast({
+            title: "Link copied!",
+            description: "Profile URL copied to clipboard"
+          });
+        } else {
+          // Fallback for browsers without clipboard API
+          const textArea = document.createElement('textarea');
+          textArea.value = profileUrl;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          
+          toast({
+            title: "Link copied!",
+            description: "Profile URL copied to clipboard (fallback method)"
+          });
+        }
+      } catch (fallbackError) {
+        console.error('Fallback copy failed:', fallbackError);
+        toast({
+          title: "Copy failed",
+          description: "Please manually copy the URL from your browser's address bar",
+          variant: "destructive"
+        });
+      }
     }
   };
 

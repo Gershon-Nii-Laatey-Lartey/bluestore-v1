@@ -40,6 +40,7 @@ export const shareContent = async (
   } catch (error) {
     // User cancelled sharing or error occurred
     if (error instanceof Error && error.name !== 'AbortError') {
+      console.error('Web Share API error:', error);
       onError?.(error);
     }
     return false;
