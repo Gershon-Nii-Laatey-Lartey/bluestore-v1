@@ -1,15 +1,18 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { User, MapPin, ExternalLink } from "lucide-react";
+import { User, MapPin, ExternalLink, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
+import { CallButton } from "./CallButton";
 
 interface VendorInfoProps {
   vendorName: string;
   vendorId?: string;
+  vendorPhone?: string;
+  productId?: string;
 }
 
-export const VendorInfo = ({ vendorName, vendorId }: VendorInfoProps) => {
+export const VendorInfo = ({ vendorName, vendorId, vendorPhone, productId }: VendorInfoProps) => {
   if (!vendorName) {
     return null;
   }
@@ -23,7 +26,7 @@ export const VendorInfo = ({ vendorName, vendorId }: VendorInfoProps) => {
             <ExternalLink className="h-4 w-4 text-gray-400 dark:text-gray-500" />
           )}
         </h3>
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 mb-3">
           <Avatar className="h-10 w-10">
             <AvatarFallback className="bg-blue-100 text-blue-600">
               <User className="h-5 w-5" />
@@ -37,6 +40,21 @@ export const VendorInfo = ({ vendorName, vendorId }: VendorInfoProps) => {
             </div>
           </div>
         </div>
+        
+        {/* Contact Information */}
+        {vendorPhone && (
+          <div className="border-t pt-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <Phone className="h-4 w-4" />
+                <span>Contact Seller</span>
+              </div>
+              {productId && (
+                <CallButton phoneNumber={vendorPhone} productId={productId} />
+              )}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { ShareModal } from "@/components/ShareModal";
 import { ReportAdModal } from "@/components/ReportAdModal";
+import { CallButton } from "./CallButton";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,9 +15,16 @@ interface ProductActionsProps {
   sellerId: string;
   productTitle: string;
   isOwner: boolean;
+  vendorPhone?: string;
 }
 
-export const ProductActions = ({ productId, sellerId, productTitle, isOwner }: ProductActionsProps) => {
+export const ProductActions = ({ 
+  productId, 
+  sellerId, 
+  productTitle, 
+  isOwner,
+  vendorPhone 
+}: ProductActionsProps) => {
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -60,6 +68,10 @@ export const ProductActions = ({ productId, sellerId, productTitle, isOwner }: P
           <MessageCircle className="h-4 w-4" />
           Chat with Seller
         </Button>
+      )}
+      
+      {!isOwner && vendorPhone && (
+        <CallButton phoneNumber={vendorPhone} productId={productId} />
       )}
       
       <Button 

@@ -12,6 +12,7 @@ interface ProductDetailContentProps {
   product: ProductSubmission;
   vendorName: string;
   vendorId?: string;
+  vendorPhone?: string;
   isOwner: boolean;
   onEdit: () => void;
   onClose: () => void;
@@ -23,6 +24,7 @@ export const ProductDetailContent = ({
   product,
   vendorName,
   vendorId,
+  vendorPhone,
   isOwner,
   onEdit,
   onClose,
@@ -60,12 +62,13 @@ export const ProductDetailContent = ({
                 sellerId={product.user_id || ''}
                 productTitle={product.title}
                 isOwner={isOwner}
+                vendorPhone={vendorPhone}
               />
             )}
           </div>
           
           {!isOwner && (
-            <VendorInfo vendorName={vendorName} vendorId={vendorId} />
+            <VendorInfo vendorName={vendorName} vendorId={vendorId} vendorPhone={vendorPhone} productId={product.id} />
           )}
         </div>
       </div>
