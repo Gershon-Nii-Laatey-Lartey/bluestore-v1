@@ -44,6 +44,7 @@ const Chat = () => {
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const isDesktop = !isMobile;
   const { triggerRefresh } = useChatStore();
   
   const [message, setMessage] = useState("");
