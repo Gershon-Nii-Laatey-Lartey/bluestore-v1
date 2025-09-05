@@ -88,21 +88,21 @@ const Auth = () => {
       {/* Back button - positioned absolutely */}
       <button
         onClick={() => navigate('/')}
-        className="absolute top-6 left-6 z-20 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2"
+        className="absolute top-6 left-6 z-20 flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors bg-background/80 backdrop-blur-sm rounded-lg px-3 py-2"
       >
         <ArrowLeft className="h-4 w-4" />
         <span className="text-sm font-medium">Back to Home</span>
       </button>
 
       {/* Left side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-white">
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-background">
         <div className="w-full max-w-md space-y-8">
           {/* Logo/Brand */}
           <div className="text-center">
-            <div className="mx-auto w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mb-4">
+            <div className="mx-auto w-12 h-12 bg-primary rounded-lg flex items-center justify-center mb-4">
               <Lock className="h-6 w-6 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-foreground">
               {isSignUp ? "Sign Up for Push" : "Welcome back"}
             </h2>
           </div>
@@ -112,7 +112,7 @@ const Auth = () => {
             {isSignUp && (
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
+                  <Label htmlFor="firstName" className="text-sm font-medium text-foreground">
                     First Name
                   </Label>
                   <Input
@@ -122,11 +122,11 @@ const Auth = () => {
                     onChange={(e) => setFirstName(e.target.value)}
                     required
                     placeholder="First Name"
-                    className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                    className="border-input focus:border-primary focus:ring-primary"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">
+                  <Label htmlFor="lastName" className="text-sm font-medium text-foreground">
                     Last Name
                   </Label>
                   <Input
@@ -136,14 +136,14 @@ const Auth = () => {
                     onChange={(e) => setLastName(e.target.value)}
                     required
                     placeholder="Last Name"
-                    className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                    className="border-input focus:border-primary focus:ring-primary"
                   />
                 </div>
               </div>
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+              <Label htmlFor="email" className="text-sm font-medium text-foreground">
                 Email Address
               </Label>
               <Input
@@ -153,12 +153,12 @@ const Auth = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="Email Address"
-                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                className="border-input focus:border-primary focus:ring-primary"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+              <Label htmlFor="password" className="text-sm font-medium text-foreground">
                 Password
               </Label>
               <div className="relative">
@@ -178,9 +178,9 @@ const Auth = () => {
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-400" />
+                    <EyeOff className="h-4 w-4 text-muted-foreground" />
                   ) : (
-                    <Eye className="h-4 w-4 text-gray-400" />
+                    <Eye className="h-4 w-4 text-muted-foreground" />
                   )}
                 </button>
               </div>
@@ -200,7 +200,7 @@ const Auth = () => {
 
             <Button 
               type="submit" 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium" 
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 rounded-lg font-medium" 
               disabled={loading}
             >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -208,11 +208,11 @@ const Auth = () => {
             </Button>
 
             {isSignUp && (
-              <p className="text-xs text-gray-500 text-center">
+              <p className="text-xs text-muted-foreground text-center">
                 By creating an account, you agree with our{" "}
-                <a href="#" className="text-blue-600 hover:underline">Terms of Service</a>{" "}
+                <a href="/terms" className="text-primary hover:underline">Terms of Service</a>{" "}
                 and{" "}
-                <a href="#" className="text-blue-600 hover:underline">Privacy Policy</a>.
+                <a href="/terms" className="text-primary hover:underline">Privacy Policy</a>.
               </p>
             )}
 
@@ -220,7 +220,7 @@ const Auth = () => {
               <button
                 type="button"
                 onClick={toggleMode}
-                className="text-sm text-gray-600 hover:text-blue-600"
+                className="text-sm text-muted-foreground hover:text-primary"
               >
                 {isSignUp
                   ? "Already have an account? Login."

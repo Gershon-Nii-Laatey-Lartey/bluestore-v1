@@ -35,6 +35,11 @@ export const EditProductForm = ({ product, onSave, onCancel, isSubmitting }: Edi
   const [existingImages] = useState(product.images || []);
   const [mainImageIndex, setMainImageIndex] = useState(product.main_image_index || 0);
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Load vendor profile to get the correct phone number
   useEffect(() => {
     const loadVendorProfile = async () => {
@@ -125,14 +130,14 @@ export const EditProductForm = ({ product, onSave, onCancel, isSubmitting }: Edi
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6 px-4 sm:px-6 lg:px-8">
       {/* Back Button */}
       <div className="flex items-center gap-4">
         <Button
           type="button"
           variant="outline"
           onClick={onCancel}
-          className="border-2 border-gray-300 hover:border-gray-400 rounded-sm px-3 py-2 flex items-center gap-2"
+          className="border-2 border-border hover:border-border/80 rounded-sm px-3 py-2 flex items-center gap-2"
         >
           <ArrowLeft className="h-4 w-4" />
           Back
@@ -140,8 +145,8 @@ export const EditProductForm = ({ product, onSave, onCancel, isSubmitting }: Edi
       </div>
 
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">Edit Product</h2>
-        <p className="text-gray-600 mt-1">Update your product details</p>
+        <h2 className="text-2xl font-bold text-foreground">Edit Product</h2>
+        <p className="text-muted-foreground mt-1">Update your product details</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -168,7 +173,7 @@ export const EditProductForm = ({ product, onSave, onCancel, isSubmitting }: Edi
                 <Label htmlFor="category">Category *</Label>
                 <select 
                   id="category" 
-                  className="w-full mt-1 p-2 border border-gray-300 rounded-md"
+                  className="w-full mt-1 p-2 border border-input rounded-md bg-background text-foreground"
                   value={formData.category}
                   onChange={handleInputChange}
                   required
@@ -188,7 +193,7 @@ export const EditProductForm = ({ product, onSave, onCancel, isSubmitting }: Edi
                 <Label htmlFor="condition">Condition *</Label>
                 <select 
                   id="condition" 
-                  className="w-full mt-1 p-2 border border-gray-300 rounded-md"
+                  className="w-full mt-1 p-2 border border-input rounded-md bg-background text-foreground"
                   value={formData.condition}
                   onChange={handleInputChange}
                   required
@@ -286,17 +291,17 @@ export const EditProductForm = ({ product, onSave, onCancel, isSubmitting }: Edi
                           alt={`Product ${index + 1}`}
                           className={`w-full h-32 object-cover rounded-lg transition-all ${
                             mainImageIndex === index 
-                              ? 'ring-2 ring-blue-500 ring-offset-2' 
-                              : 'group-hover:ring-2 group-hover:ring-gray-300 group-hover:ring-offset-2'
+                              ? 'ring-2 ring-primary ring-offset-2' 
+                              : 'group-hover:ring-2 group-hover:ring-border group-hover:ring-offset-2'
                           }`}
                         />
                         <div className={`absolute bottom-2 left-2 text-white text-xs px-2 py-1 rounded ${
-                          mainImageIndex === index ? 'bg-blue-600' : 'bg-black/70'
+                          mainImageIndex === index ? 'bg-primary' : 'bg-black/70'
                         }`}>
                           {mainImageIndex === index ? 'Main' : `${index + 1}`}
                         </div>
                         {mainImageIndex === index && (
-                          <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                          <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
                             ✓
                           </div>
                         )}
@@ -307,10 +312,10 @@ export const EditProductForm = ({ product, onSave, onCancel, isSubmitting }: Edi
               )}
 
               {/* Upload New Images */}
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Add More Images</h3>
-                <p className="text-gray-500 mb-4">Upload additional images ({existingImages.length + images.length}/10)</p>
+              <div className="border-2 border-dashed border-border rounded-lg p-4 sm:p-8 text-center">
+                <ImageIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">Add More Images</h3>
+                <p className="text-muted-foreground mb-4">Upload additional images ({existingImages.length + images.length}/10)</p>
                 <input
                   type="file"
                   multiple
@@ -379,14 +384,14 @@ export const EditProductForm = ({ product, onSave, onCancel, isSubmitting }: Edi
                 <Input 
                   id="phone" 
                   placeholder="+233 XX XXX XXXX" 
-                  className="mt-1 bg-gray-100 text-gray-500 cursor-not-allowed"
+                  className="mt-1 bg-muted text-muted-foreground cursor-not-allowed"
                   value={formData.phone}
                   readOnly
                   disabled
                   required
                   tabIndex={-1}
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   Phone number cannot be edited. Update it in your vendor profile.
                   {formData.phone ? ` Current: ${formData.phone}` : ' No phone number found in vendor profile.'}
                 </p>
@@ -413,8 +418,8 @@ export const EditProductForm = ({ product, onSave, onCancel, isSubmitting }: Edi
           type="submit" 
           className={`flex-1 ${
             hasChanges() 
-              ? 'bg-blue-600 hover:bg-blue-700' 
-              : 'bg-gray-400 cursor-not-allowed'
+              ? 'bg-primary hover:bg-primary/90' 
+              : 'bg-muted cursor-not-allowed'
           }`}
           disabled={isSubmitting || !hasChanges()}
         >
