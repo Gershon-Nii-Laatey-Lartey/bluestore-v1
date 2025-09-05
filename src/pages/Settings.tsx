@@ -73,8 +73,8 @@ const Settings = () => {
     try {
       setLoading(true);
       
-      // Update user metadata
-      const { error: userError } = await user.update({
+      // Update user metadata using Supabase client
+      const { error: userError } = await supabase.auth.updateUser({
         data: {
           full_name: formData.full_name,
           phone: formData.phone,
