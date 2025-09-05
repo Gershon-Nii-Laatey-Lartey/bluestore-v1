@@ -27,13 +27,13 @@ const Analytics = () => {
     }
   }, [user]);
 
-  // Refresh analytics data every 30 seconds
+  // Refresh analytics data every 5 minutes (less aggressive)
   useEffect(() => {
     if (!user) return;
 
     const interval = setInterval(() => {
       loadAnalytics();
-    }, 30000); // 30 seconds
+    }, 5 * 60 * 1000); // 5 minutes instead of 30 seconds
 
     return () => clearInterval(interval);
   }, [user]);

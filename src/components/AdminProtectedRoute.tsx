@@ -1,8 +1,7 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { dataService } from "@/services/dataService";
+import { useUserRoles } from "@/hooks/useUserRoles";
 
 interface AdminProtectedRouteProps {
   children: React.ReactNode;
@@ -10,36 +9,11 @@ interface AdminProtectedRouteProps {
 
 export const AdminProtectedRoute = ({ children }: AdminProtectedRouteProps) => {
   const { user, loading: authLoading } = useAuth();
+  const { isAdmin, loading: rolesLoading } = useUserRoles();
   const location = useLocation();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const checkAdminAccess = async () => {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const adminStatus = await dataService.isAdmin();
-        setIsAdmin(adminStatus);
-      } catch (error) {
-        setIsAdmin(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (!authLoading && user) {
-      checkAdminAccess();
-    } else if (!authLoading && !user) {
-      setLoading(false);
-    }
-  }, [user, authLoading]);
 
   // Show loading state while checking auth and admin access
-  if (authLoading || loading) {
+  if (authLoading || rolesLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>

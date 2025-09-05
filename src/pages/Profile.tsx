@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfileStats } from "@/hooks/useProfileStats";
-import { dataService } from "@/services/dataService";
+import { useUserRoles } from "@/hooks/useUserRoles";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const Profile = () => {
   const { user, profile, signOut } = useAuth();
   const { publishedAds, favorites, loading: statsLoading } = useProfileStats();
+  const { isAdmin, isCSWorker, loading: rolesLoading } = useUserRoles();
   const navigate = useNavigate();
 
   const isMobile = useIsMobile();
@@ -60,36 +61,7 @@ const Profile = () => {
     });
   };
 
-  // Check user roles and permissions
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isCSWorker, setIsCSWorker] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  // Check admin and CS worker status
-  useEffect(() => {
-    const checkUserStatus = async () => {
-      if (user) {
-        try {
-          const [adminStatus, csWorkerStatus] = await Promise.all([
-            dataService.isAdmin(),
-            dataService.isCSWorker()
-          ]);
-          
-          setIsAdmin(adminStatus);
-          setIsCSWorker(csWorkerStatus);
-        } catch (error) {
-          setIsAdmin(false);
-          setIsCSWorker(false);
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        setLoading(false);
-      }
-    };
-
-    checkUserStatus();
-  }, [user]);
+  // User roles are now handled by useUserRoles hook
 
   // Dashboard links based on user type
   const getDashboardLinks = () => {
@@ -185,7 +157,7 @@ const Profile = () => {
             </div>
 
             {/* Dashboard Links */}
-            {!loading && dashboardLinks.length > 0 && (
+            {!rolesLoading && dashboardLinks.length > 0 && (
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-card-foreground mb-3">Dashboard Access</h3>
                 <div className="space-y-3">
@@ -353,7 +325,7 @@ const Profile = () => {
                     </div>
 
                     {/* Dashboard Access */}
-                    {!loading && dashboardLinks.length > 0 && (
+                    {!rolesLoading && dashboardLinks.length > 0 && (
                       <div>
                         <h3 className="text-lg font-semibold text-card-foreground mb-4">Dashboard Access</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -1,8 +1,7 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { csService } from "@/services/csService";
+import { useUserRoles } from "@/hooks/useUserRoles";
 
 interface CSWorkerProtectedRouteProps {
   children: React.ReactNode;
@@ -10,36 +9,11 @@ interface CSWorkerProtectedRouteProps {
 
 export const CSWorkerProtectedRoute = ({ children }: CSWorkerProtectedRouteProps) => {
   const { user, loading: authLoading } = useAuth();
+  const { isCSWorker, loading: rolesLoading } = useUserRoles();
   const location = useLocation();
-  const [isCSWorker, setIsCSWorker] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const checkCSWorkerAccess = async () => {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const csWorkerStatus = await csService.isCSWorker();
-        setIsCSWorker(csWorkerStatus);
-      } catch (error) {
-        setIsCSWorker(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (!authLoading && user) {
-      checkCSWorkerAccess();
-    } else if (!authLoading && !user) {
-      setLoading(false);
-    }
-  }, [user, authLoading]);
 
   // Show loading state while checking auth and CS worker access
-  if (authLoading || loading) {
+  if (authLoading || rolesLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>

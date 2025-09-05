@@ -195,9 +195,9 @@ const Settings = () => {
                   type="email" 
                   value={formData.email}
                   disabled
-                  className="bg-gray-50"
+                  className="bg-muted/50 text-muted-foreground"
                 />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Email cannot be changed</p>
+                <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
               </div>
               <div>
                 <Label htmlFor="phone">Phone Number</Label>

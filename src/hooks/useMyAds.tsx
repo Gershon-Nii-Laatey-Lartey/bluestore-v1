@@ -32,10 +32,10 @@ export const useMyAds = () => {
     queryKey: ['my-ads', user?.id],
     queryFn: fetchMyAds,
     enabled: !!user,
-    staleTime: 10000, // Consider data fresh for 10 seconds (reduced from 30)
-    cacheTime: 2 * 60 * 1000, // Cache for 2 minutes (reduced from 5)
-    refetchOnWindowFocus: true, // Refetch when window gains focus
-    refetchOnMount: true, // Refetch when component mounts
+    staleTime: 2 * 60 * 1000, // Consider data fresh for 2 minutes
+    cacheTime: 5 * 60 * 1000, // Cache for 5 minutes
+    refetchOnWindowFocus: false, // Don't refetch on window focus
+    refetchOnMount: false, // Don't refetch on mount if data is fresh
   });
 
   // Function to manually refresh data

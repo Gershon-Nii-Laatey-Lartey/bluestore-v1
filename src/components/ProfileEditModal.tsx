@@ -100,9 +100,9 @@ export const ProfileEditModal = ({ open, onOpenChange }: ProfileEditModalProps) 
                 id="email"
                 value={user?.email || ""}
                 disabled
-                className="bg-gray-50"
+                className="bg-muted/50 text-muted-foreground"
               />
-              <p className="text-xs text-gray-500">Email cannot be changed</p>
+              <p className="text-xs text-muted-foreground">Email cannot be changed</p>
             </div>
           </div>
 
