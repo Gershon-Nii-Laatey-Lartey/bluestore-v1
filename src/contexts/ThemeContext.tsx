@@ -4,8 +4,9 @@ type Theme = 'light' | 'dark';
 
 interface ThemeContextType {
   theme: Theme;
-  toggleTheme: () => void;
+  toggleTheme: (checked?: boolean) => void;
   setTheme: (theme: Theme) => void;
+  resetToSystemTheme: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -24,6 +25,7 @@ interface ThemeProviderProps {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>('light');
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Function to update theme color meta tag and manifest
   const updateThemeColor = (newTheme: Theme) => {
@@ -75,15 +77,48 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
-    // Get theme from localStorage or default to light
+    // Get theme from localStorage
     const savedTheme = localStorage.getItem('theme') as Theme;
-    if (savedTheme) {
+    const hasUserSetTheme = localStorage.getItem('user-theme-set') === 'true';
+    
+    console.log('Theme initialization:', { savedTheme, hasUserSetTheme }); // Debug log
+    
+    if (savedTheme && hasUserSetTheme) {
+      // User has manually set a theme, use it
+      console.log('Using user-set theme:', savedTheme);
+      setThemeState(savedTheme);
+    } else if (savedTheme) {
+      // Theme exists but user hasn't explicitly set it, use saved theme
+      console.log('Using saved theme (not user-set):', savedTheme);
       setThemeState(savedTheme);
     } else {
-      // Check system preference
+      // No theme saved, check system preference
       const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      console.log('Using system theme:', systemTheme);
       setThemeState(systemTheme);
     }
+
+    // Listen for system theme changes (only if user hasn't manually set a theme)
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSystemThemeChange = (e: MediaQueryListEvent) => {
+      const hasUserSetTheme = localStorage.getItem('user-theme-set') === 'true';
+      if (!hasUserSetTheme) {
+        const systemTheme = e.matches ? 'dark' : 'light';
+        console.log('System theme changed to:', systemTheme);
+        setThemeState(systemTheme);
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleSystemThemeChange);
+    
+    return () => {
+      mediaQuery.removeEventListener('change', handleSystemThemeChange);
+    };
+  }, []);
+
+  // Mark as initialized after first render
+  useEffect(() => {
+    setIsInitialized(true);
   }, []);
 
   useEffect(() => {
@@ -95,20 +130,56 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     // Update theme color meta tag and manifest
     updateThemeColor(theme);
     
-    // Save to localStorage
-    localStorage.setItem('theme', theme);
-  }, [theme]);
+    // Only save to localStorage if this is after initialization
+    // This prevents overwriting the saved theme during initial load
+    if (isInitialized) {
+      localStorage.setItem('theme', theme);
+      console.log('Theme saved to localStorage:', theme);
+    }
+  }, [theme, isInitialized]);
 
-  const toggleTheme = () => {
-    setThemeState(prev => prev === 'light' ? 'dark' : 'light');
-  };
-
-  const setTheme = (newTheme: Theme) => {
+  const toggleTheme = (checked?: boolean) => {
+    let newTheme: Theme;
+    
+    if (checked !== undefined) {
+      // Called from Switch component with explicit boolean value
+      newTheme = checked ? 'dark' : 'light';
+      console.log('Theme toggled via Switch:', { checked, newTheme });
+    } else {
+      // Called without parameter, toggle current theme
+      newTheme = theme === 'light' ? 'dark' : 'light';
+      console.log('Theme toggled manually:', { currentTheme: theme, newTheme });
+    }
+    
+    // Mark that user has manually set a theme
+    localStorage.setItem('user-theme-set', 'true');
+    localStorage.setItem('theme', newTheme);
+    console.log('User theme preference saved:', newTheme);
+    
     setThemeState(newTheme);
   };
 
+  const setTheme = (newTheme: Theme) => {
+    // Mark that user has manually set a theme
+    localStorage.setItem('user-theme-set', 'true');
+    localStorage.setItem('theme', newTheme);
+    console.log('Theme set manually:', newTheme);
+    
+    setThemeState(newTheme);
+  };
+
+  const resetToSystemTheme = () => {
+    // Remove user theme preference and use system theme
+    localStorage.removeItem('user-theme-set');
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    localStorage.setItem('theme', systemTheme);
+    console.log('Reset to system theme:', systemTheme);
+    
+    setThemeState(systemTheme);
+  };
+
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme, resetToSystemTheme }}>
       {children}
     </ThemeContext.Provider>
   );

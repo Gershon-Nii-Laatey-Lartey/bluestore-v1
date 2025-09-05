@@ -116,12 +116,15 @@ const PublishAd = () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const { data: subscriptions } = await supabase
+        const { data: subscriptions, error: subscriptionError } = await supabase
           .from('user_plan_subscriptions')
           .select('*')
           .eq('user_id', user.id)
           .eq('status', 'active')
-          .single();
+          .gt('end_date', new Date().toISOString())
+          .order('end_date', { ascending: false })
+          .limit(1)
+          .maybeSingle();
 
         setHasActiveSubscription(!!subscriptions);
       } catch (error) {

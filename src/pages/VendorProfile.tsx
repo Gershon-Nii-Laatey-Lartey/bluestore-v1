@@ -156,7 +156,11 @@ const VendorProfile = () => {
         return null;
       }
     },
-    enabled: !!user?.id && isOwnProfile
+    enabled: !!user?.id && isOwnProfile,
+    retry: false, // Don't retry subscription queries
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    cacheTime: 10 * 60 * 1000, // Cache for 10 minutes
+    refetchOnWindowFocus: false // Don't refetch on window focus
   });
 
   // Helper functions
