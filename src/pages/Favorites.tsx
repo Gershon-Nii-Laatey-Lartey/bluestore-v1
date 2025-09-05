@@ -6,11 +6,10 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useFavorites } from "@/hooks/useFavorites";
 import { ProductGrid } from "@/components/ProductGrid";
-import { BackgroundLoadingIndicator } from "@/components/ui/background-loading-indicator";
 
 const Favorites = () => {
   const navigate = useNavigate();
-  const { favorites, isLoading, isFetching } = useFavorites();
+  const { favorites, isLoading } = useFavorites();
 
   return (
     <Layout>
@@ -26,11 +25,9 @@ const Favorites = () => {
           </h1>
           <span className="text-sm text-gray-500">
             {isLoading ? "..." : `${favorites.length} items`}
-            {isFetching && " (updating...)"}
           </span>
         </div>
 
-        <BackgroundLoadingIndicator isFetching={isFetching} />
         {isLoading ? (
           <ProductGrid products={[]} loading={true} />
         ) : favorites.length === 0 ? (

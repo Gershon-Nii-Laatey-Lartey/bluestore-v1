@@ -30,8 +30,8 @@ export const ProductOwnerActions = ({
   onDelete 
 }: ProductOwnerActionsProps) => {
   return (
-    <div className="bg-gray-50 p-4 rounded-lg">
-      <h3 className="text-sm font-medium text-gray-700 mb-3">Manage Your Ad</h3>
+    <div className="bg-muted/50 p-4 rounded-lg border border-border">
+      <h3 className="text-sm font-medium text-card-foreground mb-3">Manage Your Ad</h3>
       <div className="flex flex-wrap gap-2">
         {/* Edit button - available for approved, pending, and rejected ads */}
         {(product.status === 'approved' || product.status === 'pending' || product.status === 'rejected') && (

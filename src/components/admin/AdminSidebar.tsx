@@ -20,7 +20,8 @@ import {
   User,
   LogOut,
   Gift,
-  History
+  History,
+  ShoppingBag
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminSidebar } from "@/hooks/useAdminSidebar";
@@ -62,6 +63,11 @@ export const AdminSidebar = ({
           label: "Products",
           icon: Package,
           badge: pendingSubmissions > 0 ? pendingSubmissions : undefined
+        },
+        {
+          id: "product-catalog",
+          label: "Product Catalog",
+          icon: ShoppingBag
         },
         {
           id: "kyc",
@@ -154,11 +160,7 @@ export const AdminSidebar = ({
           label: "Analytics",
           icon: TrendingUp
         },
-        {
-          id: "tools",
-          label: "Tools",
-          icon: Shield
-        }
+
       ]
     }
   ];
@@ -169,26 +171,26 @@ export const AdminSidebar = ({
 
   return (
     <div className={cn(
-      "fixed left-0 top-0 h-screen bg-white border-r border-gray-200 transition-all duration-300 z-50",
+      "fixed left-0 top-0 h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300 z-50",
       collapsed ? "w-16" : "w-64"
     )}>
       {/* Overlay for mobile */}
       <div className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40" />
       <div className="flex flex-col h-full">
         {/* Profile Card */}
-        <div className="p-4 border-b border-gray-200">
+        <div className="p-4 border-b border-sidebar-border">
           <div className="flex items-center justify-between">
             {!collapsed && (
               <div className="flex items-center space-x-3">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={profile?.avatar_url} />
-                  <AvatarFallback className="bg-blue-100 text-blue-600 text-sm font-medium">
+                  <AvatarFallback className="bg-sidebar-primary/10 text-sidebar-primary text-sm font-medium">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">{displayName}</p>
-                  <p className="text-xs text-gray-500">Administrator</p>
+                  <p className="text-sm font-medium text-sidebar-foreground truncate">{displayName}</p>
+                  <p className="text-xs text-sidebar-foreground/70">Administrator</p>
                 </div>
               </div>
             )}
@@ -214,7 +216,7 @@ export const AdminSidebar = ({
               {menuGroups.map((group, groupIndex) => (
                 <div key={groupIndex} className="space-y-1">
                   {!collapsed && (
-                    <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    <h3 className="px-3 text-xs font-semibold text-sidebar-foreground/60 uppercase tracking-wider">
                       {group.title}
                     </h3>
                   )}
@@ -251,10 +253,10 @@ export const AdminSidebar = ({
         </div>
 
         {/* Sign Out Button */}
-        <div className="p-2 border-t border-gray-200">
+        <div className="p-2 border-t border-sidebar-border">
           <Button
             variant="ghost"
-            className="w-full justify-start h-10 px-3 text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="w-full justify-start h-10 px-3 text-destructive hover:text-destructive hover:bg-destructive/10"
             onClick={handleSignOut}
           >
             <LogOut className="h-4 w-4 flex-shrink-0" />

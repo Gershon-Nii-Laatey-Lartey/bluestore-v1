@@ -2,7 +2,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { ProductSubmission } from "@/types/product";
 
-
 interface ProductDetailsProps {
   product: ProductSubmission;
 }
@@ -25,7 +24,10 @@ export const ProductDetails = ({ product }: ProductDetailsProps) => {
             <span className="text-gray-600">Location:</span>
             <span className="font-medium">{product.location}</span>
           </div>
-
+          <div className="flex justify-between">
+            <span className="text-gray-600">Phone:</span>
+            <span className="font-medium">{product.phone}</span>
+          </div>
           {product.negotiable && (
             <div className="flex justify-between">
               <span className="text-gray-600">Price:</span>

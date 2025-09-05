@@ -198,7 +198,7 @@ const StorefrontSearch = () => {
                 to={`/store/${storefrontUrl}/product/${product.id}`}
                 className="group"
               >
-                <Card className="hover:shadow-lg transition-all duration-200 group-hover:scale-105 border-0 shadow-sm">
+                <Card className="hover:shadow-lg transition-all duration-200 group-hover:scale-105 border-0 shadow-sm bg-card border-border">
                   <CardContent className="p-4">
                     <div className="aspect-square bg-muted rounded-lg mb-3 overflow-hidden">
                       {product.images && product.images.length > 0 ? (

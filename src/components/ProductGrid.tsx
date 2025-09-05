@@ -28,11 +28,11 @@ export const ProductGrid = ({ products, loading, showEditButtons = false, onEdit
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-          <Card key={i} className="animate-pulse">
+          <Card key={i} className="animate-pulse bg-card border-border">
             <CardContent className="p-4">
-              <div className="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg mb-3"></div>
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-              <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              <div className="aspect-square bg-muted rounded-lg mb-3"></div>
+              <div className="h-4 bg-muted rounded mb-2"></div>
+              <div className="h-6 bg-muted rounded"></div>
             </CardContent>
           </Card>
         ))}
@@ -42,7 +42,7 @@ export const ProductGrid = ({ products, loading, showEditButtons = false, onEdit
 
   if (products.length === 0) {
     return (
-      <div className="col-span-2 md:col-span-3 lg:col-span-4 text-center py-12 text-gray-500 dark:text-gray-400">
+      <div className="col-span-2 md:col-span-3 lg:col-span-4 text-center py-12 text-muted-foreground">
         No products available in this category yet. Be the first to post!
       </div>
     );
@@ -60,7 +60,7 @@ export const ProductGrid = ({ products, loading, showEditButtons = false, onEdit
           : null;
 
         return (
-          <Card key={product.id} className="group hover:shadow-lg transition-shadow duration-200 relative">
+          <Card key={product.id} className="group hover:shadow-lg transition-shadow duration-200 relative bg-card border-border">
             {/* Discount Badge for Clearance Items */}
             {isClearanceItem && discountInfo && (
               <div className="absolute top-2 left-2 z-10 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center space-x-1">
@@ -80,14 +80,14 @@ export const ProductGrid = ({ products, loading, showEditButtons = false, onEdit
                     <div className="text-3xl flex items-center justify-center h-full">📱</div>
                   }
                 />
-                <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2 text-sm line-clamp-2 group-hover:text-blue-600 transition-colors">
+                <h4 className="font-medium text-card-foreground mb-2 text-sm line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-primary transition-colors">
                   {product.title}
                 </h4>
               </Link>
               
               <div className="flex items-center justify-between mb-2">
                 <div className="flex flex-col">
-                  <span className="text-lg font-bold text-blue-600">
+                  <span className="text-lg font-bold text-blue-600 dark:text-primary">
                     {formatPrice(product.price)}
                   </span>
                   
@@ -100,7 +100,7 @@ export const ProductGrid = ({ products, loading, showEditButtons = false, onEdit
                   
                   {/* Show original price for regular sale items */}
                   {!isClearanceItem && product.originalPrice && parseFloat(product.originalPrice) > parseFloat(product.price) && (
-                    <span className="text-sm text-gray-500 dark:text-gray-400 line-through">
+                    <span className="text-sm text-muted-foreground line-through">
                       {formatPrice(product.originalPrice)}
                     </span>
                   )}
@@ -110,7 +110,7 @@ export const ProductGrid = ({ products, loading, showEditButtons = false, onEdit
               {/* Show savings amount for clearance items */}
               {isClearanceItem && discountInfo && (
                 <div className="mb-2">
-                  <span className="text-xs text-green-600 font-medium bg-green-50 dark:bg-green-950 dark:text-green-400 px-2 py-1 rounded-full">
+                  <span className="text-xs text-green-600 dark:text-green-400 font-medium bg-green-50 dark:bg-green-950 px-2 py-1 rounded-full">
                     Save {formatPrice(discountInfo.savings)}
                   </span>
                 </div>

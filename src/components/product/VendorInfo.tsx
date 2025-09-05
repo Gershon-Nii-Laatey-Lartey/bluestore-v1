@@ -1,9 +1,11 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { User, MapPin, ExternalLink, Phone } from "lucide-react";
+import { User, MapPin, ExternalLink, Phone, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CallButton } from "./CallButton";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
 
 interface VendorInfoProps {
   vendorName: string;
@@ -13,6 +15,8 @@ interface VendorInfoProps {
 }
 
 export const VendorInfo = ({ vendorName, vendorId, vendorPhone, productId }: VendorInfoProps) => {
+  const { user } = useAuth();
+  
   if (!vendorName) {
     return null;
   }
@@ -44,15 +48,34 @@ export const VendorInfo = ({ vendorName, vendorId, vendorPhone, productId }: Ven
         {/* Contact Information */}
         {vendorPhone && (
           <div className="border-t pt-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <Phone className="h-4 w-4" />
-                <span>Contact Seller</span>
+            {user ? (
+              // Show contact info for authenticated users
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <Phone className="h-4 w-4" />
+                  <span>Contact Seller</span>
+                </div>
+                {productId && (
+                  <CallButton phoneNumber={vendorPhone} productId={productId} />
+                )}
               </div>
-              {productId && (
-                <CallButton phoneNumber={vendorPhone} productId={productId} />
-              )}
-            </div>
+            ) : (
+              // Show login prompt for non-authenticated users
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2 text-sm text-gray-500">
+                  <Lock className="h-4 w-4" />
+                  <span>Contact information hidden</span>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => window.location.href = '/auth'}
+                  className="text-sm"
+                >
+                  Login to View
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </CardContent>

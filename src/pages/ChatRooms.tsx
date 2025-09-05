@@ -3,12 +3,9 @@ import { Layout } from "@/components/Layout";
 import { MobileHeader } from "@/components/MobileHeader";
 import { ChatRoomList } from "@/components/chat/ChatRoomList";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { BackgroundLoadingIndicator } from "@/components/ui/background-loading-indicator";
-import { useChatRooms } from "@/hooks/useChatRooms";
 
 const ChatRooms = () => {
   const isMobile = useIsMobile();
-  const { isFetching } = useChatRooms();
 
   if (isMobile) {
     return (
@@ -26,7 +23,6 @@ const ChatRooms = () => {
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <BackgroundLoadingIndicator isFetching={isFetching} />
             <ChatRoomList />
           </div>
         </div>
@@ -49,7 +45,6 @@ const ChatRooms = () => {
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <BackgroundLoadingIndicator isFetching={isFetching} />
           <ChatRoomList />
         </div>
       </div>

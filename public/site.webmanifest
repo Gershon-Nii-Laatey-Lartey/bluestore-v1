@@ -27,34 +27,7 @@
     {
       "src": "/apple-touch-icon.png",
       "sizes": "180x180",
-      "type": "image/png",
-      "purpose": "any"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Publish Ad",
-      "short_name": "Publish",
-      "description": "Create a new product listing",
-      "url": "/publish-ad",
-      "icons": [
-        {
-          "src": "/android-chrome-192x192.png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
-      "name": "My Ads",
-      "short_name": "My Ads",
-      "description": "Manage your product listings",
-      "url": "/my-ads",
-      "icons": [
-        {
-          "src": "/android-chrome-192x192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "type": "image/png"
     }
   ]
 } 

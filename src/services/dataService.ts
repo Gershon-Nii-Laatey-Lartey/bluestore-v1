@@ -383,8 +383,20 @@ export const dataService = {
       console.error('Error rejecting product:', error);
       throw error;
     }
+  },
 
+  async deleteProduct(productId: string): Promise<void> {
+    console.log('Deleting product:', productId);
+    
+    const { error } = await supabase
+      .from('product_submissions')
+      .delete()
+      .eq('id', productId);
 
+    if (error) {
+      console.error('Error deleting product:', error);
+      throw error;
+    }
   },
 
   async isCSWorker(): Promise<boolean> {

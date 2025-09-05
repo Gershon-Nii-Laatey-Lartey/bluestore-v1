@@ -1,9 +1,8 @@
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ProductSubmission } from "@/types/product";
 import { Link } from "react-router-dom";
 import { formatPrice } from "@/utils/formatters";
-import { ProductSubmission } from "@/types/product";
-
 
 interface ProductInfoProps {
   product: ProductSubmission;
@@ -96,7 +95,10 @@ export const ProductInfo = ({ product, vendorName, vendorId }: ProductInfoProps)
             <span className="text-gray-600 dark:text-gray-400">Category:</span>
             <span className="ml-2 font-medium text-gray-900 dark:text-gray-100">{product.category}</span>
           </div>
-
+          <div>
+            <span className="text-gray-600 dark:text-gray-400">Phone:</span>
+            <span className="ml-2 font-medium text-gray-900 dark:text-gray-100">{product.phone}</span>
+          </div>
         </div>
 
         {product.status !== 'approved' && (

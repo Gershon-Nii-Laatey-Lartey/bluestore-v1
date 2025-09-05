@@ -39,7 +39,7 @@ export const BasicInformationForm = ({ formData, onInputChange }: BasicInformati
             <select 
               id="category" 
               name="category"
-              className="w-full mt-1 p-2 border border-gray-300 rounded-md"
+              className="w-full mt-1 p-2 border border-input rounded-md bg-background text-foreground"
               value={formData.category}
               onChange={onInputChange}
               required
@@ -60,7 +60,7 @@ export const BasicInformationForm = ({ formData, onInputChange }: BasicInformati
             <select 
               id="condition" 
               name="condition"
-              className="w-full mt-1 p-2 border border-gray-300 rounded-md"
+              className="w-full mt-1 p-2 border border-input rounded-md bg-background text-foreground"
               value={formData.condition}
               onChange={onInputChange}
               required
@@ -81,7 +81,7 @@ export const BasicInformationForm = ({ formData, onInputChange }: BasicInformati
             name="description"
             rows={4} 
             placeholder="Describe your product..."
-            className="w-full mt-1 p-2 border border-gray-300 rounded-md"
+            className="w-full mt-1 p-2 border border-input rounded-md bg-background text-foreground"
             value={formData.description}
             onChange={onInputChange}
             required

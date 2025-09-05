@@ -37,7 +37,7 @@ const EXCLUDED_PAGES = [
   "/storefront-chat",
   "/storefront-search",
   "/storefront-product",
-  "/cs-worker-dashboard",
+          "/cs-dashboard",
   "/kyc",
   "/settings",
   "/notifications",

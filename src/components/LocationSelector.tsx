@@ -71,10 +71,10 @@ export const LocationSelector = ({
       <div className={`relative ${className}`}>
         <Button
           variant="ghost"
-          className="flex items-center text-gray-600 hover:text-gray-800 max-w-48 md:max-w-none"
+          className="flex items-center text-muted-foreground hover:text-foreground max-w-48 md:max-w-none"
           onClick={() => setIsOpen(true)}
         >
-          <MapPin className="h-4 w-4 mr-1 text-blue-600 flex-shrink-0" />
+          <MapPin className="h-4 w-4 mr-1 text-blue-600 dark:text-primary flex-shrink-0" />
           <span className="text-sm font-medium truncate">{currentLocation}</span>
           <ChevronDown className="h-3 w-3 ml-1 flex-shrink-0" />
         </Button>
@@ -86,16 +86,16 @@ export const LocationSelector = ({
     <div className="relative">
       <Button
         variant="ghost"
-        className="flex items-center text-gray-600 hover:text-gray-800 max-w-48 md:max-w-none"
+        className="flex items-center text-muted-foreground hover:text-foreground max-w-48 md:max-w-none"
         onClick={() => setIsOpen(true)}
       >
-        <MapPin className="h-4 w-4 mr-1 text-blue-600 flex-shrink-0" />
+        <MapPin className="h-4 w-4 mr-1 text-blue-600 dark:text-primary flex-shrink-0" />
         <span className="text-sm font-medium truncate">{currentLocation}</span>
         <ChevronDown className="h-3 w-3 ml-1 flex-shrink-0" />
       </Button>
       
       <div className={`
-        bg-white border rounded-lg shadow-lg p-4 z-[100] mt-1
+        bg-popover border border-border rounded-lg shadow-lg p-4 z-[100] mt-1
         ${isMobile 
           ? 'fixed inset-x-4 top-20 max-h-[80vh] overflow-y-auto' 
           : 'absolute left-0 min-w-80 max-w-96'
@@ -103,13 +103,13 @@ export const LocationSelector = ({
       `}>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-gray-900">Select Your Location</h3>
+            <h3 className="text-sm font-medium text-popover-foreground">Select Your Location</h3>
             {isMobile && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsOpen(false)}
-                className="text-gray-500"
+                className="text-muted-foreground"
               >
                 ✕
               </Button>
@@ -117,18 +117,18 @@ export const LocationSelector = ({
           </div>
           
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">Region *</label>
+            <label className="text-xs text-muted-foreground mb-1 block">Region *</label>
             <Select 
               value={selectedRegion} 
               onValueChange={handleRegionChange} 
               disabled={loadingRegions || regions.length === 0}
             >
-              <SelectTrigger className="w-full bg-white">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder={loadingRegions ? "Loading regions..." : "Select a region"} />
               </SelectTrigger>
-              <SelectContent className="bg-white border shadow-lg z-[110] max-h-60 overflow-y-auto">
+              <SelectContent className="z-[110] max-h-60 overflow-y-auto">
                 {regions.map((region) => (
-                  <SelectItem key={region.id} value={region.id} className="cursor-pointer hover:bg-gray-50">
+                  <SelectItem key={region.id} value={region.id} className="cursor-pointer text-foreground">
                     {region.name}
                   </SelectItem>
                 ))}
@@ -143,14 +143,14 @@ export const LocationSelector = ({
 
           {selectedRegion && (
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">City *</label>
+              <label className="text-xs text-muted-foreground mb-1 block">City *</label>
               <Select value={selectedCity} onValueChange={setSelectedCity}>
-                <SelectTrigger className="w-full bg-white">
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder={cities.length === 0 ? (loadingCities ? "Loading cities..." : "Select a city") : "Select a city"} />
                 </SelectTrigger>
-                <SelectContent className="bg-white border shadow-lg z-[110] max-h-60 overflow-y-auto">
+                <SelectContent className="z-[110] max-h-60 overflow-y-auto">
                   {cities.map((city) => (
-                    <SelectItem key={city.id} value={city.id} className="cursor-pointer hover:bg-gray-50">
+                    <SelectItem key={city.id} value={city.id} className="cursor-pointer text-foreground">
                       {city.name}
                     </SelectItem>
                   ))}

@@ -103,16 +103,16 @@ export const FeaturedProducts = memo(({ products, loading = false }: FeaturedPro
             <ProductSkeleton key={index} />
           ))
         ) : products.length === 0 ? (
-          <div className="col-span-2 md:col-span-3 lg:col-span-4 text-center py-12 text-gray-500 dark:text-gray-400">
+          <div className="col-span-2 md:col-span-3 lg:col-span-4 text-center py-12 text-muted-foreground">
             No products available. Start by publishing your first ad!
-          </div>
+</div>
         ) : (
           products.map(product => {
             const priceInfo = getDisplayPrice(product);
             
             return (
               <Link key={product.id} to={`/product/${product.id}`}>
-                <Card className="group hover:shadow-lg transition-shadow duration-200 cursor-pointer">
+                <Card className="group hover:shadow-lg transition-shadow duration-200 cursor-pointer bg-card border-border">
                   <CardContent className="p-4 px-[10px]">
                     <OptimizedImage
                       src={getMainImageWithFallback(product.images || [], product.main_image_index)}
@@ -121,22 +121,22 @@ export const FeaturedProducts = memo(({ products, loading = false }: FeaturedPro
                       className="mb-3 group-hover:scale-105 transition-transform duration-200"
                       fallback={<span>📱</span>}
                     />
-                    <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2 text-sm line-clamp-2 group-hover:text-blue-600 transition-colors">
+                    <h4 className="font-medium text-card-foreground mb-2 text-sm line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-primary transition-colors">
                       {product.title}
                     </h4>
                     <div className="flex items-center justify-between">
                       <div className="flex flex-col">
-                        <span className="text-lg font-bold text-blue-600">
+                        <span className="text-lg font-bold text-blue-600 dark:text-primary">
                           {priceInfo.currentPrice}
                         </span>
                         {priceInfo.previousPrice && (
-                          <span className={`text-sm line-through ${priceInfo.isClearance ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}`}>
+                          <span className={`text-sm line-through ${priceInfo.isClearance ? 'text-red-500' : 'text-muted-foreground'}`}>
                             {priceInfo.previousPrice}
                           </span>
                         )}
                       </div>
                     </div>
-                    <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    <div className="mt-2 text-xs text-muted-foreground">
                       {product.location}
                     </div>
                     {priceInfo.isClearance && (

@@ -20,8 +20,6 @@ import Search from "./pages/Search";
 import CategoryPage from "./pages/CategoryPage";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
-import AdminUsers from "./pages/AdminUsers";
-import UserManagement from "./pages/UserManagement";
 import VendorRequired from "./pages/VendorRequired";
 import CreateVendorProfile from "./pages/CreateVendorProfile";
 
@@ -214,16 +212,7 @@ const App = () => (
                 <Admin />
               </AdminProtectedRoute>
             } />
-            <Route path="/admin/users" element={
-              <AdminProtectedRoute>
-                <AdminUsers />
-              </AdminProtectedRoute>
-            } />
-            <Route path="/user-management" element={
-              <AdminProtectedRoute>
-                <UserManagement />
-              </AdminProtectedRoute>
-            } />
+
 
             <Route path="/cs-dashboard" element={
               <CSWorkerProtectedRoute>

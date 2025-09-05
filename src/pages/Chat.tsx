@@ -68,33 +68,33 @@ const Chat = () => {
   const MobileChatSkeleton = () => (
     <div className="h-screen flex flex-col">
       {/* Mobile Header Skeleton */}
-      <div className="bg-white border-b p-4">
+      <div className="bg-background border-b border-border p-4">
         <div className="animate-pulse flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+          <div className="w-10 h-10 bg-muted rounded-full"></div>
           <div className="flex-1">
-            <div className="h-5 bg-gray-200 rounded w-1/3 mb-1"></div>
-            <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+            <div className="h-5 bg-muted rounded w-1/3 mb-1"></div>
+            <div className="h-3 bg-muted rounded w-1/4"></div>
           </div>
         </div>
       </div>
       
       {/* Messages Skeleton */}
-      <div className="flex-1 p-4 space-y-4">
+      <div className="flex-1 p-4 space-y-4 bg-background">
         {Array.from({ length: 6 }).map((_, index) => (
           <div key={index} className={`flex ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
-            <div className={`max-w-xs ${index % 2 === 0 ? 'bg-gray-100' : 'bg-blue-500'} rounded-lg p-3`}>
-              <div className="h-4 bg-gray-200 rounded w-32"></div>
-              <div className="h-3 bg-gray-200 rounded w-16 mt-1"></div>
+            <div className={`max-w-xs ${index % 2 === 0 ? 'bg-muted' : 'bg-primary'} rounded-lg p-3`}>
+              <div className="h-4 bg-muted-foreground/20 rounded w-32"></div>
+              <div className="h-3 bg-muted-foreground/20 rounded w-16 mt-1"></div>
             </div>
           </div>
         ))}
       </div>
       
       {/* Input Skeleton */}
-      <div className="border-t p-4">
+      <div className="border-t border-border p-4 bg-background">
         <div className="animate-pulse flex space-x-2">
-          <div className="flex-1 h-10 bg-gray-200 rounded"></div>
-          <div className="w-10 h-10 bg-gray-200 rounded"></div>
+          <div className="flex-1 h-10 bg-muted rounded"></div>
+          <div className="w-10 h-10 bg-muted rounded"></div>
         </div>
       </div>
     </div>
@@ -103,17 +103,17 @@ const Chat = () => {
   const DesktopChatSkeleton = () => (
     <div className="flex h-screen">
       {/* Sidebar Skeleton */}
-      <div className="w-80 border-r bg-gray-50">
-        <div className="p-4 border-b border-gray-200">
+      <div className="w-80 border-r border-border bg-muted/20">
+        <div className="p-4 border-b border-border">
           <div className="animate-pulse">
-            <div className="h-6 bg-gray-200 rounded w-32 mb-4"></div>
+            <div className="h-6 bg-muted rounded w-32 mb-4"></div>
             <div className="space-y-3">
               {Array.from({ length: 5 }).map((_, index) => (
                 <div key={index} className="flex items-center space-x-3 p-3">
-                  <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                  <div className="w-10 h-10 bg-muted rounded-full"></div>
                   <div className="flex-1">
-                    <div className="h-4 bg-gray-200 rounded w-24 mb-1"></div>
-                    <div className="h-3 bg-gray-200 rounded w-32"></div>
+                    <div className="h-4 bg-muted rounded w-24 mb-1"></div>
+                    <div className="h-3 bg-muted rounded w-32"></div>
                   </div>
                 </div>
               ))}
@@ -125,33 +125,33 @@ const Chat = () => {
       {/* Main Chat Area Skeleton */}
       <div className="flex-1 flex flex-col">
         {/* Header Skeleton */}
-        <div className="border-b p-4 bg-white">
+        <div className="border-b border-border p-4 bg-background">
           <div className="animate-pulse flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+            <div className="w-10 h-10 bg-muted rounded-full"></div>
             <div className="flex-1">
-              <div className="h-5 bg-gray-200 rounded w-1/3 mb-1"></div>
-              <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+              <div className="h-5 bg-muted rounded w-1/3 mb-1"></div>
+              <div className="h-3 bg-muted rounded w-1/4"></div>
             </div>
           </div>
         </div>
         
         {/* Messages Skeleton */}
-        <div className="flex-1 p-4 space-y-4 bg-gray-50">
+        <div className="flex-1 p-4 space-y-4 bg-background">
           {Array.from({ length: 6 }).map((_, index) => (
             <div key={index} className={`flex ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
-              <div className={`max-w-xs ${index % 2 === 0 ? 'bg-gray-100' : 'bg-blue-500'} rounded-lg p-3`}>
-                <div className="h-4 bg-gray-200 rounded w-32"></div>
-                <div className="h-3 bg-gray-200 rounded w-16 mt-1"></div>
+              <div className={`max-w-xs ${index % 2 === 0 ? 'bg-muted' : 'bg-primary'} rounded-lg p-3`}>
+                <div className="h-4 bg-muted-foreground/20 rounded w-32"></div>
+                <div className="h-3 bg-muted-foreground/20 rounded w-16 mt-1"></div>
               </div>
             </div>
           ))}
         </div>
         
         {/* Input Skeleton */}
-        <div className="border-t p-4 bg-white">
+        <div className="border-t border-border p-4 bg-background">
           <div className="animate-pulse flex space-x-2">
-            <div className="flex-1 h-10 bg-gray-200 rounded"></div>
-            <div className="w-10 h-10 bg-gray-200 rounded"></div>
+            <div className="flex-1 h-10 bg-muted rounded"></div>
+            <div className="w-10 h-10 bg-muted rounded"></div>
           </div>
         </div>
       </div>
@@ -554,9 +554,9 @@ const Chat = () => {
 
   if (isMobile) {
     return (
-      <div className="h-screen flex flex-col bg-gray-50">
+      <div className="h-screen flex flex-col bg-muted">
         {/* Mobile Header - Chat Description Card */}
-        <div className="bg-white border-b px-4 py-3">
+        <div className="bg-background border-b px-4 py-3">
           <div className="flex items-center space-x-3">
             <Button
               variant="ghost"
@@ -567,7 +567,7 @@ const Chat = () => {
             </Button>
             
             {productImage && (
-              <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+              <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
                 <img 
                   src={productImage} 
                   alt={productTitle}
@@ -577,11 +577,11 @@ const Chat = () => {
             )}
             
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-gray-900 truncate">
+              <h3 className="font-semibold text-foreground truncate">
                 {sellerName || 'Seller'}
               </h3>
               {productTitle && (
-                <p className="text-sm text-gray-500 truncate">
+                <p className="text-sm text-muted-foreground truncate">
                   {productTitle}
                 </p>
               )}
@@ -594,9 +594,9 @@ const Chat = () => {
           {messages.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
-                <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Start a conversation</h3>
-                <p className="text-gray-500">Send a message to begin chatting</p>
+                <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">Start a conversation</h3>
+                <p className="text-muted-foreground">Send a message to begin chatting</p>
               </div>
             </div>
           ) : (
@@ -609,12 +609,12 @@ const Chat = () => {
                   className={`max-w-xs px-4 py-2 rounded-lg ${
                     msg.sender_id === user.id
                       ? 'bg-blue-500 text-white'
-                      : 'bg-white text-gray-900 shadow-sm'
+                      : 'bg-background text-foreground shadow-sm'
                   }`}
                 >
                   <p className="text-sm">{msg.message_text}</p>
                   <p className={`text-xs mt-1 ${
-                    msg.sender_id === user.id ? 'text-blue-100' : 'text-gray-500'
+                    msg.sender_id === user.id ? 'text-blue-100' : 'text-muted-foreground'
                   }`}>
                     {new Date(msg.sent_at).toLocaleTimeString([], { 
                       hour: '2-digit', 
@@ -629,7 +629,7 @@ const Chat = () => {
         </div>
         
         {/* Fixed Message Input Bar at Bottom */}
-        <div className="fixed bottom-0 left-0 right-0 border-t p-4 bg-white shadow-lg">
+        <div className="fixed bottom-0 left-0 right-0 border-t p-4 bg-background shadow-lg">
           <div className="flex space-x-2">
             <Input
               value={message}
@@ -655,7 +655,7 @@ const Chat = () => {
       <div className="flex h-screen">
                  {/* Sidebar */}
          {!isMobile && (
-           <div className="w-80 border-r bg-gray-50">
+           <div className="w-80 border-r bg-muted">
              <ChatSidebar 
                currentRoomId={chatRoom?.id} 
                onRoomChange={handleRoomChange}
@@ -666,7 +666,7 @@ const Chat = () => {
         {/* Main Chat Area */}
         <div className="flex-1 flex flex-col">
           {/* Header */}
-          <div className="border-b p-4 bg-white">
+          <div className="border-b p-4 bg-background">
             <div className="flex items-center space-x-3">
               <Button
                 variant="ghost"
@@ -688,11 +688,11 @@ const Chat = () => {
               )}
               
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-gray-900 truncate">
+                <h3 className="font-semibold text-foreground truncate">
                   {sellerName || 'Seller'}
                 </h3>
                 {productTitle && (
-                  <p className="text-sm text-gray-500 truncate">
+                  <p className="text-sm text-muted-foreground truncate">
                     {productTitle}
                   </p>
                 )}
@@ -701,13 +701,13 @@ const Chat = () => {
           </div>
           
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted">
             {messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
-                  <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Start a conversation</h3>
-                  <p className="text-gray-500">Send a message to begin chatting</p>
+                  <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">Start a conversation</h3>
+                  <p className="text-muted-foreground">Send a message to begin chatting</p>
                 </div>
               </div>
             ) : (
@@ -720,12 +720,12 @@ const Chat = () => {
                     className={`max-w-xs px-4 py-2 rounded-lg ${
                       msg.sender_id === user.id
                         ? 'bg-blue-500 text-white'
-                        : 'bg-white text-gray-900 shadow-sm'
+                        : 'bg-background text-foreground shadow-sm'
                     }`}
                   >
                     <p className="text-sm">{msg.message_text}</p>
                     <p className={`text-xs mt-1 ${
-                      msg.sender_id === user.id ? 'text-blue-100' : 'text-gray-500'
+                      msg.sender_id === user.id ? 'text-blue-100' : 'text-muted-foreground'
                     }`}>
                       {new Date(msg.sent_at).toLocaleTimeString([], { 
                         hour: '2-digit', 
@@ -740,7 +740,7 @@ const Chat = () => {
           </div>
           
           {/* Message Input */}
-          <div className="border-t p-4 bg-white">
+          <div className="border-t p-4 bg-background">
             <div className="flex space-x-2">
               <Input
                 value={message}

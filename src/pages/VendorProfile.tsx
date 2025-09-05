@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, Phone, Mail, Package, Shield, Edit, MessageCircle, Calendar, Share2 } from "lucide-react";
+import { MapPin, Phone, Mail, Package, Shield, Edit, MessageCircle, Calendar, Share2, Lock } from "lucide-react";
 import { SEOHead } from "@/components/SEOHead";
 import { useAuth } from "@/hooks/useAuth";
 import { dataService, VendorProfile as VendorProfileType } from "@/services/dataService";
@@ -396,13 +396,13 @@ const VendorProfile = () => {
               <div className="flex items-center justify-center mb-4">
                 <Avatar className="h-20 w-20 mr-4">
                   <AvatarImage src={getProfileImageUrl() || undefined} />
-                  <AvatarFallback className="bg-blue-100 text-blue-600 text-xl">
+                  <AvatarFallback className="bg-primary/10 text-primary text-xl">
                     {vendor.business_name?.charAt(0) || vendor.profiles?.full_name?.charAt(0) || 'V'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="text-left">
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{vendor.business_name || vendor.profiles?.full_name}</h1>
-                  <p className="text-gray-600 mb-2">{vendor.profiles?.full_name && vendor.business_name ? `${vendor.profiles.full_name} • ` : ''}BlueStore Vendor</p>
+                  <h1 className="text-3xl font-bold text-foreground mb-2">{vendor.business_name || vendor.profiles?.full_name}</h1>
+                  <p className="text-muted-foreground mb-2">{vendor.profiles?.full_name && vendor.business_name ? `${vendor.profiles.full_name} • ` : ''}BlueStore Vendor</p>
                   <div className="flex items-center space-x-2">
                     {getVerificationBadge()}
                     {isOwnProfile && getActivePackageInfo()}
@@ -473,14 +473,14 @@ const VendorProfile = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600 font-bold text-lg">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                    <span className="text-primary font-bold text-lg">
                       {(vendor.business_name || vendor.profiles?.full_name || 'V').charAt(0).toUpperCase()}
                     </span>
                   </div>
                   <div>
-                    <h2 className="text-xl font-semibold">{vendor.business_name || vendor.profiles?.full_name}</h2>
-                    <p className="text-sm text-gray-500">Vendor Profile</p>
+                    <h2 className="text-xl font-semibold text-card-foreground">{vendor.business_name || vendor.profiles?.full_name}</h2>
+                    <p className="text-sm text-muted-foreground">Vendor Profile</p>
                   </div>
                 </CardTitle>
               </CardHeader>
@@ -488,30 +488,37 @@ const VendorProfile = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div className="flex items-center space-x-3">
-                      <MapPin className="h-5 w-5 text-gray-400" />
+                      <MapPin className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="font-medium">Location</p>
-                        <p className="text-gray-600">{vendor.location || 'Not specified'}</p>
+                        <p className="text-muted-foreground">{vendor.location || 'Not specified'}</p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <Phone className="h-5 w-5 text-gray-400" />
+                      <Phone className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="font-medium">Contact</p>
-                        <p className="text-gray-600">{vendor.phone || 'Not specified'}</p>
+                        {user ? (
+                          <p className="text-muted-foreground">{vendor.phone || 'Not specified'}</p>
+                        ) : (
+                          <div className="flex items-center space-x-2">
+                            <Lock className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-muted-foreground text-sm">Login to view</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
                   <div className="space-y-4">
                     <div className="flex items-center space-x-3">
-                      <Mail className="h-5 w-5 text-gray-400" />
+                      <Mail className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="font-medium">Email</p>
-                        <p className="text-gray-600">{vendor.profiles?.email || vendor.email || 'Not specified'}</p>
+                        <p className="text-muted-foreground">{vendor.profiles?.email || vendor.email || 'Not specified'}</p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <Shield className="h-5 w-5 text-gray-400" />
+                      <Shield className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="font-medium">Verification</p>
                         <Badge variant={vendor.verified ? "default" : "secondary"}>
@@ -527,7 +534,7 @@ const VendorProfile = () => {
                     <Separator className="my-6" />
                     <div>
                       <h3 className="font-medium mb-2">About</h3>
-                      <p className="text-gray-600">{vendor.description}</p>
+                      <p className="text-muted-foreground">{vendor.description}</p>
                     </div>
                   </>
                 )}
@@ -536,13 +543,13 @@ const VendorProfile = () => {
 
             {/* Products Section */}
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Products by this Vendor</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-6">Products by this Vendor</h2>
               {vendorProducts && vendorProducts.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {vendorProducts.map((product) => (
                     <Card key={product.id} className="group hover:shadow-lg transition-shadow duration-200 cursor-pointer">
                       <CardContent className="p-4">
-                        <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden mb-3">
+                        <div className="aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden mb-3">
                           {product.images && product.images.length > 0 ? (
                             <img 
                               src={getMainImageWithFallback(product.images, product.main_image_index)} 
@@ -553,13 +560,13 @@ const VendorProfile = () => {
                             <span className="text-2xl">📱</span>
                           )}
                         </div>
-                        <h4 className="font-medium text-gray-900 mb-2 text-sm line-clamp-2">
+                        <h4 className="font-medium text-card-foreground mb-2 text-sm line-clamp-2">
                           {product.title}
                         </h4>
-                        <p className="text-lg font-bold text-blue-600 mb-2">
+                        <p className="text-lg font-bold text-primary mb-2">
                           {formatPrice(product.price)}
                         </p>
-                        <p className="text-xs text-gray-500 capitalize">
+                        <p className="text-xs text-muted-foreground capitalize">
                           {product.category} • {product.condition}
                         </p>
                       </CardContent>
@@ -569,7 +576,7 @@ const VendorProfile = () => {
               ) : (
                 <Card>
                   <CardContent className="p-6 text-center">
-                    <p className="text-gray-500">No products available from this vendor yet.</p>
+                    <p className="text-muted-foreground">No products available from this vendor yet.</p>
                   </CardContent>
                 </Card>
               )}

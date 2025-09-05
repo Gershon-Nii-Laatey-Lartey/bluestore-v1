@@ -99,9 +99,9 @@ export const ChatRoomList = () => {
   if (chatRooms.length === 0) {
     return (
       <div className="text-center py-12">
-        <MessageCircle className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No conversations yet</h3>
-        <p className="text-gray-500 dark:text-gray-400 mb-6">
+        <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+        <h3 className="text-lg font-medium text-card-foreground mb-2">No conversations yet</h3>
+        <p className="text-muted-foreground mb-6">
           Start chatting with sellers by visiting product pages and clicking "Chat with Seller"
         </p>
         <Button onClick={() => navigate('/')}>

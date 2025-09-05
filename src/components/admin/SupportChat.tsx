@@ -5,10 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Send, MessageCircle, User, Shield, CheckCircle, RotateCcw, Trash2 } from "lucide-react";
+import { Send, MessageCircle, User, Shield, CheckCircle, RotateCcw, Trash2, ArrowLeft, Menu } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
 interface SupportSession {
@@ -45,10 +46,12 @@ export const SupportChat = () => {
   const [sending, setSending] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("active");
+  const [showSessionsList, setShowSessionsList] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const subscriptionRef = useRef<any>(null);
   const { user } = useAuth();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -334,7 +337,10 @@ export const SupportChat = () => {
   const resolvedSessions = sessions.filter(s => s.status === 'resolved');
 
   const renderSessionList = (sessionList: SupportSession[]) => (
-    <div className="overflow-y-auto h-[calc(100vh-280px)]">
+    <div className={cn(
+      "overflow-y-auto overscroll-contain",
+      isMobile ? "h-[calc(100vh-200px)]" : "h-[calc(100vh-280px)]"
+    )}>
       {sessionList.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           <MessageCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
@@ -346,10 +352,11 @@ export const SupportChat = () => {
             key={session.id}
             className={cn(
               "p-3 cursor-pointer hover:bg-gray-50 border-b border-gray-100 transition-colors",
+              isMobile && "py-4 active:bg-gray-100", // Larger touch target and active state on mobile
               selectedSession?.id === session.id && "bg-blue-50 border-blue-200",
               session.status === 'resolved' && "opacity-60 bg-gray-50"
             )}
-            onClick={() => setSelectedSession(session)}
+            onClick={() => handleSessionSelect(session)}
           >
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
@@ -368,18 +375,35 @@ export const SupportChat = () => {
                     </p>
                   </div>
                 </div>
-                <p className="text-sm text-gray-600 truncate mb-2">
+                <p className={cn(
+                  "text-sm text-gray-600 truncate mb-2",
+                  isMobile && "text-xs leading-relaxed"
+                )}>
                   {session.last_message}
                 </p>
-                <div className="flex items-center space-x-2">
-                  <Badge className={getStatusColor(session.status)} variant="secondary">
+                <div className={cn(
+                  "flex items-center space-x-2",
+                  isMobile && "flex-wrap gap-1"
+                )}>
+                  <Badge className={cn(
+                    getStatusColor(session.status), 
+                    "variant-secondary",
+                    isMobile && "text-xs px-2 py-1"
+                  )}>
                     {session.status}
                   </Badge>
-                  <Badge className={getPriorityColor(session.priority)} variant="secondary">
+                  <Badge className={cn(
+                    getPriorityColor(session.priority), 
+                    "variant-secondary",
+                    isMobile && "text-xs px-2 py-1"
+                  )}>
                     P{session.priority}
                   </Badge>
                   {session.unread_count > 0 && (
-                    <Badge variant="destructive" className="ml-auto">
+                    <Badge variant="destructive" className={cn(
+                      "ml-auto",
+                      isMobile && "text-xs px-2 py-1"
+                    )}>
                       {session.unread_count}
                     </Badge>
                   )}
@@ -392,14 +416,233 @@ export const SupportChat = () => {
     </div>
   );
 
+  // Mobile-specific functions
+  const handleSessionSelect = (session: SupportSession) => {
+    setSelectedSession(session);
+    if (isMobile) {
+      setShowSessionsList(false);
+    }
+  };
+
+  const handleBackToSessions = () => {
+    setSelectedSession(null);
+    if (isMobile) {
+      setShowSessionsList(true);
+    }
+  };
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className={cn(
+        "flex flex-col items-center justify-center",
+        isMobile ? "h-[calc(100vh-200px)]" : "h-64"
+      )}>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
+        <p className="text-sm text-gray-500">Loading support chats...</p>
       </div>
     );
   }
 
+  // Mobile Layout
+  if (isMobile) {
+    return (
+      <div className="h-[calc(100vh-200px)] bg-gray-50">
+        {/* Mobile Sessions List View */}
+        {!selectedSession && (
+          <div className="h-full bg-white">
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <MessageCircle className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">Support Chats</h2>
+                    <p className="text-xs text-gray-500">Manage customer support conversations</p>
+                  </div>
+                </div>
+                <Badge variant="secondary">{sessions.length}</Badge>
+              </div>
+              {sessions.length === 0 && (
+                <p className="text-sm text-gray-500 mb-4">No support chats available at the moment.</p>
+              )}
+              
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="active" className={cn("text-xs", isMobile && "py-3 text-sm")}>
+                    Active ({activeSessions.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="resolved" className={cn("text-xs", isMobile && "py-3 text-sm")}>
+                    Resolved ({resolvedSessions.length})
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="active" className="mt-4">
+                  {renderSessionList(activeSessions)}
+                </TabsContent>
+                
+                <TabsContent value="resolved" className="mt-4">
+                  {renderSessionList(resolvedSessions)}
+                </TabsContent>
+              </Tabs>
+            </div>
+          </div>
+        )}
+
+        {/* Mobile Chat View */}
+        {selectedSession && (
+          <div className="h-full flex flex-col bg-white">
+            {/* Mobile Chat Header */}
+            <div className="border-b border-gray-200 p-4">
+              <div className="flex items-center space-x-3 mb-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBackToSessions}
+                  className="p-1"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900">{selectedSession.display_name}</h3>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <Badge className={getStatusColor(selectedSession.status)} variant="secondary">
+                      {selectedSession.status}
+                    </Badge>
+                    <Badge className={getPriorityColor(selectedSession.priority)} variant="secondary">
+                      P{selectedSession.priority}
+                    </Badge>
+                  </div>
+                  {selectedSession.case_number && (
+                    <p className="text-xs text-gray-500 mt-1">Case: {selectedSession.case_number}</p>
+                  )}
+                </div>
+                <div className="flex items-center space-x-2">
+                  {selectedSession.status === 'resolved' ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => updateSessionStatus(selectedSession.id, 'active')}
+                      disabled={updatingStatus === selectedSession.id}
+                      className="text-xs px-2 py-1"
+                    >
+                      {updatingStatus === selectedSession.id ? (
+                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
+                      ) : (
+                        <>
+                          <RotateCcw className="h-3 w-3 mr-1" />
+                          Reopen
+                        </>
+                      )}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => updateSessionStatus(selectedSession.id, 'resolved')}
+                      disabled={updatingStatus === selectedSession.id}
+                      className="text-xs px-2 py-1"
+                    >
+                      {updatingStatus === selectedSession.id ? (
+                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
+                      ) : (
+                        <>
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Resolve
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Chat Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 overscroll-contain">
+              {messages.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">
+                  <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No messages yet</p>
+                </div>
+              ) : (
+                messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex ${message.sender_type === 'user' || message.sender_type === 'visitor' ? 'justify-start' : 'justify-end'}`}
+                  >
+                    <div className="flex items-end space-x-2 max-w-[85%]">
+                      {message.sender_type === 'user' || message.sender_type === 'visitor' && (
+                        <Avatar className="h-6 w-6">
+                          <AvatarFallback className="bg-green-100 text-green-600 text-xs">
+                            {selectedSession.display_name ? selectedSession.display_name.charAt(0).toUpperCase() : 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                      <div
+                        className={`px-3 py-2 rounded-lg ${
+                          message.sender_type === 'user' || message.sender_type === 'visitor'
+                            ? 'bg-gray-100 text-gray-900'
+                            : 'bg-blue-600 text-white'
+                        }`}
+                      >
+                        <p className={cn(
+                          "text-sm break-words",
+                          isMobile && "text-base leading-relaxed"
+                        )}>{message.message_text}</p>
+                        <p className={cn(
+                          "text-xs mt-1",
+                          isMobile && "text-sm",
+                          message.sender_type === 'user' || message.sender_type === 'visitor'
+                            ? 'text-gray-500'
+                            : 'text-blue-100'
+                        )}>
+                          {formatTime(message.sent_at)}
+                        </p>
+                      </div>
+                      {message.sender_type !== 'user' && message.sender_type !== 'visitor' && (
+                        <Avatar className="h-6 w-6">
+                          <AvatarFallback className="bg-blue-100 text-blue-600 text-xs">
+                            A
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Mobile Message Input */}
+            <div className="border-t border-gray-200 p-4 safe-area-bottom">
+              <div className="flex space-x-2">
+                <Input
+                  value={messageText}
+                  onChange={(e) => setMessageText(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Type your message..."
+                  className="flex-1"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="sentences"
+                />
+                <Button 
+                  onClick={sendMessage} 
+                  disabled={!messageText.trim() || sending}
+                  size="sm"
+                  className="min-w-[44px] min-h-[44px]" // Ensure touch target size
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Desktop Layout (existing code)
   return (
     <div className="flex h-[calc(100vh-200px)] bg-gray-50">
       {/* Sessions List */}
@@ -498,7 +741,7 @@ export const SupportChat = () => {
             </div>
 
             {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 overscroll-contain">
               {messages.length === 0 ? (
                 <div className="text-center text-gray-500 py-8">
                   <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -557,6 +800,9 @@ export const SupportChat = () => {
                   onKeyPress={handleKeyPress}
                   placeholder="Type your message..."
                   className="flex-1"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="sentences"
                 />
                 <Button 
                   onClick={sendMessage} 

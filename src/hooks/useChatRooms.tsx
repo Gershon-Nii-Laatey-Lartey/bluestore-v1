@@ -97,10 +97,10 @@ export const useChatRooms = () => {
     queryKey: ['chat-rooms', user?.id],
     queryFn: fetchChatRooms,
     enabled: !!user,
-    staleTime: 30000, // Consider data fresh for 30 seconds
-    cacheTime: 5 * 60 * 1000, // Cache for 5 minutes
-    refetchOnWindowFocus: false, // Don't refetch when window gains focus
-    refetchOnMount: false, // Don't refetch when component mounts (use cached data)
+    staleTime: 10000, // Consider data fresh for 10 seconds (reduced from 30)
+    cacheTime: 2 * 60 * 1000, // Cache for 2 minutes (reduced from 5)
+    refetchOnWindowFocus: true, // Refetch when window gains focus to get latest data
+    refetchOnMount: true, // Refetch when component mounts to ensure fresh data
   });
 
   // Function to manually refresh data

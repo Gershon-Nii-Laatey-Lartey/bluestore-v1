@@ -592,9 +592,9 @@ const Storefront = () => {
         {/* Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {filteredProducts.map((product) => (
-            <Card key={product.id} className="group hover:shadow-lg transition-shadow">
+            <Card key={product.id} className="group hover:shadow-lg transition-shadow bg-card border-border">
                     <CardContent className="p-4">
-                <div className="aspect-square bg-gray-100 rounded-lg mb-4 overflow-hidden">
+                <div className="aspect-square bg-muted rounded-lg mb-4 overflow-hidden">
                           <img 
                     src={getMainImageWithFallback(product.images, product.main_image_index)}
                             alt={product.title}
@@ -602,9 +602,9 @@ const Storefront = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="font-semibold text-gray-900 line-clamp-2">{product.title}</h3>
-                  <p className="text-lg font-bold text-blue-600">₵{parseFloat(product.price).toLocaleString()}</p>
-                  <div className="flex items-center justify-between text-sm text-gray-500">
+                  <h3 className="font-semibold text-card-foreground line-clamp-2">{product.title}</h3>
+                  <p className="text-lg font-bold text-blue-600 dark:text-primary">₵{parseFloat(product.price).toLocaleString()}</p>
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <span>{product.category}</span>
                     {product.negotiable && (
                       <Badge variant="outline" className="text-xs">Negotiable</Badge>
@@ -618,9 +618,9 @@ const Storefront = () => {
 
         {filteredProducts.length === 0 && (
           <div className="text-center py-12">
-            <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
-            <p className="text-gray-500">Try adjusting your filters or search terms.</p>
+            <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-card-foreground mb-2">No products found</h3>
+            <p className="text-muted-foreground">Try adjusting your filters or search terms.</p>
           </div>
         )}
       </div>

@@ -1,5 +1,5 @@
 /**
- * Utility functions for sharing content using the Web Share API with fallbacks
+ * Utility functions for sharing content using the Web Share API
  */
 
 export interface ShareData {
@@ -12,50 +12,11 @@ export interface ShareData {
  * Check if the Web Share API is supported in the current browser
  */
 export const isWebShareSupported = (): boolean => {
-  return 'share' in navigator && navigator.share !== undefined;
+  return 'share' in navigator;
 };
 
 /**
- * Check if the current environment supports sharing
- */
-export const canShare = (): boolean => {
-  // Web Share API is primarily available on mobile devices
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost';
-  
-  return isMobile && isSecure && isWebShareSupported();
-};
-
-/**
- * Copy text to clipboard with fallback
- */
-export const copyToClipboard = async (text: string): Promise<boolean> => {
-  try {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } else {
-      // Fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = text;
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-999999px';
-      textArea.style.top = '-999999px';
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      const result = document.execCommand('copy');
-      document.body.removeChild(textArea);
-      return result;
-    }
-  } catch (error) {
-    console.error('Copy to clipboard failed:', error);
-    return false;
-  }
-};
-
-/**
- * Share content using the Web Share API with fallbacks
+ * Share content using the Web Share API
  * @param data - The data to share
  * @param onSuccess - Callback when sharing is successful
  * @param onError - Callback when sharing fails
@@ -66,43 +27,24 @@ export const shareContent = async (
   onSuccess?: () => void,
   onError?: (error: Error) => void
 ): Promise<boolean> => {
-  // Try Web Share API first
-  if (canShare()) {
-    try {
-      await navigator.share(data);
-      onSuccess?.();
-      return true;
-    } catch (error) {
-      // User cancelled sharing or error occurred
-      if (error instanceof Error && error.name !== 'AbortError') {
-        console.error('Web Share API error:', error);
-      }
-      // Fall through to fallback methods
-    }
+  if (!isWebShareSupported()) {
+    const error = new Error('Web Share API is not supported in this browser');
+    onError?.(error);
+    return false;
   }
 
-  // Fallback: Copy URL to clipboard
-  if (data.url) {
-    const copied = await copyToClipboard(data.url);
-    if (copied) {
-      onSuccess?.();
-      return true;
+  try {
+    await navigator.share(data);
+    onSuccess?.();
+    return true;
+  } catch (error) {
+    // User cancelled sharing or error occurred
+    if (error instanceof Error && error.name !== 'AbortError') {
+      console.error('Web Share API error:', error);
+      onError?.(error);
     }
+    return false;
   }
-
-  // Fallback: Copy text to clipboard
-  if (data.text) {
-    const copied = await copyToClipboard(data.text);
-    if (copied) {
-      onSuccess?.();
-      return true;
-    }
-  }
-
-  // If all fallbacks fail
-  const error = new Error('Sharing failed - no supported methods available');
-  onError?.(error);
-  return false;
 };
 
 /**

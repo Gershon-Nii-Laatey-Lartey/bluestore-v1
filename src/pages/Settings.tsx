@@ -284,7 +284,7 @@ const Settings = () => {
             <div className="flex items-center justify-between">
               <div>
                 <Label>Two-Factor Authentication</Label>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Add an extra layer of security to your account</p>
+                <p className="text-sm text-muted-foreground">Add an extra layer of security to your account</p>
               </div>
               <Button variant="outline" size="sm" disabled>
                 Enable
@@ -294,7 +294,7 @@ const Settings = () => {
             <div className="flex items-center justify-between">
               <div>
                 <Label>Profile Visibility</Label>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Make your profile visible to other users</p>
+                <p className="text-sm text-muted-foreground">Make your profile visible to other users</p>
               </div>
               <Switch defaultChecked />
             </div>
@@ -302,7 +302,7 @@ const Settings = () => {
             <div className="flex items-center justify-between">
               <div>
                 <Label>Show Online Status</Label>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Let others see when you're online</p>
+                <p className="text-sm text-muted-foreground">Let others see when you're online</p>
               </div>
               <Switch defaultChecked />
             </div>
@@ -328,7 +328,7 @@ const Settings = () => {
             <div className="flex items-center justify-between">
               <div>
                 <Label>Dark Mode</Label>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Switch between light and dark themes</p>
+                <p className="text-sm text-muted-foreground">Switch between light and dark themes</p>
               </div>
               <Switch checked={theme === 'dark'} onCheckedChange={toggleTheme} />
             </div>
@@ -336,7 +336,7 @@ const Settings = () => {
             <div className="flex items-center justify-between">
               <div>
                 <Label>Auto-save Drafts</Label>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Automatically save ad drafts</p>
+                <p className="text-sm text-muted-foreground">Automatically save ad drafts</p>
               </div>
               <Switch defaultChecked />
             </div>
@@ -344,7 +344,7 @@ const Settings = () => {
             <div className="flex items-center justify-between">
               <div>
                 <Label>Show Product Recommendations</Label>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Get personalized product suggestions</p>
+                <p className="text-sm text-muted-foreground">Get personalized product suggestions</p>
               </div>
               <Switch defaultChecked />
             </div>
@@ -352,7 +352,7 @@ const Settings = () => {
             <div className="flex items-center justify-between">
               <div>
                 <Label>Location Services</Label>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Use your location for better recommendations</p>
+                <p className="text-sm text-muted-foreground">Use your location for better recommendations</p>
               </div>
               <Switch defaultChecked />
             </div>

@@ -15,7 +15,7 @@ import LocationManagement from "@/components/admin/LocationManagement";
 import CategoryManagement from "@/components/admin/CategoryManagement";
 import { PackageManagement } from "@/components/admin/PackageManagement";
 import { CSWorkerManagement } from "@/components/admin/CSWorkerManagement";
-import { ManagementTools } from "@/components/admin/ManagementTools";
+
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { ReportsManagement } from "@/components/admin/ReportsManagement";
 import { SupportChatsManagement } from "@/components/admin/SupportChatsManagement";
@@ -24,6 +24,7 @@ import { CaseUpdatesManagement } from "@/components/admin/CaseUpdatesManagement"
 import { TermsManagement } from "@/components/admin/TermsManagement";
 import { SupportChat } from "@/components/admin/SupportChat";
 import { PromoCodeManagement } from "@/components/admin/PromoCodeManagement";
+import { ProductCatalogTab } from "@/components/admin/ProductCatalogTab";
 import { useAdminSidebar } from "@/hooks/useAdminSidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Card, CardContent } from "@/components/ui/card";
@@ -42,7 +43,8 @@ import {
   MessageSquare,
   FileText,
   Gift,
-  History
+  History,
+  ShoppingBag
 } from "lucide-react";
 import { AuditLog } from "@/components/admin/AuditLog";
 
@@ -221,6 +223,11 @@ const Admin = () => {
           badge: pendingSubmissions.length > 0 ? pendingSubmissions.length : undefined
         },
         {
+          id: "product-catalog",
+          label: "Product Catalog",
+          icon: ShoppingBag
+        },
+        {
           id: "kyc",
           label: "KYC",
           icon: FileCheck,
@@ -301,11 +308,7 @@ const Admin = () => {
           label: "Analytics",
           icon: TrendingUp
         },
-        {
-          id: "tools",
-          label: "Tools",
-          icon: Settings
-        },
+
         {
           id: "promo-codes",
           label: "Promo Codes",
@@ -396,8 +399,9 @@ const Admin = () => {
         return <AuditLog />;
       case "analytics":
         return <PaymentAnalytics />;
-      case "tools":
-        return <ManagementTools />;
+      case "product-catalog":
+        return <ProductCatalogTab />;
+
       case "promo-codes":
         return <PromoCodeManagement />;
       default:

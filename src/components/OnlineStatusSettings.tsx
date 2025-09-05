@@ -22,14 +22,14 @@ export const OnlineStatusSettings = () => {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Current Status */}
-        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+        <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border border-border">
           <div className="flex items-center gap-3">
-            <div className={`w-3 h-3 rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
+            <div className={`w-3 h-3 rounded-full ${isOnline ? 'bg-green-500' : 'bg-muted-foreground'}`} />
             <div>
-              <Label className="text-base font-medium">
+              <Label className="text-base font-medium text-card-foreground">
                 {isOnline ? 'Online' : 'Offline'}
               </Label>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 {isOnline ? 'You appear online to other users' : 'You appear offline to other users'}
               </p>
             </div>
@@ -43,7 +43,7 @@ export const OnlineStatusSettings = () => {
         <div className="flex items-center justify-between">
           <div>
             <Label>Show Online Status</Label>
-            <p className="text-sm text-gray-500">Let others see when you're online</p>
+            <p className="text-sm text-muted-foreground">Let others see when you're online</p>
           </div>
           <Switch 
             checked={showOnlineStatus} 
@@ -56,7 +56,7 @@ export const OnlineStatusSettings = () => {
           <div className="flex items-center justify-between">
             <div>
               <Label>Auto Away Mode</Label>
-              <p className="text-sm text-gray-500">Automatically set status to away when inactive</p>
+              <p className="text-sm text-muted-foreground">Automatically set status to away when inactive</p>
             </div>
             <Switch 
               checked={autoAway} 
@@ -72,7 +72,7 @@ export const OnlineStatusSettings = () => {
                   <select 
                     value={awayAfterMinutes}
                     onChange={(e) => setAwayAfterMinutes(Number(e.target.value))}
-                    className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+                    className="px-3 py-1 border border-input rounded-md text-sm bg-background text-foreground"
                   >
                     <option value={5}>5 minutes</option>
                     <option value={10}>10 minutes</option>
@@ -80,7 +80,7 @@ export const OnlineStatusSettings = () => {
                     <option value={30}>30 minutes</option>
                     <option value={60}>1 hour</option>
                   </select>
-                  <span className="text-sm text-gray-500">of inactivity</span>
+                  <span className="text-sm text-muted-foreground">of inactivity</span>
                 </div>
               </div>
             </div>
@@ -126,7 +126,7 @@ export const OnlineStatusSettings = () => {
           <div className="flex items-center justify-between">
             <div>
               <Label>Status Schedule</Label>
-              <p className="text-sm text-gray-500">Set automatic status changes (Coming Soon)</p>
+              <p className="text-sm text-muted-foreground">Set automatic status changes (Coming Soon)</p>
             </div>
             <Button variant="outline" size="sm" disabled>
               Configure
