@@ -150,3 +150,46 @@ body:not(.pwa-standalone) .safe-area-bottom {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;  /* Safari and Chrome */
 }
+
+/* Product Card Specific Styling for Dark Theme */
+.product-card {
+  @apply bg-card text-card-foreground;
+}
+
+.dark .product-card {
+  background: linear-gradient(145deg, hsl(217.2 32.6% 20%), hsl(217.2 32.6% 15%));
+  border: 1px solid hsl(217.2 32.6% 25%);
+  box-shadow: 
+    0 4px 6px -1px rgb(0 0 0 / 0.3),
+    0 2px 4px -1px rgb(0 0 0 / 0.2),
+    inset 0 1px 0 hsl(217.2 32.6% 30%);
+  position: relative;
+  overflow: hidden;
+}
+
+.dark .product-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(217.2 91.2% 59.8% / 0.3), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.dark .product-card:hover {
+  background: linear-gradient(145deg, hsl(217.2 32.6% 22%), hsl(217.2 32.6% 17%));
+  border-color: hsl(217.2 91.2% 59.8% / 0.4);
+  box-shadow: 
+    0 10px 15px -3px rgb(0 0 0 / 0.4),
+    0 4px 6px -2px rgb(0 0 0 / 0.3),
+    0 0 0 1px hsl(217.2 91.2% 59.8% / 0.1),
+    inset 0 1px 0 hsl(217.2 32.6% 35%);
+  transform: translateY(-2px);
+}
+
+.dark .product-card:hover::before {
+  opacity: 1;
+}

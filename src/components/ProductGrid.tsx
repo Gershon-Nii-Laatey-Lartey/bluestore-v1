@@ -1,7 +1,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Edit, TrendingDown } from "lucide-react";
+import { Edit, TrendingDown, Heart, X, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ProductSubmission } from "@/types/product";
 import { OptimizedImage } from "@/components/ui/optimized-image";
@@ -13,9 +13,11 @@ interface ProductGridProps {
   loading?: boolean;
   showEditButtons?: boolean;
   onEdit?: (product: ProductSubmission) => void;
+  showRemoveFromFavorites?: boolean;
+  onRemoveFromFavorites?: (product: ProductSubmission) => void;
 }
 
-export const ProductGrid = ({ products, loading, showEditButtons = false, onEdit }: ProductGridProps) => {
+export const ProductGrid = ({ products, loading, showEditButtons = false, onEdit, showRemoveFromFavorites = false, onRemoveFromFavorites }: ProductGridProps) => {
   const calculateDiscount = (currentPrice: string, previousPrice: string) => {
     const current = parseFloat(currentPrice);
     const previous = parseFloat(previousPrice);
@@ -60,7 +62,7 @@ export const ProductGrid = ({ products, loading, showEditButtons = false, onEdit
           : null;
 
         return (
-          <Card key={product.id} className="group hover:shadow-lg transition-shadow duration-200 relative bg-card border-border">
+          <Card key={product.id} className="product-card group transition-all duration-300 relative">
             {/* Discount Badge for Clearance Items */}
             {isClearanceItem && discountInfo && (
               <div className="absolute top-2 left-2 z-10 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center space-x-1">
@@ -130,6 +132,22 @@ export const ProductGrid = ({ products, loading, showEditButtons = false, onEdit
                 >
                   <Edit className="h-4 w-4 mr-1" />
                   Edit
+                </Button>
+              )}
+
+              {/* Show remove from favorites button */}
+              {showRemoveFromFavorites && onRemoveFromFavorites && (
+                <Button 
+                  variant="destructive" 
+                  size="sm" 
+                  className="absolute top-3 right-3 h-9 w-9 p-0 bg-red-500/90 hover:bg-red-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 backdrop-blur-sm border border-red-400/20 z-20"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onRemoveFromFavorites(product);
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               )}
             </CardContent>

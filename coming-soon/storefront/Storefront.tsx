@@ -592,7 +592,7 @@ const Storefront = () => {
         {/* Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {filteredProducts.map((product) => (
-            <Card key={product.id} className="group hover:shadow-lg transition-shadow bg-card border-border">
+            <Card key={product.id} className="product-card group transition-all duration-300">
                     <CardContent className="p-4">
                 <div className="aspect-square bg-muted rounded-lg mb-4 overflow-hidden">
                           <img 

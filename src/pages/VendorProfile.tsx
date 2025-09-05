@@ -551,7 +551,7 @@ const VendorProfile = () => {
               {vendorProducts && vendorProducts.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {vendorProducts.map((product) => (
-                    <Card key={product.id} className="group hover:shadow-lg transition-shadow duration-200 cursor-pointer">
+                    <Card key={product.id} className="product-card group transition-all duration-300 cursor-pointer">
                       <CardContent className="p-4">
                         <div className="aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden mb-3">
                           {product.images && product.images.length > 0 ? (

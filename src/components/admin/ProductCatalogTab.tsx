@@ -220,7 +220,7 @@ export const ProductCatalogTab = () => {
             {isMobile ? (
               <div className="space-y-4">
                 {filteredProducts.map((product) => (
-                  <Card key={product.id} className="border hover:shadow-md transition-shadow">
+                  <Card key={product.id} className="product-card border transition-all duration-300">
                     <CardContent className="p-4">
                       <div className="flex space-x-4">
                         {product.images && product.images.length > 0 && (
@@ -278,7 +278,7 @@ export const ProductCatalogTab = () => {
               /* Desktop Grid */
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredProducts.map((product) => (
-                  <Card key={product.id} className="border hover:shadow-md transition-shadow">
+                  <Card key={product.id} className="product-card border transition-all duration-300">
                     <CardContent className="p-4">
                       {product.images && product.images.length > 0 && (
                         <div className="aspect-square rounded-lg bg-gray-100 mb-4 overflow-hidden">

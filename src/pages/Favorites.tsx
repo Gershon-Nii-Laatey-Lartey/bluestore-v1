@@ -6,10 +6,49 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useFavorites } from "@/hooks/useFavorites";
 import { ProductGrid } from "@/components/ProductGrid";
+import { ProductSubmission } from "@/types/product";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const Favorites = () => {
   const navigate = useNavigate();
-  const { favorites, isLoading } = useFavorites();
+  const { favorites, isLoading, removeFromFavorites } = useFavorites();
+  const { toast } = useToast();
+  const [productToRemove, setProductToRemove] = useState<ProductSubmission | null>(null);
+
+  const handleRemoveFromFavorites = async (product: ProductSubmission) => {
+    setProductToRemove(product);
+  };
+
+  const confirmRemove = async () => {
+    if (!productToRemove) return;
+
+    try {
+      await removeFromFavorites(productToRemove.id);
+      toast({
+        title: "Removed from Favorites",
+        description: `${productToRemove.title} has been removed from your favorites`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to remove from favorites. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setProductToRemove(null);
+    }
+  };
 
   return (
     <Layout>
@@ -43,9 +82,35 @@ const Favorites = () => {
             </Button>
           </div>
         ) : (
-          <ProductGrid products={favorites} loading={false} />
+          <ProductGrid 
+            products={favorites} 
+            loading={false} 
+            showRemoveFromFavorites={true}
+            onRemoveFromFavorites={handleRemoveFromFavorites}
+          />
         )}
       </div>
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={!!productToRemove} onOpenChange={() => setProductToRemove(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove from Favorites</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove "{productToRemove?.title}" from your favorites? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmRemove}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Layout>
   );
 };

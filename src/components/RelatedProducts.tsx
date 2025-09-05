@@ -87,7 +87,7 @@ export const RelatedProducts = ({ currentProductId, category }: RelatedProductsP
       <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Related Products</h2>
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {relatedProducts.map((product) => (
-          <Card key={product.id} className="group hover:shadow-lg transition-shadow duration-200">
+          <Card key={product.id} className="product-card group transition-all duration-300">
             <CardContent className="p-4">
               <Link to={`/product/${product.id}`}>
                 <OptimizedImage

@@ -112,7 +112,7 @@ export const FeaturedProducts = memo(({ products, loading = false }: FeaturedPro
             
             return (
               <Link key={product.id} to={`/product/${product.id}`}>
-                <Card className="group hover:shadow-lg transition-shadow duration-200 cursor-pointer bg-card border-border">
+                <Card className="product-card group transition-all duration-300 cursor-pointer">
                   <CardContent className="p-4 px-[10px]">
                     <OptimizedImage
                       src={getMainImageWithFallback(product.images || [], product.main_image_index)}

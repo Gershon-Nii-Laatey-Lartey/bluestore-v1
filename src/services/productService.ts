@@ -102,7 +102,7 @@ class ProductService {
       .select('*')
       .eq('status', 'approved')
       .or(`title.ilike.%${query}%,description.ilike.%${query}%,category.ilike.%${query}%`)
-      .order('boost_level', { ascending: false }) // Boost levels first
+      .order('boost_level', { ascending: false })
       .order('package_price', { ascending: false })
       .order('created_at', { ascending: false });
 
@@ -111,7 +111,30 @@ class ProductService {
       throw error;
     }
 
-    return (data || []).map(transformProductData);
+    // Manually sort to prioritize boosted products
+    const sortedData = (data || []).sort((a, b) => {
+      // Define boost priority order
+      const boostPriority = { '2x_boost': 3, 'boost': 2, 'none': 1 };
+      const aPriority = boostPriority[a.boost_level as keyof typeof boostPriority] || 1;
+      const bPriority = boostPriority[b.boost_level as keyof typeof boostPriority] || 1;
+      
+      // First sort by boost level (descending)
+      if (aPriority !== bPriority) {
+        return bPriority - aPriority;
+      }
+      
+      // Then by package price (descending)
+      const aPrice = parseFloat(a.package_price || '0');
+      const bPrice = parseFloat(b.package_price || '0');
+      if (aPrice !== bPrice) {
+        return bPrice - aPrice;
+      }
+      
+      // Finally by creation date (descending - newest first)
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+
+    return sortedData.map(transformProductData);
   }
 
   // Get featured products (public)
