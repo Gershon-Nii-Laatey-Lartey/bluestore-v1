@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUserLocation } from "@/hooks/useUserLocation";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 // Memoized FilterDialog component to prevent re-renders
 const FilterDialog = memo(({ 
@@ -217,6 +218,7 @@ const CategoryPage = () => {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const { userLocation } = useUserLocation();
   const isMobile = useIsMobile();
+  const { trackCategoryView } = useAnalytics();
   
   const categoryName = category?.replace('-', ' ') || 'Category';
   const formattedCategory = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
@@ -353,6 +355,9 @@ const CategoryPage = () => {
         setError(null);
         const categoryProducts = await productService.getProductsByCategory(category);
         setProducts(categoryProducts);
+        
+        // Track category view analytics
+        trackCategoryView(formattedCategory, categoryProducts.length);
       } catch (err) {
         console.error('Error fetching category products:', err);
         setError('Failed to load products');

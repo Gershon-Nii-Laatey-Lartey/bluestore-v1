@@ -47,10 +47,10 @@ export const KYCVerificationTab = ({
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 mb-1">Pending KYC</p>
-                <p className="text-2xl sm:text-3xl font-bold text-yellow-600">{pendingKyc.length}</p>
+                <p className="text-sm font-medium text-muted-foreground mb-1">Pending KYC</p>
+                <p className="text-2xl sm:text-3xl font-bold text-yellow-600 dark:text-yellow-400">{pendingKyc.length}</p>
               </div>
-              <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-600" />
+              <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-600 dark:text-yellow-400" />
             </div>
           </CardContent>
         </Card>
@@ -58,10 +58,10 @@ export const KYCVerificationTab = ({
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 mb-1">Approved</p>
-                <p className="text-2xl sm:text-3xl font-bold text-green-600">{approvedKyc.length}</p>
+                <p className="text-sm font-medium text-muted-foreground mb-1">Approved</p>
+                <p className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">{approvedKyc.length}</p>
               </div>
-              <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
+              <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 dark:text-green-400" />
             </div>
           </CardContent>
         </Card>
@@ -69,10 +69,10 @@ export const KYCVerificationTab = ({
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 mb-1">Rejected</p>
-                <p className="text-2xl sm:text-3xl font-bold text-red-600">{rejectedKyc.length}</p>
+                <p className="text-sm font-medium text-muted-foreground mb-1">Rejected</p>
+                <p className="text-2xl sm:text-3xl font-bold text-red-600 dark:text-red-400">{rejectedKyc.length}</p>
               </div>
-              <XCircle className="h-6 w-6 sm:h-8 sm:w-8 text-red-600" />
+              <XCircle className="h-6 w-6 sm:h-8 sm:w-8 text-red-600 dark:text-red-400" />
             </div>
           </CardContent>
         </Card>
@@ -92,12 +92,12 @@ export const KYCVerificationTab = ({
             <div className="space-y-6">
               {pendingKyc.map((kyc, index) => (
                 <div key={kyc.id}>
-                  <div className="border rounded-xl p-4 sm:p-6 hover:shadow-sm transition-shadow">
+                  <div className="border border-border rounded-xl p-4 sm:p-6 hover:shadow-sm transition-shadow bg-card">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 gap-2">
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">{kyc.full_name}</h3>
-                        <p className="text-gray-600 mb-2 truncate">{kyc.store_name}</p>
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-gray-600 mb-2">
+                        <h3 className="text-lg font-semibold text-foreground mb-1 truncate">{kyc.full_name}</h3>
+                        <p className="text-muted-foreground mb-2 truncate">{kyc.store_name}</p>
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-muted-foreground mb-2">
                           <span className="capitalize font-medium truncate">{kyc.product_category}</span>
                           <Separator orientation="vertical" className="h-4 hidden sm:block" />
                           <span className="flex items-center space-x-1 truncate">
@@ -105,13 +105,13 @@ export const KYCVerificationTab = ({
                             <span className="truncate">{new Date(kyc.submitted_at).toLocaleDateString()}</span>
                           </span>
                         </div>
-                        <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 text-xs">
+                        <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-700 text-xs">
                           Pending Verification
                         </Badge>
                       </div>
                     </div>
                     
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center pt-4 border-t gap-3">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center pt-4 border-t border-border gap-3">
                       <div className="flex flex-col sm:flex-row gap-2 sm:space-x-3">
                         <Dialog>
                           <DialogTrigger asChild>
@@ -152,9 +152,9 @@ export const KYCVerificationTab = ({
         <Card>
           <CardContent className="py-12">
             <div className="text-center">
-              <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Pending KYC Verifications</h3>
-              <p className="text-gray-600">All KYC submissions have been processed.</p>
+              <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">No Pending KYC Verifications</h3>
+              <p className="text-muted-foreground">All KYC submissions have been processed.</p>
             </div>
           </CardContent>
         </Card>

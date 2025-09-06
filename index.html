@@ -60,15 +60,18 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://www.googletagmanager.com" />
     
+    <!-- Inter Font for better typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2K8DX72KC6"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XRCZW0746B"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       
       // Enhanced Google Analytics Configuration
-      gtag('config', 'G-2K8DX72KC6', {
+      gtag('config', 'G-XRCZW0746B', {
         // Enable enhanced e-commerce
         'send_page_view': true,
         'custom_map': {
@@ -81,7 +84,16 @@
         // E-commerce tracking
         'allow_enhanced_conversions': true,
         'allow_google_signals': true,
-        'restricted_data_processing': false
+        'restricted_data_processing': false,
+        // Enhanced measurement
+        'enhanced_measurement': true,
+        'page_title': true,
+        'page_location': true,
+        'scrolls': true,
+        'outbound_clicks': true,
+        'site_search': true,
+        'video_engagement': true,
+        'file_downloads': true
       });
       
       // Track custom events

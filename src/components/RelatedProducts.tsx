@@ -56,12 +56,14 @@ export const RelatedProducts = ({ currentProductId, category }: RelatedProductsP
     return (
       <div className="mt-12">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Related Products</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="product-grid grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
-            <Card key={i} className="animate-pulse">
-              <CardContent className="p-4">
-                <div className="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg mb-3"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+            <Card key={i} className="product-card animate-pulse">
+              <CardContent className="p-0">
+                <div className="product-image-container aspect-square mb-4">
+                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                </div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-3"></div>
                 <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
               </CardContent>
             </Card>
@@ -85,43 +87,44 @@ export const RelatedProducts = ({ currentProductId, category }: RelatedProductsP
   return (
     <div className="mt-12">
       <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Related Products</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="product-grid grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
         {relatedProducts.map((product) => (
           <Card key={product.id} className="product-card group transition-all duration-300">
-            <CardContent className="p-4">
-              <Link to={`/product/${product.id}`}>
-                <OptimizedImage
-                  src={getMainImageWithFallback(product.images || [], product.main_image_index)}
-                  alt={product.title}
-                  aspectRatio="square"
-                  className="mb-3 group-hover:scale-105 transition-transform duration-200"
-                  fallback={
-                    <div className="text-4xl flex items-center justify-center h-full">📱</div>
-                  }
-                />
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+            <CardContent className="p-0">
+              <Link to={`/product/${product.id}`} className="block">
+                <div className="product-image-container aspect-square mb-4">
+                  <OptimizedImage
+                    src={getMainImageWithFallback(product.images || [], product.main_image_index)}
+                    alt={product.title}
+                    aspectRatio="square"
+                    className="product-image"
+                    fallback={
+                      <div className="product-image-placeholder text-3xl">📱</div>
+                    }
+                  />
+                </div>
+                <h3 className="product-title text-card-foreground mb-3 text-sm line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-primary transition-colors">
                   {product.title}
                 </h3>
               </Link>
               
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <span className="font-bold text-blue-600">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex flex-col">
+                  <span className="product-price text-lg text-blue-600 dark:text-primary">
                     {formatPrice(product.price)}
                   </span>
                   {product.originalPrice && parseFloat(product.originalPrice) > parseFloat(product.price) && (
-                    <span className="bg-blue-600 text-white text-xs font-medium px-2 py-1 rounded-full">
-                      Sale
+                    <span className="text-sm text-muted-foreground line-through">
+                      {formatPrice(product.originalPrice)}
                     </span>
                   )}
                 </div>
+                {product.originalPrice && parseFloat(product.originalPrice) > parseFloat(product.price) && (
+                  <span className="price-reduced-badge text-xs px-2 py-1">
+                    Sale
+                  </span>
+                )}
               </div>
-              
-              {product.originalPrice && parseFloat(product.originalPrice) > parseFloat(product.price) && (
-                <span className="text-sm text-gray-500 dark:text-gray-400 line-through">
-                  {formatPrice(product.originalPrice)}
-                </span>
-              )}
             </CardContent>
           </Card>
         ))}

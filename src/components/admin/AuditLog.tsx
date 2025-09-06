@@ -102,15 +102,15 @@ export const AuditLog = () => {
   const getActionColor = (actionType: string) => {
     switch (actionType) {
       case 'CS_WORKER_CREATED':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300';
       case 'CS_WORKER_STATUS_CHANGE':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300';
       case 'PRODUCT_REVIEW':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300';
       case 'KYC_REVIEW':
-        return 'bg-orange-100 text-orange-800';
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
     }
   };
 
@@ -132,7 +132,7 @@ export const AuditLog = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -141,8 +141,8 @@ export const AuditLog = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Audit Log</h2>
-          <p className="text-gray-600">Track all system activities and changes</p>
+          <h2 className="text-2xl font-bold text-foreground">Audit Log</h2>
+          <p className="text-muted-foreground">Track all system activities and changes</p>
         </div>
       </div>
 
@@ -151,7 +151,7 @@ export const AuditLog = () => {
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search logs..."
                 value={searchTerm}
@@ -160,7 +160,7 @@ export const AuditLog = () => {
               />
             </div>
             <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-gray-400" />
+              <Filter className="h-4 w-4 text-muted-foreground" />
               <Select value={actionTypeFilter} onValueChange={setActionTypeFilter}>
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder="Filter by action" />
@@ -186,7 +186,7 @@ export const AuditLog = () => {
             <CardContent className="p-4">
               <div className="flex items-start space-x-4">
                 <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
                     {getActionIcon(log.action_type)}
                   </div>
                 </div>
@@ -203,14 +203,14 @@ export const AuditLog = () => {
                         </Badge>
                       )}
                     </div>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-muted-foreground">
                       {format(new Date(log.created_at), 'MMM dd, yyyy HH:mm')}
                     </span>
                   </div>
                   
-                  <p className="text-gray-900 mb-2">{log.action_description}</p>
+                  <p className="text-foreground mb-2">{log.action_description}</p>
                   
-                  <div className="flex items-center text-sm text-gray-500 space-x-4">
+                  <div className="flex items-center text-sm text-muted-foreground space-x-4">
                     {(log.profiles?.full_name || log.cs_workers?.full_name) && (
                       <span className="flex items-center space-x-1">
                         <User className="h-3 w-3" />
@@ -229,20 +229,20 @@ export const AuditLog = () => {
                   </div>
                   
                   {(log.old_values || log.new_values) && (
-                    <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                    <div className="mt-3 p-3 bg-muted/50 rounded-lg">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         {log.old_values && (
                           <div>
-                            <span className="font-medium text-gray-700">Before:</span>
-                            <pre className="mt-1 text-xs text-gray-600 overflow-x-auto">
+                            <span className="font-medium text-foreground">Before:</span>
+                            <pre className="mt-1 text-xs text-muted-foreground overflow-x-auto">
                               {JSON.stringify(log.old_values, null, 2)}
                             </pre>
                           </div>
                         )}
                         {log.new_values && (
                           <div>
-                            <span className="font-medium text-gray-700">After:</span>
-                            <pre className="mt-1 text-xs text-gray-600 overflow-x-auto">
+                            <span className="font-medium text-foreground">After:</span>
+                            <pre className="mt-1 text-xs text-muted-foreground overflow-x-auto">
                               {JSON.stringify(log.new_values, null, 2)}
                             </pre>
                           </div>
@@ -259,9 +259,9 @@ export const AuditLog = () => {
         {filteredLogs.length === 0 && (
           <Card>
             <CardContent className="p-12 text-center">
-              <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Audit Logs</h3>
-              <p className="text-gray-600">
+              <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-foreground mb-2">No Audit Logs</h3>
+              <p className="text-muted-foreground">
                 {searchTerm || actionTypeFilter 
                   ? "No logs match your current filters."
                   : "No audit logs have been recorded yet."

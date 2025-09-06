@@ -16,12 +16,14 @@ import { adAnalyticsService } from "@/services/adAnalyticsService";
 import { useAuth } from "@/hooks/useAuth";
 import { cacheInvalidationService } from "@/services/cacheInvalidationService";
 import { useQueryClient } from "@tanstack/react-query";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const ProductDetail = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { trackProductPageView } = useAnalytics();
   const {
     id,
     product,
@@ -56,6 +58,20 @@ const ProductDetail = () => {
       });
     }
   }, [product, isOwner, user]);
+
+  // Track Google Analytics when product loads
+  useEffect(() => {
+    if (product && !isOwner) {
+      // Track product page view with Google Analytics
+      trackProductPageView(
+        product.id,
+        product.title,
+        product.category,
+        product.price,
+        product.user_id
+      );
+    }
+  }, [product, isOwner, trackProductPageView]);
 
   const handleDeleteAdWithNavigation = async () => {
     const success = await handleDeleteAd();

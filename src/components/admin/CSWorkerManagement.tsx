@@ -190,27 +190,27 @@ export const CSWorkerManagement = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'inactive': return 'bg-gray-100 text-gray-800';
-      case 'suspended': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'active': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300';
+      case 'inactive': return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+      case 'suspended': return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
     }
   };
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'customer_service_chat': return 'bg-blue-100 text-blue-800';
-      case 'complaints_reports_manager': return 'bg-orange-100 text-orange-800';
-      case 'product_review': return 'bg-purple-100 text-purple-800';
-      case 'general_access': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'customer_service_chat': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300';
+      case 'complaints_reports_manager': return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300';
+      case 'product_review': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300';
+      case 'general_access': return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
     }
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -220,8 +220,8 @@ export const CSWorkerManagement = () => {
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Customer Service Workers</h2>
-          <p className="text-gray-600">Manage CS workers and their roles</p>
+          <h2 className="text-2xl font-bold text-foreground">Customer Service Workers</h2>
+          <p className="text-muted-foreground">Manage CS workers and their roles</p>
         </div>
         
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -246,7 +246,7 @@ export const CSWorkerManagement = () => {
                     onChange={(e) => setNewWorker(prev => ({ ...prev, email_head: e.target.value }))}
                     className="rounded-r-none border-r-0"
                   />
-                  <div className="px-3 py-2 bg-gray-100 border border-l-0 rounded-r-md text-sm text-gray-600 flex items-center">
+                  <div className="px-3 py-2 bg-muted border border-l-0 rounded-r-md text-sm text-muted-foreground flex items-center">
                     @bluestoreghana.com
                   </div>
                 </div>
@@ -283,7 +283,7 @@ export const CSWorkerManagement = () => {
               
               <div>
                 <Label>Employee ID</Label>
-                <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded border">
+                <div className="text-sm text-muted-foreground bg-muted p-2 rounded border">
                   Auto-generated on creation
                 </div>
               </div>
@@ -424,14 +424,14 @@ export const CSWorkerManagement = () => {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <Users className="h-5 w-5 text-blue-600" />
+                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                        <Users className="h-5 w-5 text-primary" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">{worker.full_name}</h3>
-                        <p className="text-sm text-gray-600">{worker.email}</p>
+                        <h3 className="font-semibold text-foreground">{worker.full_name}</h3>
+                        <p className="text-sm text-muted-foreground">{worker.email}</p>
                         {worker.employee_id && (
-                          <p className="text-sm text-gray-500">ID: {worker.employee_id}</p>
+                          <p className="text-sm text-muted-foreground">ID: {worker.employee_id}</p>
                         )}
                       </div>
                     </div>
@@ -490,9 +490,9 @@ export const CSWorkerManagement = () => {
             {workers.length === 0 && (
               <Card>
                 <CardContent className="p-12 text-center">
-                  <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No CS Workers</h3>
-                  <p className="text-gray-600 mb-4">Get started by creating your first customer service worker.</p>
+                  <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-foreground mb-2">No CS Workers</h3>
+                  <p className="text-muted-foreground mb-4">Get started by creating your first customer service worker.</p>
                   <Button onClick={() => setIsCreateDialogOpen(true)}>
                     <UserPlus className="h-4 w-4 mr-2" />
                     Add CS Worker

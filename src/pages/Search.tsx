@@ -20,6 +20,7 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 // Memoized FilterDialog component to prevent re-renders
 const FilterDialog = memo(({ 
@@ -228,6 +229,7 @@ const Search = () => {
   const location = useLocation();
   const { userLocation } = useUserLocation();
   const isMobile = useIsMobile();
+  const { trackSearch, trackCategoryView } = useAnalytics();
 
   // Filter states
   const [filters, setFilters] = useState({
@@ -303,6 +305,10 @@ const Search = () => {
         }
         
         console.log(`Search: Found ${filteredProducts.length} products for query: "${query}" in location: "${userLocation}"`);
+        
+        // Track search analytics
+        trackSearch(query, filteredProducts.length);
+        
         setSearchResults(filteredProducts);
       } else {
         // Show all products if no search query

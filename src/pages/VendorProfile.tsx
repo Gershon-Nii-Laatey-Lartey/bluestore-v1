@@ -549,28 +549,28 @@ const VendorProfile = () => {
             <div>
               <h2 className="text-2xl font-bold text-foreground mb-6">Products by this Vendor</h2>
               {vendorProducts && vendorProducts.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="product-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                   {vendorProducts.map((product) => (
                     <Card key={product.id} className="product-card group transition-all duration-300 cursor-pointer">
-                      <CardContent className="p-4">
-                        <div className="aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden mb-3">
+                      <CardContent className="p-0">
+                        <div className="product-image-container aspect-square mb-4">
                           {product.images && product.images.length > 0 ? (
                             <img 
                               src={getMainImageWithFallback(product.images, product.main_image_index)} 
                               alt={product.title}
-                              className="w-full h-full object-cover"
+                              className="product-image"
                             />
                           ) : (
-                            <span className="text-2xl">📱</span>
+                            <div className="product-image-placeholder text-3xl">📱</div>
                           )}
                         </div>
-                        <h4 className="font-medium text-card-foreground mb-2 text-sm line-clamp-2">
+                        <h4 className="product-title text-card-foreground mb-3 text-sm line-clamp-2">
                           {product.title}
                         </h4>
-                        <p className="text-lg font-bold text-primary mb-2">
+                        <p className="product-price text-lg text-primary mb-2">
                           {formatPrice(product.price)}
                         </p>
-                        <p className="text-xs text-muted-foreground capitalize">
+                        <p className="product-location text-xs capitalize">
                           {product.category} • {product.condition}
                         </p>
                       </CardContent>

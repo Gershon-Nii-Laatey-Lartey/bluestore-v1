@@ -30,20 +30,20 @@ export const KYCHistory = ({ approvedKyc, rejectedKyc }: KYCHistoryProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'approved':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700';
       case 'rejected':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-700';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'approved':
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
+        return <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />;
       case 'rejected':
-        return <XCircle className="h-4 w-4 text-red-600" />;
+        return <XCircle className="h-4 w-4 text-red-600 dark:text-red-400" />;
       default:
         return null;
     }
@@ -77,20 +77,20 @@ export const KYCHistory = ({ approvedKyc, rejectedKyc }: KYCHistoryProps) => {
                   <TableRow key={kyc.id}>
                     <TableCell>
                       <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                          <User className="h-4 w-4 text-blue-600" />
+                        <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                          <User className="h-4 w-4 text-primary" />
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{kyc.full_name}</p>
-                          <p className="text-sm text-gray-500">{kyc.email}</p>
+                          <p className="font-medium text-foreground">{kyc.full_name}</p>
+                          <p className="text-sm text-muted-foreground">{kyc.email}</p>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className="font-medium">{kyc.store_name}</span>
+                      <span className="font-medium text-foreground">{kyc.store_name}</span>
                     </TableCell>
                     <TableCell>
-                      <span className="text-sm capitalize">{kyc.product_category}</span>
+                      <span className="text-sm capitalize text-foreground">{kyc.product_category}</span>
                     </TableCell>
                     <TableCell>
                       <Badge className={`${getStatusColor(kyc.status)} flex items-center space-x-1`}>
@@ -100,8 +100,8 @@ export const KYCHistory = ({ approvedKyc, rejectedKyc }: KYCHistoryProps) => {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
-                        <Calendar className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm text-foreground">
                           {kyc.reviewed_at ? formatDate(kyc.reviewed_at) : formatDate(kyc.submitted_at)}
                         </span>
                       </div>
@@ -122,10 +122,10 @@ export const KYCHistory = ({ approvedKyc, rejectedKyc }: KYCHistoryProps) => {
             </Table>
           </div>
         ) : (
-          <div className="text-center py-12 text-gray-500">
-            <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-            <p className="text-lg font-medium">No KYC History</p>
-            <p className="text-sm">Processed KYC verifications will appear here</p>
+          <div className="text-center py-12 text-muted-foreground">
+            <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+            <p className="text-lg font-medium text-foreground">No KYC History</p>
+            <p className="text-sm text-muted-foreground">Processed KYC verifications will appear here</p>
           </div>
         )}
       </CardContent>

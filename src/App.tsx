@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AdminProtectedRoute } from "@/components/AdminProtectedRoute";
@@ -47,6 +47,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LocationProvider } from "@/contexts/LocationContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -95,6 +96,38 @@ const VendorProfileRedirect = () => {
   return <Navigate to="/create-vendor-profile" replace />;
 };
 
+// Component to handle route tracking
+const RouteTracker = () => {
+  const { trackPageView } = useAnalytics();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Track page view on route change
+    trackPageView(document.title, location.pathname + location.search, {
+      page_type: getPageType(location.pathname),
+      route_path: location.pathname
+    });
+  }, [location, trackPageView]);
+
+  return null;
+};
+
+// Helper function to determine page type
+const getPageType = (pathname: string): string => {
+  if (pathname.startsWith('/product/')) return 'product';
+  if (pathname.startsWith('/category/') || pathname.startsWith('/electronics') || 
+      pathname.startsWith('/smartphones') || pathname.startsWith('/laptops') ||
+      pathname.startsWith('/headphones') || pathname.startsWith('/gaming') ||
+      pathname.startsWith('/fashion') || pathname.startsWith('/home-garden') ||
+      pathname.startsWith('/sports') || pathname.startsWith('/automotive')) return 'category';
+  if (pathname.startsWith('/search')) return 'search';
+  if (pathname.startsWith('/vendor/')) return 'vendor_profile';
+  if (pathname.startsWith('/admin')) return 'admin';
+  if (pathname.startsWith('/chat')) return 'chat';
+  if (pathname === '/') return 'home';
+  return 'other';
+};
+
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
@@ -105,6 +138,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <RouteTracker />
           <Routes>
             <Route path="/" element={
               <ErrorBoundary>

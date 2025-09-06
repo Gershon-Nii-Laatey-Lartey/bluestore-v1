@@ -75,7 +75,7 @@ export const UserManagement = () => {
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         </CardContent>
       </Card>
@@ -105,26 +105,26 @@ export const UserManagement = () => {
           {/* Mobile Layout - Cards */}
           <div className="md:hidden space-y-4">
             {users.map((user) => (
-              <Card key={user.id} className="border-2 border-gray-100 hover:border-blue-200 transition-colors">
+              <Card key={user.id} className="border-2 border-border hover:border-primary/20 transition-colors">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <User className="h-6 w-6 text-blue-600" />
+                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                        <User className="h-6 w-6 text-primary" />
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-900 text-base">
+                        <p className="font-semibold text-foreground text-base">
                           {user.full_name || 'No name provided'}
                         </p>
-                        <p className="text-sm text-gray-500">ID: {user.id.slice(0, 8)}...</p>
+                        <p className="text-sm text-muted-foreground">ID: {user.id.slice(0, 8)}...</p>
                       </div>
                     </div>
                   </div>
                   
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center space-x-2">
-                      <Mail className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm text-gray-700">{user.email || 'No email'}</span>
+                      <Mail className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm text-foreground">{user.email || 'No email'}</span>
                     </div>
                   </div>
                   
@@ -164,21 +164,21 @@ export const UserManagement = () => {
                 <TableRow key={user.id}>
                   <TableCell>
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                        <User className="h-4 w-4 text-blue-600" />
+                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                        <User className="h-4 w-4 text-primary" />
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-foreground">
                           {user.full_name || 'No name provided'}
                         </p>
-                        <p className="text-sm text-gray-500">ID: {user.id.slice(0, 8)}...</p>
+                        <p className="text-sm text-muted-foreground">ID: {user.id.slice(0, 8)}...</p>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      <Mail className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm">{user.email || 'No email'}</span>
+                      <Mail className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm text-foreground">{user.email || 'No email'}</span>
                     </div>
                   </TableCell>
                   <TableCell>

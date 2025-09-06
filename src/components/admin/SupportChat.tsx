@@ -305,20 +305,20 @@ export const SupportChat = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'resolved': return 'bg-blue-100 text-blue-800';
-      case 'transferred': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300';
+      case 'active': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300';
+      case 'resolved': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300';
+      case 'transferred': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
     }
   };
 
   const getPriorityColor = (priority: number) => {
     switch (priority) {
-      case 1: return 'bg-red-100 text-red-800';
-      case 2: return 'bg-orange-100 text-orange-800';
-      case 3: return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 1: return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300';
+      case 2: return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300';
+      case 3: return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
     }
   };
 
@@ -342,7 +342,7 @@ export const SupportChat = () => {
       isMobile ? "h-[calc(100vh-200px)]" : "h-[calc(100vh-280px)]"
     )}>
       {sessionList.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-muted-foreground">
           <MessageCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
           <p className="text-sm">No {activeTab === 'active' ? 'active' : 'resolved'} chats</p>
         </div>
@@ -351,10 +351,10 @@ export const SupportChat = () => {
           <div
             key={session.id}
             className={cn(
-              "p-3 cursor-pointer hover:bg-gray-50 border-b border-gray-100 transition-colors",
-              isMobile && "py-4 active:bg-gray-100", // Larger touch target and active state on mobile
-              selectedSession?.id === session.id && "bg-blue-50 border-blue-200",
-              session.status === 'resolved' && "opacity-60 bg-gray-50"
+              "p-3 cursor-pointer hover:bg-accent border-b border-border transition-colors",
+              isMobile && "py-4 active:bg-accent/80", // Larger touch target and active state on mobile
+              selectedSession?.id === session.id && "bg-primary/10 border-primary/20",
+              session.status === 'resolved' && "opacity-60 bg-muted/50"
             )}
             onClick={() => handleSessionSelect(session)}
           >
@@ -362,21 +362,21 @@ export const SupportChat = () => {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center space-x-2 mb-1">
                   <Avatar className="h-6 w-6">
-                    <AvatarFallback className="bg-blue-100 text-blue-600 text-xs">
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs">
                       {session.display_name ? session.display_name.charAt(0).toUpperCase() : 'U'}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate">
+                    <p className="font-medium text-sm truncate text-foreground">
                       {session.display_name}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       {formatDate(session.created_at)}
                     </p>
                   </div>
                 </div>
                 <p className={cn(
-                  "text-sm text-gray-600 truncate mb-2",
+                  "text-sm text-muted-foreground truncate mb-2",
                   isMobile && "text-xs leading-relaxed"
                 )}>
                   {session.last_message}
@@ -437,8 +437,8 @@ export const SupportChat = () => {
         "flex flex-col items-center justify-center",
         isMobile ? "h-[calc(100vh-200px)]" : "h-64"
       )}>
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
-        <p className="text-sm text-gray-500">Loading support chats...</p>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
+        <p className="text-sm text-muted-foreground">Loading support chats...</p>
       </div>
     );
   }
@@ -446,25 +446,25 @@ export const SupportChat = () => {
   // Mobile Layout
   if (isMobile) {
     return (
-      <div className="h-[calc(100vh-200px)] bg-gray-50">
+      <div className="h-[calc(100vh-200px)] bg-background">
         {/* Mobile Sessions List View */}
         {!selectedSession && (
-          <div className="h-full bg-white">
-            <div className="p-4 border-b border-gray-200">
+          <div className="h-full bg-background">
+            <div className="p-4 border-b border-border">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <MessageCircle className="h-4 w-4 text-blue-600" />
+                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                    <MessageCircle className="h-4 w-4 text-primary" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900">Support Chats</h2>
-                    <p className="text-xs text-gray-500">Manage customer support conversations</p>
+                    <h2 className="text-lg font-semibold text-foreground">Support Chats</h2>
+                    <p className="text-xs text-muted-foreground">Manage customer support conversations</p>
                   </div>
                 </div>
                 <Badge variant="secondary">{sessions.length}</Badge>
               </div>
               {sessions.length === 0 && (
-                <p className="text-sm text-gray-500 mb-4">No support chats available at the moment.</p>
+                <p className="text-sm text-muted-foreground mb-4">No support chats available at the moment.</p>
               )}
               
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -644,12 +644,12 @@ export const SupportChat = () => {
 
   // Desktop Layout (existing code)
   return (
-    <div className="flex h-[calc(100vh-200px)] bg-gray-50">
+    <div className="flex h-[calc(100vh-200px)] bg-background">
       {/* Sessions List */}
-      <div className="w-1/3 border-r border-gray-200 bg-white">
-        <div className="p-4 border-b border-gray-200">
+      <div className="w-1/3 border-r border-border bg-card">
+        <div className="p-4 border-b border-border">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Support Chats</h2>
+            <h2 className="text-lg font-semibold text-foreground">Support Chats</h2>
             <Badge variant="secondary">{sessions.length}</Badge>
           </div>
           
@@ -675,20 +675,20 @@ export const SupportChat = () => {
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 flex flex-col bg-white">
+      <div className="flex-1 flex flex-col bg-card">
         {selectedSession ? (
           <>
             {/* Chat Header */}
-            <div className="border-b border-gray-200 p-4">
+            <div className="border-b border-border p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-blue-100 text-blue-600">
+                    <AvatarFallback className="bg-primary/10 text-primary">
                       {selectedSession.display_name ? selectedSession.display_name.charAt(0).toUpperCase() : 'U'}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <h3 className="font-semibold text-gray-900">{selectedSession.display_name}</h3>
+                    <h3 className="font-semibold text-foreground">{selectedSession.display_name}</h3>
                     <div className="flex items-center space-x-2 mt-1">
                       <Badge className={getStatusColor(selectedSession.status)} variant="secondary">
                         {selectedSession.status}
@@ -743,7 +743,7 @@ export const SupportChat = () => {
             {/* Chat Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3 overscroll-contain">
               {messages.length === 0 ? (
-                <div className="text-center text-gray-500 py-8">
+                <div className="text-center text-muted-foreground py-8">
                   <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>No messages yet</p>
                 </div>
@@ -756,7 +756,7 @@ export const SupportChat = () => {
                     <div className="flex items-end space-x-2 max-w-md">
                       {message.sender_type === 'user' || message.sender_type === 'visitor' && (
                         <Avatar className="h-6 w-6">
-                          <AvatarFallback className="bg-green-100 text-green-600 text-xs">
+                          <AvatarFallback className="bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-300 text-xs">
                             {selectedSession.display_name ? selectedSession.display_name.charAt(0).toUpperCase() : 'U'}
                           </AvatarFallback>
                         </Avatar>
@@ -764,22 +764,22 @@ export const SupportChat = () => {
                       <div
                         className={`px-3 py-2 rounded-lg ${
                           message.sender_type === 'user' || message.sender_type === 'visitor'
-                            ? 'bg-gray-100 text-gray-900'
-                            : 'bg-blue-600 text-white'
+                            ? 'bg-muted text-foreground'
+                            : 'bg-primary text-primary-foreground'
                         }`}
                       >
                         <p className="text-sm">{message.message_text}</p>
                         <p className={`text-xs mt-1 ${
                           message.sender_type === 'user' || message.sender_type === 'visitor'
-                            ? 'text-gray-500'
-                            : 'text-blue-100'
+                            ? 'text-muted-foreground'
+                            : 'text-primary-foreground/70'
                         }`}>
                           {formatTime(message.sent_at)}
                         </p>
                       </div>
                       {message.sender_type !== 'user' && message.sender_type !== 'visitor' && (
                         <Avatar className="h-6 w-6">
-                          <AvatarFallback className="bg-blue-100 text-blue-600 text-xs">
+                          <AvatarFallback className="bg-primary/10 text-primary text-xs">
                             A
                           </AvatarFallback>
                         </Avatar>
@@ -792,7 +792,7 @@ export const SupportChat = () => {
             </div>
 
             {/* Message Input */}
-            <div className="border-t border-gray-200 p-4 safe-area-bottom">
+            <div className="border-t border-border p-4 safe-area-bottom">
               <div className="flex space-x-2">
                 <Input
                   value={messageText}
@@ -815,7 +815,7 @@ export const SupportChat = () => {
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center">
-            <div className="text-center text-gray-500">
+            <div className="text-center text-muted-foreground">
               <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>Select a chat to start messaging</p>
             </div>

@@ -209,12 +209,12 @@ export const ReportsManagement = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'under_review': return 'bg-blue-100 text-blue-800';
-      case 'resolved': return 'bg-green-100 text-green-800';
-      case 'dismissed': return 'bg-gray-100 text-gray-800';
-      case 'transferred': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300';
+      case 'under_review': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300';
+      case 'resolved': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300';
+      case 'dismissed': return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+      case 'transferred': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
     }
   };
 
@@ -255,7 +255,7 @@ export const ReportsManagement = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -265,8 +265,8 @@ export const ReportsManagement = () => {
       {/* Header and Stats */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">Product Reports</h3>
-          <p className="text-sm text-gray-600">Manage user reports on products</p>
+          <h3 className="text-lg font-semibold text-foreground">Product Reports</h3>
+          <p className="text-sm text-muted-foreground">Manage user reports on products</p>
         </div>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
           <SelectTrigger className="w-48">
@@ -288,10 +288,10 @@ export const ReportsManagement = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <Flag className="h-4 w-4 text-blue-600" />
+              <Flag className="h-4 w-4 text-primary" />
               <div>
-                <p className="text-sm text-gray-600">Total</p>
-                <p className="text-lg font-semibold">{stats.total}</p>
+                <p className="text-sm text-muted-foreground">Total</p>
+                <p className="text-lg font-semibold text-foreground">{stats.total}</p>
               </div>
             </div>
           </CardContent>
@@ -384,38 +384,38 @@ export const ReportsManagement = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-sm text-gray-500">{formatDate(report.created_at)}</span>
-                  <p className="text-xs text-gray-400">{getTimeAgo(report.created_at)}</p>
+                  <span className="text-sm text-muted-foreground">{formatDate(report.created_at)}</span>
+                  <p className="text-xs text-muted-foreground">{getTimeAgo(report.created_at)}</p>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Reporter Information */}
-              <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-blue-100 text-blue-600 text-xs">
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
                     {report.profiles?.full_name ? report.profiles.full_name.charAt(0).toUpperCase() : 'U'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-foreground">
                     {report.profiles?.full_name || 'Anonymous User'}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     {report.profiles?.email || 'No email provided'}
                   </p>
                 </div>
-                <User className="h-4 w-4 text-gray-400" />
+                <User className="h-4 w-4 text-muted-foreground" />
               </div>
 
               {/* Product Information */}
-              <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
-                <Package className="h-5 w-5 text-blue-600" />
+              <div className="flex items-center space-x-3 p-3 bg-primary/5 rounded-lg">
+                <Package className="h-5 w-5 text-primary" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-foreground">
                     Product: {report.product_submissions?.title}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     Price: ${report.product_submissions?.price || 'N/A'} | 
                     Vendor: {report.vendor_profiles?.business_name || 'Unknown'}
                   </p>
@@ -423,7 +423,7 @@ export const ReportsManagement = () => {
                 <Link 
                   to={`/product/${report.product_id}`}
                   target="_blank"
-                  className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm"
+                  className="flex items-center space-x-1 text-primary hover:text-primary/80 text-sm"
                 >
                   <ExternalLink className="h-4 w-4" />
                   <span>View Product</span>
@@ -432,8 +432,8 @@ export const ReportsManagement = () => {
 
               {/* Report Description */}
               {report.description && (
-                <div className="p-3 bg-yellow-50 rounded-lg">
-                  <p className="text-sm text-gray-700">
+                <div className="p-3 bg-yellow-50 dark:bg-yellow-900/10 rounded-lg">
+                  <p className="text-sm text-foreground">
                     <span className="font-medium">Report Details:</span> {report.description}
                   </p>
                 </div>

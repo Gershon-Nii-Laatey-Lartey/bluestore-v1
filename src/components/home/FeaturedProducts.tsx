@@ -96,7 +96,7 @@ export const FeaturedProducts = memo(({ products, loading = false }: FeaturedPro
         </Link>
       </div>
       
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="product-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {loading ? (
           // Skeleton loading state
           Array.from({ length: 8 }).map((_, index) => (
@@ -113,20 +113,22 @@ export const FeaturedProducts = memo(({ products, loading = false }: FeaturedPro
             return (
               <Link key={product.id} to={`/product/${product.id}`}>
                 <Card className="product-card group transition-all duration-300 cursor-pointer">
-                  <CardContent className="p-4 px-[10px]">
-                    <OptimizedImage
-                      src={getMainImageWithFallback(product.images || [], product.main_image_index)}
-                      alt={product.title}
-                      aspectRatio="square"
-                      className="mb-3 group-hover:scale-105 transition-transform duration-200"
-                      fallback={<span>📱</span>}
-                    />
-                    <h4 className="font-medium text-card-foreground mb-2 text-sm line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-primary transition-colors">
+                  <CardContent className="p-0">
+                    <div className="product-image-container aspect-square mb-4">
+                      <OptimizedImage
+                        src={getMainImageWithFallback(product.images || [], product.main_image_index)}
+                        alt={product.title}
+                        aspectRatio="square"
+                        className="product-image"
+                        fallback={<div className="product-image-placeholder text-3xl">📱</div>}
+                      />
+                    </div>
+                    <h4 className="product-title text-card-foreground mb-3 text-sm line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-primary transition-colors">
                       {product.title}
                     </h4>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-3">
                       <div className="flex flex-col">
-                        <span className="text-lg font-bold text-blue-600 dark:text-primary">
+                        <span className="product-price text-lg text-blue-600 dark:text-primary">
                           {priceInfo.currentPrice}
                         </span>
                         {priceInfo.previousPrice && (
@@ -136,12 +138,12 @@ export const FeaturedProducts = memo(({ products, loading = false }: FeaturedPro
                         )}
                       </div>
                     </div>
-                    <div className="mt-2 text-xs text-muted-foreground">
+                    <div className="product-location text-xs">
                       {product.location}
                     </div>
                     {priceInfo.isClearance && (
-                      <div className="mt-1">
-                        <span className="text-xs text-red-600 font-medium bg-red-50 dark:bg-red-950 dark:text-red-400 px-2 py-1 rounded-full">
+                      <div className="mt-2">
+                        <span className="price-reduced-badge text-xs px-2 py-1">
                           Price Reduced!
                         </span>
                       </div>

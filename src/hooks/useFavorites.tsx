@@ -4,11 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useCallback, useState } from "react";
 import { ProductSubmission } from "@/types/product";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 export const useFavorites = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [pendingOperations, setPendingOperations] = useState<Set<string>>(new Set());
+  const { trackAddToFavorites } = useAnalytics();
 
   const fetchFavorites = useCallback(async (): Promise<ProductSubmission[]> => {
     if (!user) return [];
@@ -85,6 +87,12 @@ export const useFavorites = () => {
 
       if (error) throw error;
       
+      // Track analytics for adding to favorites
+      const product = favorites.find(fav => fav.id === productId);
+      if (product) {
+        trackAddToFavorites(productId, product.title, product.category, product.price);
+      }
+      
       // Refresh the favorites list
       refreshFavorites();
       return data;
@@ -96,7 +104,7 @@ export const useFavorites = () => {
         return newSet;
       });
     }
-  }, [user, refreshFavorites, pendingOperations]);
+  }, [user, refreshFavorites, pendingOperations, favorites, trackAddToFavorites]);
 
   // Remove from favorites function
   const removeFromFavorites = useCallback(async (productId: string) => {

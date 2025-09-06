@@ -412,9 +412,9 @@ const Admin = () => {
   // Mobile Layout
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        {/* Mobile Header */}
-        <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-50">
+      <div className="min-h-screen bg-background">
+        {/* Mobile Header - Fixed positioning */}
+        <header className="bg-background border-b border-border px-4 py-3 flex items-center justify-between fixed top-0 left-0 right-0 z-50">
           <div className="flex items-center space-x-3">
             <Button
               variant="ghost"
@@ -424,8 +424,8 @@ const Admin = () => {
               {showMobileMenu ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
             <div className="flex items-center space-x-2">
-              <Shield className="h-5 w-5 text-blue-600" />
-              <h1 className="text-lg font-semibold text-gray-900">Admin</h1>
+              <Shield className="h-5 w-5 text-primary" />
+              <h1 className="text-lg font-semibold text-foreground">Admin</h1>
             </div>
           </div>
           <div className="flex items-center space-x-2">
@@ -444,14 +444,15 @@ const Admin = () => {
           </div>
         </header>
 
-        <div className="flex">
+        {/* Main content with top padding to account for fixed header */}
+        <div className="pt-16">
           {/* Mobile Sidebar */}
           {showMobileMenu && (
-            <div className="fixed inset-0 z-40 bg-black bg-opacity-50" onClick={() => setShowMobileMenu(false)}>
-              <div className="fixed left-0 top-0 h-full w-80 bg-white shadow-lg" onClick={(e) => e.stopPropagation()}>
-                <div className="p-4 border-b">
+            <div className="fixed inset-0 z-50 bg-black bg-opacity-50" onClick={() => setShowMobileMenu(false)}>
+              <div className="fixed left-0 top-0 h-full w-80 bg-background border-r border-border shadow-lg" onClick={(e) => e.stopPropagation()}>
+                <div className="p-4 border-b border-border">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold">Admin Menu</h2>
+                    <h2 className="text-lg font-semibold text-foreground">Admin Menu</h2>
                     <Button variant="ghost" size="sm" onClick={() => setShowMobileMenu(false)}>
                       <X className="h-4 w-4" />
                     </Button>
@@ -460,7 +461,7 @@ const Admin = () => {
                 <div className="overflow-y-auto h-full pb-20">
                   {menuGroups.map((group) => (
                     <div key={group.title} className="p-4">
-                      <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
+                      <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3">
                         {group.title}
                       </h3>
                       <div className="space-y-1">
@@ -475,8 +476,8 @@ const Admin = () => {
                               }}
                               className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left transition-colors ${
                                 activeTab === item.id
-                                  ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                                  : 'text-gray-700 hover:bg-gray-50'
+                                  ? 'bg-primary/10 text-primary border border-primary/20'
+                                  : 'text-foreground hover:bg-accent'
                               }`}
                             >
                               <div className="flex items-center space-x-3">
@@ -500,18 +501,7 @@ const Admin = () => {
           )}
 
           {/* Mobile Content */}
-          <div className="flex-1 w-full">
-            {/* Current Tab Header */}
-            <div className="bg-white border-b border-gray-200 px-4 py-3">
-              <div className="flex items-center space-x-3">
-                {(() => {
-                  const IconComponent = getTabIcon(activeTab);
-                  return <IconComponent className="h-5 w-5 text-blue-600" />;
-                })()}
-                <h2 className="text-lg font-semibold text-gray-900">{getTabLabel(activeTab)}</h2>
-              </div>
-            </div>
-
+          <div className="w-full">
             {/* Content Area */}
             <div className="p-4">
               {/* Package Stats for Pending Submissions */}
@@ -542,11 +532,11 @@ const Admin = () => {
         
         <div className={`flex-1 overflow-y-auto transition-all duration-300 ${collapsed ? 'ml-16' : 'ml-64'}`}>
           <div className="p-6">
-            <div className="bg-white rounded-lg border p-6 mb-6">
+            <div className="bg-card rounded-lg border border-border p-6 mb-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-                  <p className="text-gray-600 mt-1">Manage products, users, and platform settings</p>
+                  <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
+                  <p className="text-muted-foreground mt-1">Manage products, users, and platform settings</p>
                 </div>
                 <div className="flex items-center space-x-2">
                   {notificationPermission !== 'granted' && (

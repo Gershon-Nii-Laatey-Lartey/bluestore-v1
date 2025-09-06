@@ -119,10 +119,10 @@ export const ProductCatalogTab = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'approved': return 'bg-green-100 text-green-700';
-      case 'pending': return 'bg-yellow-100 text-yellow-700';
-      case 'rejected': return 'bg-red-100 text-red-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'approved': return 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300';
+      case 'pending': return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-300';
+      case 'rejected': return 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300';
+      default: return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
     }
   };
 
@@ -139,7 +139,7 @@ export const ProductCatalogTab = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -148,11 +148,11 @@ export const ProductCatalogTab = () => {
     <>
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-white rounded-lg border p-4 md:p-6">
+        <div className="bg-card rounded-lg border border-border p-4 md:p-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0">
             <div>
-              <h2 className="text-xl md:text-2xl font-bold text-gray-900">Product Catalog</h2>
-              <p className="text-sm md:text-base text-gray-600 mt-1">Browse and manage all products in the marketplace</p>
+              <h2 className="text-xl md:text-2xl font-bold text-foreground">Product Catalog</h2>
+              <p className="text-sm md:text-base text-muted-foreground mt-1">Browse and manage all products in the marketplace</p>
             </div>
             <div className="flex items-center space-x-3">
               <Badge variant="secondary" className="text-sm">
@@ -177,7 +177,7 @@ export const ProductCatalogTab = () => {
               isMobile ? "space-y-3" : "sm:flex-row sm:space-y-0"
             )}>
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search products..."
                   value={searchTerm}
@@ -224,7 +224,7 @@ export const ProductCatalogTab = () => {
                     <CardContent className="p-4">
                       <div className="flex space-x-4">
                         {product.images && product.images.length > 0 && (
-                          <div className="w-20 h-20 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
+                          <div className="w-20 h-20 rounded-lg bg-muted overflow-hidden flex-shrink-0">
                             <img 
                               src={getMainImageWithFallback(product.images, product.main_image_index)} 
                               alt={product.title}
@@ -234,21 +234,21 @@ export const ProductCatalogTab = () => {
                         )}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between mb-2">
-                            <h3 className="font-semibold text-gray-900 text-sm line-clamp-2">
+                            <h3 className="font-semibold text-foreground text-sm line-clamp-2">
                               {product.title}
                             </h3>
                             <Badge className={`text-xs ${getStatusColor(product.status)}`}>
                               {product.status}
                             </Badge>
                           </div>
-                          <p className="text-xs text-gray-600 line-clamp-2 mb-2">{product.description}</p>
+                          <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{product.description}</p>
                           <div className="flex items-center justify-between mb-2">
-                            <span className="font-bold text-base text-green-600">
+                            <span className="font-bold text-base text-green-600 dark:text-green-400">
                               {formatPrice(product.price)}
                             </span>
-                            <span className="text-xs text-gray-500">{product.category}</span>
+                            <span className="text-xs text-muted-foreground">{product.category}</span>
                           </div>
-                          <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+                          <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
                             <span>{formatDate(product.submittedAt)}</span>
                             <span>{product.location}</span>
                           </div>
@@ -276,36 +276,36 @@ export const ProductCatalogTab = () => {
               </div>
             ) : (
               /* Desktop Grid */
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="product-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {filteredProducts.map((product) => (
                   <Card key={product.id} className="product-card border transition-all duration-300">
-                    <CardContent className="p-4">
+                    <CardContent className="p-0">
                       {product.images && product.images.length > 0 && (
-                        <div className="aspect-square rounded-lg bg-gray-100 mb-4 overflow-hidden">
+                        <div className="product-image-container aspect-square mb-4">
                           <img 
                             src={getMainImageWithFallback(product.images, product.main_image_index)} 
                             alt={product.title}
-                            className="w-full h-full object-cover"
+                            className="product-image"
                           />
                         </div>
                       )}
                       <div className="space-y-3">
                         <div className="flex items-start justify-between">
-                          <h3 className="font-semibold text-gray-900 text-sm line-clamp-2">
+                          <h3 className="product-title text-foreground text-sm line-clamp-2">
                             {product.title}
                           </h3>
                           <Badge className={`text-xs ${getStatusColor(product.status)}`}>
                             {product.status}
                           </Badge>
                         </div>
-                        <p className="text-sm text-gray-600 line-clamp-2">{product.description}</p>
+                        <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-lg text-green-600">
+                          <span className="product-price text-lg text-green-600 dark:text-green-400">
                             {formatPrice(product.price)}
                           </span>
-                          <span className="text-xs text-gray-500">{product.category}</span>
+                          <span className="text-xs text-muted-foreground">{product.category}</span>
                         </div>
-                        <div className="flex items-center justify-between text-xs text-gray-500">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span>{formatDate(product.submittedAt)}</span>
                           <span>{product.location}</span>
                         </div>

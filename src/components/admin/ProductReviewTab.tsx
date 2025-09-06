@@ -90,21 +90,21 @@ export const ProductReviewTab = ({
   const getPackageColor = (packageId?: string) => {
     switch (packageId) {
       case 'free':
-        return 'bg-gray-100 text-gray-800 border-gray-300';
+        return 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600';
       case 'starter':
-        return 'bg-green-100 text-green-800 border-green-300';
+        return 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700';
       case 'standard':
-        return 'bg-blue-100 text-blue-800 border-blue-300';
+        return 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-700';
       case 'rising':
-        return 'bg-purple-100 text-purple-800 border-purple-300';
+        return 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-700';
       case 'pro':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+        return 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-700';
       case 'business':
-        return 'bg-orange-100 text-orange-800 border-orange-300';
+        return 'bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-700';
       case 'premium':
-        return 'bg-red-100 text-red-800 border-red-300';
+        return 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900/20 dark:text-red-300 dark:border-red-700';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-300';
+        return 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600';
     }
   };
 
@@ -124,10 +124,10 @@ export const ProductReviewTab = ({
     const PackageIcon = getPackageIcon(packageInfo?.id);
 
     return (
-      <div key={submission.id} className="border rounded-xl p-4 sm:p-6 hover:shadow-sm transition-shadow">
+      <div key={submission.id} className="border border-border rounded-xl p-4 sm:p-6 hover:shadow-sm transition-shadow bg-card">
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Image Section */}
-          <div className="w-full sm:w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center text-2xl flex-shrink-0 mx-auto sm:mx-0">
+          <div className="w-full sm:w-24 h-24 bg-muted rounded-lg flex items-center justify-center text-2xl flex-shrink-0 mx-auto sm:mx-0">
             {submission.images && submission.images.length > 0 ? (
               <DocumentImage 
                 src={getMainImageWithFallback(submission.images, submission.main_image_index)} 
@@ -143,8 +143,8 @@ export const ProductReviewTab = ({
           <div className="flex-1 min-w-0">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 gap-2">
               <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">{submission.title}</h3>
-                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-gray-600 mb-2">
+                <h3 className="text-lg font-semibold text-foreground mb-1 truncate">{submission.title}</h3>
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-muted-foreground mb-2">
                   <span className="capitalize font-medium truncate">{submission.category}</span>
                   <Separator orientation="vertical" className="h-4 hidden sm:block" />
                   <span className="capitalize truncate">{submission.condition}</span>
@@ -155,7 +155,7 @@ export const ProductReviewTab = ({
                   </span>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 mb-2">
-                  <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 text-xs">
+                  <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-700 text-xs">
                     Pending Review
                   </Badge>
                   {packageInfo && (
@@ -167,17 +167,17 @@ export const ProductReviewTab = ({
                 </div>
               </div>
               <div className="text-right flex-shrink-0">
-                <p className="text-xl sm:text-2xl font-bold text-green-600">{formatPrice(submission.price)}</p>
+                <p className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">{formatPrice(submission.price)}</p>
                 {submission.originalPrice && (
-                  <p className="text-sm text-gray-500 line-through">{formatPrice(submission.originalPrice)}</p>
+                  <p className="text-sm text-muted-foreground line-through">{formatPrice(submission.originalPrice)}</p>
                 )}
               </div>
             </div>
             
-            <p className="text-gray-700 mb-4 leading-relaxed line-clamp-2 text-sm">{submission.description}</p>
+            <p className="text-muted-foreground mb-4 leading-relaxed line-clamp-2 text-sm">{submission.description}</p>
             
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center pt-4 border-t gap-3">
-              <div className="text-sm text-gray-600 flex flex-wrap items-center gap-2">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center pt-4 border-t border-border gap-3">
+              <div className="text-sm text-muted-foreground flex flex-wrap items-center gap-2">
                 <span className="font-medium">Location:</span> 
                 <span className="truncate max-w-[150px]">{submission.location}</span>
                 {submission.negotiable && (

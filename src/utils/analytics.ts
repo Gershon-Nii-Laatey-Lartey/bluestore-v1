@@ -24,31 +24,92 @@ export const trackEvent = (
 };
 
 // Page view tracking
-export const trackPageView = (pageTitle: string, pagePath: string) => {
+export const trackPageView = (pageTitle: string, pagePath: string, customParams?: Record<string, any>) => {
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', 'page_view', {
       page_title: pageTitle,
       page_location: pagePath,
-      custom_parameter_1: 'visitor'
+      page_path: pagePath,
+      custom_parameter_1: 'visitor',
+      ...customParams
     });
   }
 };
 
+// Enhanced page view tracking for product pages
+export const trackProductPageView = (productId: string, productName: string, category: string, price?: number, vendorId?: string) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    // Track page view with product data
+    window.gtag('event', 'page_view', {
+      page_title: productName,
+      page_location: window.location.href,
+      page_path: window.location.pathname,
+      custom_parameter_1: 'product_view',
+      item_id: productId,
+      item_name: productName,
+      item_category: category,
+      value: price,
+      currency: 'GHS',
+      vendor_id: vendorId
+    });
+    
+    // Also track as view_item event
+    trackProductView(productId, productName, category, price, vendorId);
+  }
+};
+
 // E-commerce tracking
-export const trackProductView = (productId: string, productName: string, category: string, price?: number) => {
+export const trackProductView = (productId: string, productName: string, category: string, price?: number, vendorId?: string) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    // Enhanced e-commerce tracking
+    window.gtag('event', 'view_item', {
+      currency: 'GHS',
+      value: price,
+      items: [{
+        item_id: productId,
+        item_name: productName,
+        item_category: category,
+        price: price,
+        vendor_id: vendorId,
+        item_brand: 'BlueStore'
+      }]
+    });
+  }
+  
+  // Also track as custom event for additional data
   trackEvent('view_item', 'ecommerce', productName, undefined, {
     item_id: productId,
     item_name: productName,
     item_category: category,
     value: price,
-    currency: 'GHS'
+    currency: 'GHS',
+    vendor_id: vendorId
   });
 };
 
-export const trackAddToFavorites = (productId: string, productName: string) => {
+export const trackAddToFavorites = (productId: string, productName: string, category?: string, price?: number) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    // Enhanced e-commerce tracking
+    window.gtag('event', 'add_to_wishlist', {
+      currency: 'GHS',
+      value: price,
+      items: [{
+        item_id: productId,
+        item_name: productName,
+        item_category: category,
+        price: price,
+        item_brand: 'BlueStore'
+      }]
+    });
+  }
+  
+  // Also track as custom event
   trackEvent('add_to_wishlist', 'ecommerce', productName, undefined, {
     item_id: productId,
-    item_name: productName
+    item_name: productName,
+    item_category: category,
+    value: price,
+    currency: 'GHS'
   });
 };
 
@@ -60,6 +121,16 @@ export const trackSearch = (searchTerm: string, resultsCount: number) => {
 };
 
 export const trackCategoryView = (categoryName: string, productsCount: number) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    // Enhanced e-commerce tracking
+    window.gtag('event', 'view_item_list', {
+      item_list_name: categoryName,
+      item_list_id: categoryName.toLowerCase().replace(/\s+/g, '_'),
+      items_count: productsCount
+    });
+  }
+  
+  // Also track as custom event
   trackEvent('view_item_list', 'ecommerce', categoryName, productsCount, {
     item_list_name: categoryName,
     items_count: productsCount
@@ -93,10 +164,29 @@ export const trackPayment = (packageType: string, price: number, paymentMethod: 
   });
 };
 
-export const trackContactSeller = (productId: string, productName: string) => {
+export const trackContactSeller = (productId: string, productName: string, category?: string, price?: number) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    // Enhanced e-commerce tracking
+    window.gtag('event', 'contact_seller', {
+      currency: 'GHS',
+      value: price,
+      items: [{
+        item_id: productId,
+        item_name: productName,
+        item_category: category,
+        price: price,
+        item_brand: 'BlueStore'
+      }]
+    });
+  }
+  
+  // Also track as custom event
   trackEvent('contact_seller', 'engagement', productName, undefined, {
     item_id: productId,
-    item_name: productName
+    item_name: productName,
+    item_category: category,
+    value: price,
+    currency: 'GHS'
   });
 };
 

@@ -51,7 +51,7 @@ export const ProductGrid = ({ products, loading, showEditButtons = false, onEdit
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div className="product-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
       {products.map((product) => {
         // Check if this is a clearance item (edited with price reduction)
         const isClearanceItem = product.edited && product.previous_price && 
@@ -63,33 +63,35 @@ export const ProductGrid = ({ products, loading, showEditButtons = false, onEdit
 
         return (
           <Card key={product.id} className="product-card group transition-all duration-300 relative">
-            {/* Discount Badge for Clearance Items */}
+            {/* Improved Discount Badge for Clearance Items */}
             {isClearanceItem && discountInfo && (
-              <div className="absolute top-2 left-2 z-10 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center space-x-1">
+              <div className="price-reduced-badge absolute top-3 left-3 z-10 flex items-center space-x-1">
                 <TrendingDown className="h-3 w-3" />
                 <span>{discountInfo.percentage}% OFF</span>
               </div>
             )}
             
-            <CardContent className="p-4">
+            <CardContent className="p-0">
               <Link to={`/product/${product.id}`} className="block">
-                <OptimizedImage
-                  src={getMainImageWithFallback(product.images || [], product.main_image_index)}
-                  alt={product.title}
-                  aspectRatio="square"
-                  className="mb-3 group-hover:scale-105 transition-transform duration-200"
-                  fallback={
-                    <div className="text-3xl flex items-center justify-center h-full">📱</div>
-                  }
-                />
-                <h4 className="font-medium text-card-foreground mb-2 text-sm line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-primary transition-colors">
+                <div className="product-image-container aspect-square mb-4">
+                  <OptimizedImage
+                    src={getMainImageWithFallback(product.images || [], product.main_image_index)}
+                    alt={product.title}
+                    aspectRatio="square"
+                    className="product-image"
+                    fallback={
+                      <div className="product-image-placeholder text-3xl">📱</div>
+                    }
+                  />
+                </div>
+                <h4 className="product-title text-card-foreground mb-3 text-sm line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-primary transition-colors">
                   {product.title}
                 </h4>
               </Link>
               
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-3">
                 <div className="flex flex-col">
-                  <span className="text-lg font-bold text-blue-600 dark:text-primary">
+                  <span className="product-price text-lg text-blue-600 dark:text-primary">
                     {formatPrice(product.price)}
                   </span>
                   

@@ -18,6 +18,8 @@ export const useAnalytics = () => {
   // Return tracking functions
   return {
     trackEvent: analytics.trackEvent,
+    trackPageView: analytics.trackPageView,
+    trackProductPageView: analytics.trackProductPageView,
     trackProductView: analytics.trackProductView,
     trackAddToFavorites: analytics.trackAddToFavorites,
     trackSearch: analytics.trackSearch,

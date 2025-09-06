@@ -100,11 +100,11 @@ export const Layout = ({
         {shouldShowFAB && (
           <div className="md:hidden fixed bottom-24 right-4 z-50">
             <Button
-              size="lg"
-              className="h-14 w-14 rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/25 border-0"
+              size="default"
+              className="h-12 w-12 rounded-xl bg-primary/90 hover:bg-primary text-primary-foreground shadow-lg shadow-primary/20 border border-primary/20 backdrop-blur-sm"
               onClick={() => navigate("/publish-ad")}
             >
-              <Plus className="h-6 w-6" strokeWidth={3} />
+              <Plus className="h-5 w-5" strokeWidth={2.5} />
             </Button>
           </div>
         )}
