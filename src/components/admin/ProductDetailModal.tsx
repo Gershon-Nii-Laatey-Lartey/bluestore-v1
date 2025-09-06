@@ -50,13 +50,13 @@ export const ProductDetailModal = ({ product, onApproval }: ProductDetailModalPr
 
   return (
     <>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{product.title}</DialogTitle>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+        <DialogHeader className="pb-4">
+          <DialogTitle className="text-lg sm:text-xl pr-8">{product.title}</DialogTitle>
         </DialogHeader>
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {/* Product Image */}
-          <div className="space-y-4">
+          <div className="space-y-4 order-1">
             <ProductImages 
               images={product.images || []} 
               title={product.title} 
@@ -65,52 +65,52 @@ export const ProductDetailModal = ({ product, onApproval }: ProductDetailModalPr
           </div>
           
           {/* Product Details */}
-          <div className="space-y-4">
+          <div className="space-y-4 order-2">
             <div>
-              <h3 className="font-semibold text-lg mb-2">Product Information</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Category:</span>
-                  <span className="font-medium">{product.category}</span>
+              <h3 className="font-semibold text-base sm:text-lg mb-3">Product Information</h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
+                  <span className="text-muted-foreground">Category:</span>
+                  <span className="font-medium text-foreground">{product.category}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Condition:</span>
-                  <span className="font-medium">{product.condition}</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
+                  <span className="text-muted-foreground">Condition:</span>
+                  <span className="font-medium text-foreground">{product.condition}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Price:</span>
-                  <span className="font-bold text-green-600">{formatPrice(product.price)}</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
+                  <span className="text-muted-foreground">Price:</span>
+                  <span className="font-bold text-green-600 dark:text-green-400">{formatPrice(product.price)}</span>
                 </div>
                 {product.originalPrice && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Original Price:</span>
-                    <span className="text-gray-500 line-through">{formatPrice(product.originalPrice)}</span>
+                  <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
+                    <span className="text-muted-foreground">Original Price:</span>
+                    <span className="text-muted-foreground line-through">{formatPrice(product.originalPrice)}</span>
                   </div>
                 )}
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Location:</span>
-                  <span className="font-medium">{product.location}</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
+                  <span className="text-muted-foreground">Location:</span>
+                  <span className="font-medium text-foreground">{product.location}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Phone:</span>
-                  <span className="font-medium">{product.phone}</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
+                  <span className="text-muted-foreground">Phone:</span>
+                  <span className="font-medium text-foreground">{product.phone}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Negotiable:</span>
-                  <span className="font-medium">{product.negotiable ? 'Yes' : 'No'}</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
+                  <span className="text-muted-foreground">Negotiable:</span>
+                  <span className="font-medium text-foreground">{product.negotiable ? 'Yes' : 'No'}</span>
                 </div>
               </div>
             </div>
             
             <div>
-              <h3 className="font-semibold text-lg mb-2">Description</h3>
-              <p className="text-gray-700 text-sm leading-relaxed">{product.description}</p>
+              <h3 className="font-semibold text-base sm:text-lg mb-3">Description</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">{product.description}</p>
             </div>
             
-            <div className="flex space-x-3 pt-4">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4">
               <Button 
                 size="sm" 
-                className="bg-green-600 hover:bg-green-700" 
+                className="bg-green-600 hover:bg-green-700 w-full sm:w-auto" 
                 onClick={handleDirectApprove}
                 disabled={isSubmitting}
               >
@@ -120,7 +120,7 @@ export const ProductDetailModal = ({ product, onApproval }: ProductDetailModalPr
               <Button 
                 size="sm" 
                 variant="outline"
-                className="border-yellow-500 text-yellow-600 hover:bg-yellow-50"
+                className="border-yellow-500 text-yellow-600 hover:bg-yellow-50 dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-yellow-900/20 w-full sm:w-auto"
                 onClick={() => setShowSuggestionModal(true)}
                 disabled={isSubmitting}
               >
@@ -132,6 +132,7 @@ export const ProductDetailModal = ({ product, onApproval }: ProductDetailModalPr
                 variant="destructive" 
                 onClick={() => setShowRejectionModal(true)}
                 disabled={isSubmitting}
+                className="w-full sm:w-auto"
               >
                 <XCircle className="h-4 w-4 mr-2" />
                 Reject

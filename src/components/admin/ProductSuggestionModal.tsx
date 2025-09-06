@@ -30,9 +30,9 @@ export const ProductSuggestionModal = ({
   };
 
   return (
-    <DialogContent className="max-w-md">
-      <DialogHeader>
-        <DialogTitle className="flex items-center gap-2">
+    <DialogContent className="max-w-md mx-4 sm:mx-auto">
+      <DialogHeader className="pb-4">
+        <DialogTitle className="flex items-center gap-2 text-lg">
           <Lightbulb className="h-5 w-5 text-yellow-500" />
           Suggest Improvements
         </DialogTitle>
@@ -40,32 +40,32 @@ export const ProductSuggestionModal = ({
       
       <div className="space-y-4">
         <div>
-          <p className="text-sm text-gray-600 mb-2">
-            Product: <span className="font-medium">"{productTitle}"</span>
+          <p className="text-sm text-muted-foreground mb-2">
+            Product: <span className="font-medium text-foreground">"{productTitle}"</span>
           </p>
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="suggestion">Suggestions for improvement (optional)</Label>
+          <Label htmlFor="suggestion" className="text-sm font-medium">Suggestions for improvement (optional)</Label>
           <Textarea
             id="suggestion"
             placeholder="Provide helpful suggestions to improve this product listing (e.g., better photos, more detailed description, competitive pricing)..."
             value={suggestion}
             onChange={(e) => setSuggestion(e.target.value)}
             rows={4}
-            className="resize-none"
+            className="resize-none text-sm"
           />
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-muted-foreground">
             These suggestions will help the vendor improve their listing before approval.
           </p>
         </div>
         
-        <div className="flex gap-3 pt-2">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2">
           <Button
             variant="outline"
             onClick={onCancel}
             disabled={isSubmitting}
-            className="flex-1"
+            className="w-full sm:flex-1"
           >
             Cancel
           </Button>
@@ -73,14 +73,14 @@ export const ProductSuggestionModal = ({
             variant="outline"
             onClick={onSkip}
             disabled={isSubmitting}
-            className="flex-1"
+            className="w-full sm:flex-1"
           >
             {isSubmitting ? "Processing..." : "Skip & Approve"}
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={!suggestion.trim() || isSubmitting}
-            className="flex-1"
+            className="w-full sm:flex-1"
           >
             {isSubmitting ? "Sending..." : "Send Suggestions"}
           </Button>

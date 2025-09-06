@@ -28,9 +28,9 @@ export const ProductRejectionModal = ({
   };
 
   return (
-    <DialogContent className="max-w-md">
-      <DialogHeader>
-        <DialogTitle className="flex items-center gap-2">
+    <DialogContent className="max-w-md mx-4 sm:mx-auto">
+      <DialogHeader className="pb-4">
+        <DialogTitle className="flex items-center gap-2 text-lg">
           <XCircle className="h-5 w-5 text-red-500" />
           Reject Product
         </DialogTitle>
@@ -38,32 +38,32 @@ export const ProductRejectionModal = ({
       
       <div className="space-y-4">
         <div>
-          <p className="text-sm text-gray-600 mb-2">
-            You are about to reject: <span className="font-medium">"{productTitle}"</span>
+          <p className="text-sm text-muted-foreground mb-2">
+            You are about to reject: <span className="font-medium text-foreground">"{productTitle}"</span>
           </p>
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="rejection-reason">Reason for rejection *</Label>
+          <Label htmlFor="rejection-reason" className="text-sm font-medium">Reason for rejection *</Label>
           <Textarea
             id="rejection-reason"
             placeholder="Please provide a clear reason for rejecting this product submission..."
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={4}
-            className="resize-none"
+            className="resize-none text-sm"
           />
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-muted-foreground">
             This reason will be visible to the vendor to help them improve their submission.
           </p>
         </div>
         
-        <div className="flex gap-3 pt-2">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2">
           <Button
             variant="outline"
             onClick={onCancel}
             disabled={isSubmitting}
-            className="flex-1"
+            className="w-full sm:flex-1"
           >
             Cancel
           </Button>
@@ -71,7 +71,7 @@ export const ProductRejectionModal = ({
             variant="destructive"
             onClick={handleSubmit}
             disabled={!reason.trim() || isSubmitting}
-            className="flex-1"
+            className="w-full sm:flex-1"
           >
             {isSubmitting ? "Rejecting..." : "Reject Product"}
           </Button>

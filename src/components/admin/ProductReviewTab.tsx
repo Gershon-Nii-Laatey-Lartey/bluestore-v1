@@ -127,7 +127,7 @@ export const ProductReviewTab = ({
       <div key={submission.id} className="border border-border rounded-xl p-4 sm:p-6 hover:shadow-sm transition-shadow bg-card">
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Image Section */}
-          <div className="w-full sm:w-24 h-24 bg-muted rounded-lg flex items-center justify-center text-2xl flex-shrink-0 mx-auto sm:mx-0">
+          <div className="w-full sm:w-24 h-24 bg-muted rounded-lg flex items-center justify-center text-2xl flex-shrink-0 mx-auto sm:mx-0 overflow-hidden">
             {submission.images && submission.images.length > 0 ? (
               <DocumentImage 
                 src={getMainImageWithFallback(submission.images, submission.main_image_index)} 
