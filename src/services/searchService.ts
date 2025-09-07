@@ -190,25 +190,242 @@ class SearchService {
   // Search products with location filtering
   async searchProducts(query: string, location?: string, filters?: any) {
     try {
-      // Add to search history
-      await this.addToHistory(query, location);
+      console.log('SearchService: Searching products with query:', query, 'location:', location);
       
-      // This is a placeholder for actual search implementation
-      // In a real implementation, this would search through products
-      // and filter by location if provided
+      if (!query.trim()) {
+        // If no query, return all approved products
+        const { data, error } = await supabase
+          .from('product_submissions')
+          .select('*')
+          .eq('status', 'approved')
+          .order('boost_level', { ascending: false })
+          .order('package_price', { ascending: false })
+          .order('created_at', { ascending: false })
+          .limit(50);
+
+        if (error) throw error;
+
+        const products = (data || []).map(this.transformProductData);
+        const filteredProducts = this.applyLocationFilter(products, location);
+        
+        // Record search history with results count
+        await this.recordSearchWithResults(query, location, filteredProducts.length);
+        
+        return {
+          products: filteredProducts,
+          totalCount: filteredProducts.length,
+          location: location
+        };
+      }
+
+      // Build search query with multiple fields
+      let searchQuery = supabase
+        .from('product_submissions')
+        .select('*')
+        .eq('status', 'approved');
+
+      // Apply text search across multiple fields
+      const searchTerms = query.trim().toLowerCase().split(/\s+/);
+      const searchConditions = searchTerms.map(term => 
+        `title.ilike.%${term}%,description.ilike.%${term}%,category.ilike.%${term}%`
+      ).join(',');
+
+      searchQuery = searchQuery.or(searchConditions);
+
+      // Apply additional filters if provided
+      if (filters) {
+        if (filters.category && filters.category !== 'all') {
+          searchQuery = searchQuery.eq('category', filters.category);
+        }
+        
+        if (filters.condition && filters.condition !== 'all') {
+          searchQuery = searchQuery.eq('condition', filters.condition);
+        }
+        
+        if (filters.priceRange && filters.priceRange.length === 2) {
+          searchQuery = searchQuery
+            .gte('price', filters.priceRange[0])
+            .lte('price', filters.priceRange[1]);
+        }
+        
+        if (filters.negotiable !== null) {
+          searchQuery = searchQuery.eq('negotiable', filters.negotiable);
+        }
+      }
+
+      // Apply sorting
+      if (filters?.sortBy) {
+        switch (filters.sortBy) {
+          case 'newest':
+            searchQuery = searchQuery.order('created_at', { ascending: false });
+            break;
+          case 'oldest':
+            searchQuery = searchQuery.order('created_at', { ascending: true });
+            break;
+          case 'price_low':
+            searchQuery = searchQuery.order('price', { ascending: true });
+            break;
+          case 'price_high':
+            searchQuery = searchQuery.order('price', { ascending: false });
+            break;
+          case 'location':
+            // For location-based sorting, we'll sort by proximity to user location
+            // This is a simplified implementation - in production you'd use PostGIS
+            searchQuery = searchQuery.order('location', { ascending: true });
+            break;
+          default: // 'relevance'
+            searchQuery = searchQuery
+              .order('boost_level', { ascending: false })
+              .order('package_price', { ascending: false })
+              .order('created_at', { ascending: false });
+        }
+      } else {
+        // Default sorting: boost level, then package price, then date
+        searchQuery = searchQuery
+          .order('boost_level', { ascending: false })
+          .order('package_price', { ascending: false })
+          .order('created_at', { ascending: false });
+      }
+
+      // Limit results for performance
+      searchQuery = searchQuery.limit(100);
+
+      const { data, error } = await searchQuery;
+
+      if (error) {
+        console.error('SearchService: Database error:', error);
+        throw error;
+      }
+
+      // Transform and filter results
+      const products = (data || []).map(this.transformProductData);
+      const filteredProducts = this.applyLocationFilter(products, location);
+      
+      // Apply additional client-side filtering for complex queries
+      const finalProducts = this.applyAdvancedFilters(filteredProducts, filters);
+      
+      console.log(`SearchService: Found ${finalProducts.length} products for query: "${query}"`);
+      
+      // Record search history with results count
+      await this.recordSearchWithResults(query, location, finalProducts.length);
       
       return {
-        products: [],
-        totalCount: 0,
+        products: finalProducts,
+        totalCount: finalProducts.length,
         location: location
       };
     } catch (error) {
-      console.error('Error searching products:', error);
+      console.error('SearchService: Error searching products:', error);
       return {
         products: [],
         totalCount: 0,
         location: location
       };
+    }
+  }
+
+  // Transform database product to frontend format
+  private transformProductData = (data: any) => {
+    return {
+      id: data.id,
+      user_id: data.user_id,
+      title: data.title,
+      category: data.category,
+      condition: data.condition,
+      description: data.description,
+      price: data.price.toString(),
+      originalPrice: data.original_price?.toString(),
+      negotiable: data.negotiable || false,
+      phone: data.phone,
+      location: data.location,
+      images: data.images || [],
+      main_image_index: data.main_image_index || 0,
+      package: data.package,
+      packagePrice: data.package_price || 0,
+      status: data.status,
+      submittedAt: data.created_at,
+      created_at: data.created_at,
+      updated_at: data.updated_at,
+      rejection_reason: data.rejection_reason,
+      suggestions: data.suggestions,
+      edited: data.edited || false,
+      boost_level: data.boost_level
+    };
+  };
+
+  // Apply location-based filtering
+  private applyLocationFilter(products: any[], location?: string) {
+    if (!location || location === 'Accra, Greater Accra Region') {
+      return products;
+    }
+
+    return products.filter(product => 
+      product.location && 
+      product.location.toLowerCase().includes(location.toLowerCase())
+    );
+  }
+
+  // Apply advanced client-side filters
+  private applyAdvancedFilters(products: any[], filters?: any) {
+    if (!filters) return products;
+
+    let filtered = [...products];
+
+    // Date range filtering
+    if (filters.dateRange && filters.dateRange !== 'all') {
+      const now = new Date();
+      let cutoffDate: Date;
+
+      switch (filters.dateRange) {
+        case 'today':
+          cutoffDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          break;
+        case 'week':
+          cutoffDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case 'month':
+          cutoffDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          break;
+        case 'year':
+          cutoffDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+          break;
+        default:
+          return filtered;
+      }
+
+      filtered = filtered.filter(product => 
+        new Date(product.created_at) >= cutoffDate
+      );
+    }
+
+    return filtered;
+  }
+
+  // Record search with results count in one operation
+  private async recordSearchWithResults(query: string, location?: string, count: number) {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      // Only record if there's a query (don't record empty searches)
+      if (!query.trim()) return;
+      
+      // Record search history with results count in one operation
+      const { error } = await supabase
+        .from('search_history')
+        .insert({
+          user_id: user?.id || null,
+          search_query: query.trim(),
+          location: location || null,
+          results_count: count
+        });
+
+      if (error) {
+        console.error('Error recording search with results:', error);
+      } else {
+        console.log(`SearchService: Recorded search "${query}" with ${count} results`);
+      }
+    } catch (error) {
+      console.error('Error recording search with results:', error);
     }
   }
 }

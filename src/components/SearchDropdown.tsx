@@ -55,11 +55,6 @@ export const SearchDropdown = ({
     // Close dropdown immediately
     setIsOpen(false);
     setQuery("");
-
-    // Add to search history with current location (non-blocking)
-    searchService.addToHistory(searchQuery, userLocation).then(() => {
-      setSearchHistory(searchService.getSearchHistory());
-    }).catch(console.error);
     
     // Call custom onSearch handler or navigate to search page
     if (onSearch) {
@@ -67,6 +62,11 @@ export const SearchDropdown = ({
     } else {
       navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
     }
+    
+    // Refresh search history after a short delay to allow the search service to update it
+    setTimeout(() => {
+      setSearchHistory(searchService.getSearchHistory());
+    }, 1000);
   };
 
   const handleHistoryItemClick = (historyQuery: string, event: React.MouseEvent) => {
@@ -82,11 +82,6 @@ export const SearchDropdown = ({
     // Close dropdown immediately
     setIsOpen(false);
     setQuery("");
-
-    // Add to search history with current location (non-blocking)
-    searchService.addToHistory(historyQuery, userLocation).then(() => {
-      setSearchHistory(searchService.getSearchHistory());
-    }).catch(console.error);
     
     // Call custom onSearch handler or navigate to search page
     if (onSearch) {
@@ -94,6 +89,11 @@ export const SearchDropdown = ({
     } else {
       navigate(`/search?q=${encodeURIComponent(historyQuery)}`);
     }
+    
+    // Refresh search history after a short delay to allow the search service to update it
+    setTimeout(() => {
+      setSearchHistory(searchService.getSearchHistory());
+    }, 1000);
   };
 
   const handleRemoveHistoryItem = (id: string, event: React.MouseEvent) => {

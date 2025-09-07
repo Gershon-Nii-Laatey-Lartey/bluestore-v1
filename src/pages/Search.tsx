@@ -221,7 +221,6 @@ FilterDialog.displayName = 'FilterDialog';
 
 const Search = () => {
   const [searchResults, setSearchResults] = useState<ProductSubmission[]>([]);
-  const [filteredResults, setFilteredResults] = useState<ProductSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -269,11 +268,11 @@ const Search = () => {
 
   useEffect(() => {
     loadSearchResults();
-  }, [location.search]);
+  }, [location.search, filters]);
 
   useEffect(() => {
-    applyFilters();
-  }, [searchResults, filters]);
+    updateActiveFilters();
+  }, [filters]);
 
   const loadSearchResults = async () => {
     try {
@@ -285,38 +284,15 @@ const Search = () => {
       const query = urlParams.get('q') || '';
       setSearchQuery(query);
 
-      if (query) {
-        // Add to search history with current location (non-blocking)
-        searchService.addToHistory(query, userLocation).catch(console.error);
-        
-        // For now, we'll filter featured products by the search query
-        // In a real implementation, this would be a proper search API call
-        const allProducts = await productService.getFeaturedProducts();
-        let filteredProducts = allProducts.filter(product => 
-          product.title.toLowerCase().includes(query.toLowerCase()) ||
-          product.description.toLowerCase().includes(query.toLowerCase()) ||
-          product.category.toLowerCase().includes(query.toLowerCase())
-        );
-
-        // Filter by location if user has set a specific location
-        if (userLocation && userLocation !== "Accra, Greater Accra Region") {
-          filteredProducts = filteredProducts.filter(product => 
-            product.location && product.location.toLowerCase().includes(userLocation.toLowerCase())
-          );
-        }
-        
-        console.log(`Search: Found ${filteredProducts.length} products for query: "${query}" in location: "${userLocation}"`);
-        
-        // Track search analytics
-        trackSearch(query, filteredProducts.length);
-        
-        setSearchResults(filteredProducts);
-      } else {
-        // Show all products if no search query
-        const products = await productService.getFeaturedProducts();
-        console.log('Search: Loaded all products:', products.length);
-        setSearchResults(products);
-      }
+      // Use the new search service for both empty and non-empty queries
+      const searchResults = await searchService.searchProducts(query, userLocation, filters);
+      
+      console.log(`Search: Found ${searchResults.totalCount} products for query: "${query}" in location: "${userLocation}"`);
+      
+      // Track search analytics
+      trackSearch(query, searchResults.totalCount);
+      
+      setSearchResults(searchResults.products);
     } catch (error) {
       console.error('Search: Error loading search results:', error);
       toast({
@@ -329,104 +305,6 @@ const Search = () => {
     }
   };
 
-  const applyFilters = () => {
-    let filtered = [...searchResults];
-
-    // Category filter
-    if (filters.category && filters.category !== "all") {
-      filtered = filtered.filter(product => 
-        product.category.toLowerCase() === filters.category.toLowerCase()
-      );
-    }
-
-    // Condition filter
-    if (filters.condition && filters.condition !== "all") {
-      filtered = filtered.filter(product => 
-        product.condition.toLowerCase() === filters.condition.toLowerCase()
-      );
-    }
-
-    // Price range filter
-    filtered = filtered.filter(product => 
-      product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1]
-    );
-
-    // Location filter
-    if (filters.location) {
-      filtered = filtered.filter(product => 
-        product.location && product.location.toLowerCase().includes(filters.location.toLowerCase())
-      );
-    }
-
-    // Negotiable filter
-    if (filters.negotiable !== null) {
-      filtered = filtered.filter(product => product.negotiable === filters.negotiable);
-    }
-
-    // Date range filter
-    if (filters.dateRange !== "all") {
-      const now = new Date();
-      let cutoffDate = new Date();
-      
-      switch (filters.dateRange) {
-        case "today":
-          cutoffDate.setHours(0, 0, 0, 0);
-          break;
-        case "week":
-          cutoffDate.setDate(now.getDate() - 7);
-          break;
-        case "month":
-          cutoffDate.setMonth(now.getMonth() - 1);
-          break;
-        case "year":
-          cutoffDate.setFullYear(now.getFullYear() - 1);
-          break;
-      }
-      
-      filtered = filtered.filter(product => 
-        new Date(product.created_at) >= cutoffDate
-      );
-    }
-
-    // Sort results
-    switch (filters.sortBy) {
-      case "newest":
-        filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-        break;
-      case "oldest":
-        filtered.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-        break;
-      case "price_low":
-        filtered.sort((a, b) => a.price - b.price);
-        break;
-      case "price_high":
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-      case "location":
-        // Sort by location relevance (closest to user location first)
-        if (userLocation) {
-          filtered.sort((a, b) => {
-            const aLocation = a.location?.toLowerCase() || "";
-            const bLocation = b.location?.toLowerCase() || "";
-            const userLoc = userLocation.toLowerCase();
-            
-            const aMatch = aLocation.includes(userLoc);
-            const bMatch = bLocation.includes(userLoc);
-            
-            if (aMatch && !bMatch) return -1;
-            if (!aMatch && bMatch) return 1;
-            return 0;
-          });
-        }
-        break;
-      default:
-        // Relevance sorting (default)
-        break;
-    }
-
-    setFilteredResults(filtered);
-    updateActiveFilters();
-  };
 
   const updateActiveFilters = () => {
     const active: string[] = [];
@@ -648,12 +526,12 @@ const Search = () => {
                   Search Results for "{searchQuery}"
                 </h2>
                 <p className="text-gray-600">
-                  {filteredResults.length} products found{getLocationDisplayText()}
+                  {searchResults.length} products found{getLocationDisplayText()}
                 </p>
               </div>
             ) : (
               <p className="text-gray-600">
-                Showing all products ({filteredResults.length} found){getLocationDisplayText()}
+                Showing all products ({searchResults.length} found){getLocationDisplayText()}
               </p>
             )}
           </div>
@@ -662,8 +540,8 @@ const Search = () => {
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
             </div>
-          ) : filteredResults.length > 0 ? (
-            <FeaturedProducts products={filteredResults} />
+          ) : searchResults.length > 0 ? (
+            <FeaturedProducts products={searchResults} />
           ) : searchQuery ? (
             <div className="text-center py-12">
               <div className="text-gray-500 mb-4">
@@ -677,7 +555,7 @@ const Search = () => {
               </p>
             </div>
           ) : (
-            <FeaturedProducts products={filteredResults} />
+            <FeaturedProducts products={searchResults} />
           )}
         </div>
       </div>

@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, Shield, TrendingUp } from "lucide-react";
+import { Star, Shield, TrendingUp, BarChart3 } from "lucide-react";
 import { ProductSubmission } from "@/services/dataService";
 import { formatPrice } from "@/utils/formatters";
 
@@ -67,42 +67,98 @@ export const PackageStatsCard = ({ pendingSubmissions }: PackageStatsCardProps) 
 
   const totalRevenue = Object.values(packageStats).reduce((sum, stat) => sum + stat.totalRevenue, 0);
 
+  // Calculate max values for scaling
+  const maxCount = Math.max(...Object.values(packageStats).map(stat => stat.count));
+  const maxRevenue = Math.max(...Object.values(packageStats).map(stat => stat.totalRevenue));
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
-          <TrendingUp className="h-5 w-5" />
+          <BarChart3 className="h-5 w-5" />
           <span>Package Distribution</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          <div className="text-sm text-muted-foreground mb-4">
-            <span className="font-medium">Total Pending Revenue: </span>
-            <span className="text-green-600 dark:text-green-400 font-bold">{formatPrice(totalRevenue)}</span>
+        <div className="space-y-6">
+          {/* Total Revenue Summary */}
+          {/* Bar Chart */}
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium text-muted-foreground">Products by Package</h4>
+            
+            {/* Chart Container */}
+            <div className="bg-muted/30 rounded-lg p-4">
+              <div className="flex items-end justify-between h-48 gap-2">
+                {Object.entries(packageStats)
+                  .sort(([, a], [, b]) => b.count - a.count)
+                  .map(([packageId, stats]) => {
+                    const IconComponent = getPackageIcon(packageId);
+                    const countPercentage = maxCount > 0 ? (stats.count / maxCount) * 100 : 0;
+                    const barHeight = Math.max((countPercentage / 100) * 160, 8); // Min height of 8px
+                    const totalProducts = pendingSubmissions.length;
+                    const percentageOfTotal = totalProducts > 0 ? (stats.count / totalProducts) * 100 : 0;
+                    
+                    return (
+                      <div key={packageId} className="flex flex-col items-center flex-1 group">
+                        {/* Bar */}
+                        <div className="relative w-full flex flex-col items-center">
+                          {/* Value Label */}
+                          <div className="text-xs font-medium text-foreground mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {stats.count} ({percentageOfTotal.toFixed(1)}%)
+                          </div>
+                          
+                          {/* Bar Container */}
+                          <div className="w-full bg-muted rounded-t-md h-40 flex items-end">
+                            <div 
+                              className="w-full bg-gradient-to-t from-blue-600 to-cyan-500 rounded-t-md transition-all duration-700 ease-out relative group/bar"
+                              style={{ height: `${barHeight}px` }}
+                            >
+                              {/* Hover Tooltip */}
+                              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-foreground text-background text-xs px-2 py-1 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                {stats.count} products ({percentageOfTotal.toFixed(1)}%)
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Package Label */}
+                        <div className="mt-2 text-center">
+                          <div className="flex flex-col items-center gap-1">
+                            <IconComponent className="h-3 w-3 text-muted-foreground" />
+                            <Badge variant="outline" className={`${stats.color} text-xs px-1 py-0`}>
+                              {stats.name.split(' ')[0]}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+              
+              {/* Chart Legend */}
+              <div className="mt-4 pt-3 border-t border-border/50">
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {Object.entries(packageStats)
+                    .sort(([, a], [, b]) => b.count - a.count)
+                    .map(([packageId, stats]) => {
+                      const IconComponent = getPackageIcon(packageId);
+                      const totalProducts = pendingSubmissions.length;
+                      const percentageOfTotal = totalProducts > 0 ? (stats.count / totalProducts) * 100 : 0;
+                      return (
+                        <div key={packageId} className="flex items-center gap-1 text-xs">
+                          <IconComponent className="h-3 w-3" />
+                          <span className="text-muted-foreground">{stats.name}:</span>
+                          <span className="font-medium text-blue-600 dark:text-blue-400">
+                            {stats.count} ({percentageOfTotal.toFixed(1)}%)
+                          </span>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            </div>
           </div>
-          
-          <div className="grid grid-cols-1 gap-3">
-            {Object.entries(packageStats)
-              .sort(([, a], [, b]) => b.count - a.count)
-              .map(([packageId, stats]) => {
-                const IconComponent = getPackageIcon(packageId);
-                return (
-                  <div key={packageId} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-muted/50 rounded-lg gap-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <IconComponent className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                      <Badge variant="outline" className={`${stats.color} text-xs truncate max-w-[150px]`}>
-                        {stats.name}
-                      </Badge>
-                    </div>
-                    <div className="text-left sm:text-right">
-                      <div className="text-sm font-medium text-foreground">{stats.count} products</div>
-                      <div className="text-xs text-green-600 dark:text-green-400">{formatPrice(stats.totalRevenue)}</div>
-                    </div>
-                  </div>
-                );
-              })}
-          </div>
+
         </div>
       </CardContent>
     </Card>
