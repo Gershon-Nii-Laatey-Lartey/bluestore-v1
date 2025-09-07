@@ -67,11 +67,11 @@ export const AppSidebar = () => {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r bg-background">
-      <SidebarContent className="px-0 py-0 mt-[80px] h-[calc(100vh-80px)]">
+    <Sidebar collapsible="icon" className="border-r border-border/50 bg-background/95 backdrop-blur-md">
+      <SidebarContent className="px-0 py-0 mt-[60px] h-[calc(100vh-60px)]">
         <SidebarGroup className="h-full">
           <SidebarGroupContent className="h-full">
-            <SidebarMenu className="space-y-2 h-full py-0 px-0">
+            <SidebarMenu className="space-y-1 h-full py-2 px-2">
               {navigationItems.map(item => {
                 const isActive = location.pathname === item.href;
                 return (
@@ -81,9 +81,11 @@ export const AppSidebar = () => {
                       isActive={isActive} 
                       tooltip={isCollapsed ? item.name : undefined} 
                       className={cn(
-                        "flex items-center transition-colors rounded-lg",
-                        isCollapsed ? "justify-center h-12 w-12 p-0" : "justify-start h-12 px-4 space-x-3",
-                        isActive ? "bg-blue-50 text-blue-600 border-r-4 border-blue-600 mr-2 dark:bg-blue-950 dark:text-blue-400" : "text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
+                        "flex items-center transition-all duration-200 rounded-lg",
+                        isCollapsed ? "justify-center h-9 w-9 p-0" : "justify-start h-9 px-3 space-x-3",
+                        isActive 
+                          ? "bg-primary/10 text-primary border-r-2 border-primary mr-1 shadow-sm" 
+                          : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                       )}
                     >
                       <Link 
@@ -91,7 +93,7 @@ export const AppSidebar = () => {
                         className={cn("flex items-center w-full", isCollapsed ? "justify-center" : "space-x-3")}
                         onClick={handleItemClick}
                       >
-                        <item.icon className={cn("shrink-0", isCollapsed ? "h-6 w-6" : "h-5 w-5")} />
+                        <item.icon className={cn("shrink-0", isCollapsed ? "h-4 w-4" : "h-4 w-4")} />
                         {!isCollapsed && (
                           <span className="text-sm font-medium truncate">
                             {item.name}
@@ -107,7 +109,7 @@ export const AppSidebar = () => {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t p-2">
+      <SidebarFooter className="border-t border-border/50 p-2">
         <UserProfileMenu />
       </SidebarFooter>
     </Sidebar>

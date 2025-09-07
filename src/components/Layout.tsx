@@ -84,7 +84,7 @@ export const Layout = ({
             <Header />
           </div>
           
-          <main className="pt-4 md:pt-20 md:px-6 lg:px-8 min-h-full w-full py-[7px] px-[10px]">
+          <main className="pt-4 md:pt-16 md:px-6 lg:px-8 min-h-full w-full py-[7px] px-[10px]">
             <div className="min-h-full w-full max-w-none">
               {children}
             </div>
