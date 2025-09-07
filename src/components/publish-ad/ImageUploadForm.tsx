@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Upload, X, Star, Image as ImageIcon } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { imageOptimizationService } from "@/services/imageOptimizationService";
 import { LazyOptimizedImage } from "@/components/ui/lazy-optimized-image";
@@ -28,6 +28,7 @@ export const ImageUploadForm = ({
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [blurPlaceholders, setBlurPlaceholders] = useState<{ [key: number]: string }>({});
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -95,7 +96,9 @@ export const ImageUploadForm = ({
     }
   };
 
-
+  const handleUploadButtonClick = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
     <Card>
@@ -104,26 +107,31 @@ export const ImageUploadForm = ({
           <ImageIcon className="h-5 w-5" />
           Product Images *
         </CardTitle>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           Upload up to 10 high-quality images. Supported formats: JPEG, PNG, WebP. Images will be automatically optimized for faster loading.
-        </p>
-        <p className="text-xs text-orange-600">
-          Note: HEIC/HEIF files are not supported. Please convert them to JPEG or PNG first.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center space-x-4">
           <Input
+            ref={fileInputRef}
             type="file"
             multiple
             accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
             onChange={handleImageUpload}
             className="flex-1"
             disabled={isOptimizing}
+            style={{ display: 'none' }}
           />
-          <Button type="button" variant="outline" disabled={isOptimizing}>
+          <Button 
+            type="button" 
+            variant="outline" 
+            disabled={isOptimizing}
+            onClick={handleUploadButtonClick}
+            className="flex-1"
+          >
             <Upload className="h-4 w-4 mr-2" />
-            {isOptimizing ? "Optimizing..." : "Upload Images"}
+            {isOptimizing ? "Optimizing..." : "Choose Files and Upload"}
           </Button>
         </div>
 

@@ -148,7 +148,7 @@ const Settings = () => {
         <MobileHeader />
       </div>
       
-      <div className="animate-fade-in max-w-4xl mx-auto">
+      <div className="animate-fade-in max-w-4xl mx-auto pb-20 md:pb-6">
         <div className="mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">Settings</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">Manage your account preferences and settings</p>

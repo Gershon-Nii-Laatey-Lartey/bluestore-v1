@@ -108,7 +108,7 @@ const CreateVendorProfile = () => {
         <MobileHeader />
       </div>
       
-      <div className="animate-fade-in max-w-4xl mx-auto">
+      <div className="animate-fade-in max-w-4xl mx-auto pb-20 md:pb-6">
         <div className="mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Create Vendor Profile</h1>
           <p className="text-gray-600 mt-1">Set up your business profile to start selling</p>

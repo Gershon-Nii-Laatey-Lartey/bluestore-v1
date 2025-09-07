@@ -1,6 +1,6 @@
 import { Layout } from "@/components/Layout";
 import { MobileHeader } from "@/components/MobileHeader";
-import { ArrowRight, Save, Tag, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { ArrowRight, Tag, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,7 +46,6 @@ const PublishAd = () => {
     specificLocation: ''
   });
   const [submitting, setSubmitting] = useState(false);
-  const [savingDraft, setSavingDraft] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedPackage, setSelectedPackage] = useState<string>('free');
@@ -245,87 +244,6 @@ const PublishAd = () => {
     return URL.createObjectURL(file);
   };
 
-  const handleSaveAsDraft = async () => {
-    if (savingDraft) return;
-
-    // Check if user has a vendor profile
-    if (!vendorProfile) {
-      toast({
-        title: "Vendor Profile Required",
-        description: "You must create a vendor profile before saving drafts. Please create your vendor profile first.",
-        variant: "destructive"
-      });
-      navigate('/create-vendor-profile');
-      return;
-    }
-
-    try {
-      setSavingDraft(true);
-      
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
-
-      const productId = await dataService.createProductSubmission({
-        user_id: user.id,
-        title: formData.title || 'Draft',
-        description: formData.description || '',
-        category: formData.category || 'other',
-        condition: formData.condition || 'new',
-        price: parseFloat(formData.price) || 0,
-        originalPrice: formData.originalPrice ? parseFloat(formData.originalPrice) : parseFloat(formData.price) || 0,
-        images: [],
-        location: formData.location || '',
-        phone: formData.phone || '',
-        negotiable: formData.negotiable || false,
-        status: 'draft' as const,
-        package: null,
-        main_image_index: mainImageIndex
-      });
-
-      // Upload images if any
-      if (images.length > 0) {
-        const imageUrls = await imageService.uploadImages(images, productId);
-        await dataService.updateProductSubmission(productId, {
-          images: imageUrls
-        });
-      }
-
-      toast({
-        title: "Draft Saved!",
-        description: "Your draft has been saved successfully.",
-      });
-
-      // Clear form data
-      localStorage.removeItem('publishAdFormData');
-      setFormData({
-        title: '',
-        category: '',
-        condition: '',
-        description: '',
-        price: '',
-        originalPrice: '',
-        negotiable: false,
-        phone: '',
-        location: '',
-        specificLocation: ''
-      });
-      setImages([]);
-      setMainImageIndex(0);
-      setCurrentStep(1);
-      setPromoCode("");
-      setAppliedPromoCode(null);
-
-    } catch (error) {
-      console.error('Error saving draft:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save draft",
-        variant: "destructive"
-      });
-    } finally {
-      setSavingDraft(false);
-    }
-  };
 
   // Promo code validation
   const handleValidatePromoCode = async () => {
@@ -521,7 +439,7 @@ const PublishAd = () => {
   if (processingPayment) {
     return (
       <Layout>
-        <div className="md:hidden -m-4 mb-4">
+        <div className="md:hidden">
           <MobileHeader />
         </div>
         
@@ -538,11 +456,11 @@ const PublishAd = () => {
 
   return (
     <Layout>
-      <div className="md:hidden -m-4 mb-4">
+      <div className="md:hidden">
         <MobileHeader />
       </div>
       
-      <div className="animate-fade-in max-w-4xl mx-auto space-y-6">
+      <div className="animate-fade-in max-w-4xl mx-auto space-y-6 pb-20 md:pb-6">
         
         
         <div>
@@ -672,37 +590,13 @@ const PublishAd = () => {
               )}
             </div>
 
-            <div className="flex space-x-4">
+            <div className="flex justify-center">
               <Button 
                 type="submit" 
-                className="flex-1 bg-green-600 hover:bg-green-700"
+                className="bg-green-600 hover:bg-green-700 px-8"
                 disabled={submitting || loadingProfile || !vendorProfile}
               >
-                {appliedPromoCode ? (
-                  <>
-                    Continue <ArrowRight className="ml-2 h-4 w-4" />
-                  </>
-                ) : (
-                  <>
-                    Continue to Package Selection <ArrowRight className="ml-2 h-4 w-4" />
-                  </>
-                )}
-              </Button>
-              <Button 
-                type="button" 
-                variant="outline" 
-                className="flex-1"
-                onClick={handleSaveAsDraft}
-                disabled={savingDraft || loadingProfile || !vendorProfile}
-              >
-                {savingDraft ? (
-                  <>Saving Draft...</>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Save as Draft
-                  </>
-                )}
+                Continue <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
                       </form>

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect, useRef } from "react";
-import { MessageCircle, Mail, Phone, Clock, ArrowRight, CheckCircle, AlertCircle, MessageSquare, Send, Trash2, X } from "lucide-react";
+import { MessageCircle, Mail, Phone, Clock, ArrowRight, CheckCircle, AlertCircle, MessageSquare, Send, Trash2, X, Loader2, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -47,6 +47,7 @@ const Support = () => {
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [messageText, setMessageText] = useState("");
   const [sending, setSending] = useState(false);
+  const [startingChat, setStartingChat] = useState(false);
 
   const [deletingSession, setDeletingSession] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -257,15 +258,7 @@ const Support = () => {
         // Use the newly created session
         sessionToUse = data;
         setCurrentSession(data);
-        setMessages([]);
-        
-
-        
-        // Show success message for session creation
-        toast({
-          title: "Chat Started",
-          description: "Your support chat has been created successfully.",
-        });
+        setMessages([]); // Clear any UI-only messages
         
         // Continue with message sending (don't set sending to false)
       } catch (error) {
@@ -385,6 +378,35 @@ const Support = () => {
     setShowChat(true);
   };
 
+  const showWelcomeMessage = () => {
+    // Add welcome message to local state only (not saved to database)
+    const welcomeMessage = {
+      id: 'welcome-' + Date.now(), // Temporary ID
+      session_id: 'temp',
+      sender_id: null,
+      sender_type: 'worker' as const,
+      message_text: "Hi! How can we help you today? 😊",
+      sent_at: new Date().toISOString()
+    };
+    
+    setMessages([welcomeMessage]);
+  };
+
+  const handleStartChat = async () => {
+    setStartingChat(true);
+    
+    // Add a delay of 2 seconds to show loading state
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    setShowChat(true);
+    setStartingChat(false);
+    
+    // Show welcome message after chat opens
+    setTimeout(() => {
+      showWelcomeMessage();
+    }, 500);
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'pending': return <Clock className="h-3 w-3" />;
@@ -419,44 +441,162 @@ const Support = () => {
     });
   };
 
+  if (showChat) {
+    return (
+      <Layout>
+        <div className="h-[calc(100vh-80px)] md:h-[calc(100vh-60px)] flex flex-col bg-muted">
+          {/* Chat Header */}
+          <div className="bg-background border-b px-4 py-3 flex-shrink-0">
+            <div className="flex items-center space-x-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setShowChat(false);
+                  setCurrentSession(null);
+                  setMessages([]);
+                  if (subscriptionRef.current) {
+                    supabase.removeChannel(subscriptionRef.current);
+                  }
+                }}
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              
+              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <MessageCircle className="h-5 w-5 text-blue-600" />
+              </div>
+              
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-foreground truncate">
+                  Support Team
+                </h3>
+                <p className="text-sm text-muted-foreground truncate">
+                  {currentSession?.case_number ? `Case #${currentSession.case_number}` : 'Live Support Chat'}
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Messages - with bottom padding to account for fixed input bar */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-32 md:pb-20 min-h-0">
+            {!currentSession ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">Start a conversation</h3>
+                  <p className="text-muted-foreground">Type your message below to begin chatting with our support team</p>
+                </div>
+              </div>
+            ) : messages.length === 0 ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">Start a conversation</h3>
+                  <p className="text-muted-foreground">Send a message to begin chatting</p>
+                </div>
+              </div>
+            ) : (
+              messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.sender_type === 'user' || message.sender_type === 'visitor' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-xs px-4 py-2 rounded-lg ${
+                      message.sender_type === 'user' || message.sender_type === 'visitor'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-background text-foreground shadow-sm'
+                    }`}
+                  >
+                    <p className="text-sm">{message.message_text}</p>
+                    <p className={`text-xs mt-1 ${
+                      message.sender_type === 'user' || message.sender_type === 'visitor' 
+                        ? 'text-blue-100' 
+                        : 'text-muted-foreground'
+                    }`}>
+                      {formatTime(message.sent_at)}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+          
+          {/* Fixed Message Input Bar above navbar */}
+          <div className="fixed bottom-20 left-0 right-0 border-t p-4 bg-background shadow-lg md:bottom-0">
+            <div className="flex space-x-2">
+              <Input
+                value={messageText}
+                onChange={(e) => setMessageText(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder={currentSession ? "Type your message..." : "Type your first message to start the chat..."}
+                className="flex-1"
+              />
+              <Button 
+                onClick={sendMessage} 
+                disabled={!messageText.trim() || sending}
+              >
+                {sending ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="md:hidden">
         <MobileHeader />
       </div>
       
-      <div className="animate-fade-in max-w-2xl mx-auto">
+      <div className="animate-fade-in max-w-2xl mx-auto pb-20 md:pb-6">
         <div className="mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Support</h1>
           <p className="text-gray-600 mt-1">Get help with using BlueStore</p>
         </div>
 
-        {!showChat ? (
-          <>
-            {/* Live Chat Section */}
-            <Card className="mb-4">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center text-lg">
-                  <MessageCircle className="h-5 w-5 mr-2 text-blue-600" />
-                  Live Chat Support
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="text-center">
-                  <p className="text-gray-600 mb-4 text-sm">
-                    Need immediate assistance? Our support team is here to help you with any questions or issues.
-                  </p>
-                  <Button 
-                    size="lg" 
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                    onClick={() => setShowChat(true)}
-                  >
+        {/* Live Chat Section */}
+        <Card className="mb-4">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center text-lg">
+              <MessageCircle className="h-5 w-5 mr-2 text-blue-600" />
+              Live Chat Support
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="text-center">
+              <p className="text-gray-600 mb-4 text-sm">
+                Need immediate assistance? Our support team is here to help you with any questions or issues.
+              </p>
+              <Button 
+                size="lg" 
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={handleStartChat}
+                disabled={startingChat}
+              >
+                {startingChat ? (
+                  <>
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                    Starting Chat...
+                  </>
+                ) : (
+                  <>
                     <MessageCircle className="h-5 w-5 mr-2" />
                     Start Live Chat
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
             {/* Recent Support Chats */}
             {user && (
@@ -593,128 +733,7 @@ const Support = () => {
                 </div>
               </CardContent>
             </Card>
-          </>
-        ) : (
-          /* Chat Interface */
-          <div className="space-y-4">
-            {/* Chat Header */}
-            <Card>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center text-lg">
-                    <MessageCircle className="h-5 w-5 mr-2 text-blue-600" />
-                    {currentSession ? 'Support Chat' : 'Start Support Chat'}
-                    {currentSession?.case_number && (
-                      <Badge variant="outline" className="ml-2">
-                        {currentSession.case_number}
-                      </Badge>
-                    )}
-                  </CardTitle>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => {
-                      setShowChat(false);
-                      setCurrentSession(null);
-                      setMessages([]);
-                      if (subscriptionRef.current) {
-                        supabase.removeChannel(subscriptionRef.current);
-                      }
-                    }}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardHeader>
-            </Card>
-
-            {/* Chat Messages */}
-            <Card>
-              <CardContent className="p-0">
-                <div className="h-96 overflow-y-auto p-4 space-y-3">
-                  {!currentSession ? (
-                    <div className="text-center text-gray-500 py-8">
-                      <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p className="text-sm">Type your message below to start the conversation!</p>
-                    </div>
-                  ) : messages.length === 0 ? (
-                    <div className="text-center text-gray-500 py-8">
-                      <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p className="text-sm">No messages yet. Start the conversation!</p>
-                    </div>
-                  ) : (
-                    messages.map((message) => (
-                      <div
-                        key={message.id}
-                        className={`flex ${message.sender_type === 'user' || message.sender_type === 'visitor' ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div className="flex items-end space-x-2 max-w-xs md:max-w-md">
-                          {message.sender_type !== 'user' && message.sender_type !== 'visitor' && (
-                            <Avatar className="h-6 w-6">
-                              <AvatarFallback className="bg-blue-100 text-blue-600 text-xs">
-                                S
-                              </AvatarFallback>
-                            </Avatar>
-                          )}
-                          <div
-                            className={`px-3 py-2 rounded-lg ${
-                              message.sender_type === 'user' || message.sender_type === 'visitor'
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-100 text-gray-900'
-                            }`}
-                          >
-                            <p className="text-sm">{message.message_text}</p>
-                            <p className={`text-xs mt-1 ${
-                              message.sender_type === 'user' || message.sender_type === 'visitor'
-                                ? 'text-blue-100'
-                                : 'text-gray-500'
-                            }`}>
-                              {formatTime(message.sent_at)}
-                            </p>
-                          </div>
-                          {message.sender_type === 'user' || message.sender_type === 'visitor' && (
-                            <Avatar className="h-6 w-6">
-                              <AvatarFallback className="bg-green-100 text-green-600 text-xs">
-                                {user?.email?.charAt(0).toUpperCase() || 'U'}
-                              </AvatarFallback>
-                            </Avatar>
-                          )}
-                        </div>
-                      </div>
-                    ))
-                  )}
-                  <div ref={messagesEndRef} />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Message Input */}
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex space-x-2">
-                  <Input
-                    value={messageText}
-                    onChange={(e) => setMessageText(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder={currentSession ? "Type your message..." : "Type your first message to start the chat..."}
-                    className="flex-1"
-                  />
-                  <Button 
-                    onClick={sendMessage} 
-                    disabled={!messageText.trim() || sending}
-                  >
-                    {sending ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    ) : (
-                      <Send className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
           </div>
-        )}
-      </div>
     </Layout>
   );
 };
