@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, Share, Edit, Trash2, Archive, AlertTriangle, RotateCcw, Lightbulb, TrendingUp, Zap, MoreVertical, Star, Plus } from "lucide-react";
+import { Eye, Share, Edit, Trash2, Archive, AlertTriangle, RotateCcw, Lightbulb, TrendingUp, Zap, MoreVertical, Star, Plus, Package, CheckCircle, Clock, List } from "lucide-react";
 import { productService } from "@/services/productService";
 import { ProductSubmission } from "@/types/product";
 import { useAuth } from "@/hooks/useAuth";
@@ -308,28 +308,124 @@ const MyAds = () => {
       </div>
       
       <div className="animate-fade-in">
-        <div className="mb-6 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">My Ads</h1>
-            <p className="text-gray-600 mt-1">Manage your product listings</p>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant={viewMode === 'list' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('list')}
-            >
-              List
-            </Button>
-            <Button
-              variant={viewMode === 'grid' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('grid')}
-            >
-              Grid
-            </Button>
-          </div>
-        </div>
+        {/* Desktop Layout */}
+        <div className="hidden md:block">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+            <div className="grid grid-cols-12 gap-8">
+              {/* Sidebar */}
+              <div className="col-span-3">
+                <div className="sticky top-24 space-y-6">
+                  <div>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">My Ads</h1>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">Manage your product listings</p>
+                  </div>
+                  
+                  {/* Stats Cards */}
+                  <div className="space-y-4">
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Total Ads</p>
+                            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{products.length}</p>
+                          </div>
+                          <Package className="h-8 w-8 text-blue-600" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Active</p>
+                            <p className="text-2xl font-bold text-green-600">{products.filter(p => p.status === 'approved').length}</p>
+                          </div>
+                          <CheckCircle className="h-8 w-8 text-green-600" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Pending</p>
+                            <p className="text-2xl font-bold text-yellow-600">{products.filter(p => p.status === 'pending').length}</p>
+                          </div>
+                          <Clock className="h-8 w-8 text-yellow-600" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  
+                  {/* Quick Actions */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg">Quick Actions</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <Button 
+                        onClick={() => navigate("/publish-ad")} 
+                        className="w-full justify-start"
+                        size="sm"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create New Ad
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start"
+                        size="sm"
+                        onClick={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}
+                      >
+                        {viewMode === 'list' ? (
+                          <>
+                            <Eye className="h-4 w-4 mr-2" />
+                            Switch to Grid
+                          </>
+                        ) : (
+                          <>
+                            <List className="h-4 w-4 mr-2" />
+                            Switch to List
+                          </>
+                        )}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+              
+              {/* Main Content */}
+              <div className="col-span-9">
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                      {viewMode === 'list' ? 'List View' : 'Grid View'}
+                    </h2>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {products.length} {products.length === 1 ? 'ad' : 'ads'} found
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant={viewMode === 'list' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setViewMode('list')}
+                    >
+                      <List className="h-4 w-4 mr-2" />
+                      List
+                    </Button>
+                    <Button
+                      variant={viewMode === 'grid' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setViewMode('grid')}
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      Grid
+                    </Button>
+                  </div>
+                </div>
         
         {products.length === 0 ? (
           <Card>
@@ -614,30 +710,30 @@ const MyAds = () => {
                         </div>
                       </CardContent>
                     ) : (
-                      // Desktop Layout - Original design
+                      // Desktop Layout - Improved design
                       <div onClick={(e) => e.stopPropagation()}>
                         <>
-                        <CardHeader>
+                        <CardHeader className="pb-3">
                           <div className="flex justify-between items-start">
-                            <div>
+                            <div className="flex-1 min-w-0">
                               <CardTitle className="text-lg flex items-center gap-2">
-                                {product.title}
+                                <span className="truncate">{product.title}</span>
                                 {product.edited && (
-                                  <Badge variant="outline" className="text-orange-600 border-orange-300">
+                                  <Badge variant="outline" className="text-orange-600 border-orange-300 text-xs">
                                     Edited
                                   </Badge>
                                 )}
                                 {getBoostStatus(product)}
                               </CardTitle>
-                              <p className="text-gray-600 capitalize">{product.category} • {product.condition}</p>
+                              <p className="text-gray-600 dark:text-gray-400 capitalize text-sm">{product.category} • {product.condition}</p>
                             </div>
                             <Badge className={getStatusColor(product.status)}>
                               {product.status}
                             </Badge>
                           </div>
                         </CardHeader>
-                        <CardContent>
-                          <div className="grid md:grid-cols-3 gap-4">
+                        <CardContent className="pt-0">
+                          <div className="grid lg:grid-cols-4 md:grid-cols-3 gap-6">
                             {/* Product Image */}
                             <div className="md:col-span-1">
                               <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
@@ -858,6 +954,169 @@ const MyAds = () => {
             )}
           </>
         )}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Mobile Layout */}
+        <div className="md:hidden">
+          <div className="max-w-4xl mx-auto px-4 py-6">
+            <div className="mb-6 flex flex-col gap-4">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">My Ads</h1>
+                <p className="text-gray-600 dark:text-gray-400 mt-1">Manage your product listings</p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                >
+                  List
+                </Button>
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('grid')}
+                >
+                  Grid
+                </Button>
+              </div>
+            </div>
+            
+            {products.length === 0 ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <div className="mb-4">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-2xl">📱</span>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No ads yet</h3>
+                    <p className="text-gray-600 mb-4">You haven't published any ads yet. Start by creating your first listing to reach potential buyers!</p>
+                    <Button onClick={() => navigate("/publish-ad")} className="bg-blue-600 hover:bg-blue-700">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Your First Ad
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                <BackgroundLoadingIndicator isFetching={isFetching} />
+                {viewMode === 'grid' ? (
+                  <ProductGrid 
+                    products={products} 
+                    loading={loading}
+                    showEditButtons={true}
+                    onEdit={handleEditProduct}
+                  />
+                ) : (
+                  <div className="space-y-4">
+                    {products.map((product) => (
+                      <Card 
+                        key={product.id} 
+                        className="cursor-pointer hover:shadow-md transition-shadow"
+                        onClick={() => navigate(`/product/${product.id}`)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-start space-x-3">
+                            {/* Product Image */}
+                            <div className="flex-shrink-0">
+                              <div className="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                                {product.images && product.images.length > 0 ? (
+                                  <img 
+                                    src={getMainImageWithFallback(product.images, product.main_image_index)} 
+                                    alt={product.title}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      e.currentTarget.style.display = 'none';
+                                      e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                    }}
+                                  />
+                                ) : null}
+                                <div className={`text-2xl ${product.images && product.images.length > 0 ? 'hidden' : ''}`}>
+                                  📱
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Product Info */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="font-semibold text-gray-900 truncate flex items-center gap-2">
+                                    {product.title}
+                                    {product.edited && (
+                                      <Badge variant="outline" className="text-orange-600 border-orange-300 text-xs">
+                                        Edited
+                                      </Badge>
+                                    )}
+                                    {getBoostStatus(product)}
+                                  </h3>
+                                  <p className="text-gray-600 text-sm capitalize">{product.category} • {product.condition}</p>
+                                  <p className="text-lg font-bold text-primary mt-1">{formatPrice(product.price)}</p>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <Badge className={getStatusColor(product.status)}>
+                                    {product.status}
+                                  </Badge>
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <MoreVertical className="h-4 w-4" />
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-48 p-1">
+                                      <div className="space-y-1">
+                                        <Button 
+                                          variant="ghost" 
+                                          size="sm"
+                                          className="w-full justify-start"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedAdForShare(product);
+                                            setShareModalOpen(true);
+                                          }}
+                                        >
+                                          <Share className="h-4 w-4 mr-2" />
+                                          Share
+                                        </Button>
+                                        {product.status === 'pending' && (
+                                          <Button 
+                                            variant="ghost" 
+                                            size="sm"
+                                            className="w-full justify-start"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setEditingAd(product);
+                                            }}
+                                          >
+                                            <Edit className="h-4 w-4 mr-2" />
+                                            Edit
+                                          </Button>
+                                        )}
+                                        {/* Add other mobile actions here */}
+                                      </div>
+                                    </PopoverContent>
+                                  </Popover>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
         
         {/* Share Modal */}
         {selectedAdForShare && (

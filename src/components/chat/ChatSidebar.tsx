@@ -48,6 +48,10 @@ export const ChatSidebar = ({ currentRoomId, onRefresh, onRoomChange }: ChatSide
   const { toast } = useToast();
   const { refreshTrigger } = useChatStore();
   const { chatRooms, isLoading, isFetching, refetch } = useChatRooms();
+  const lastElementRef = useRef<HTMLDivElement>(null);
+  const loadingRef = useRef<HTMLDivElement>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   // Refresh chat rooms when refreshTrigger changes
   useEffect(() => {

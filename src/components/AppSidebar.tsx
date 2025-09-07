@@ -68,7 +68,7 @@ export const AppSidebar = () => {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border/50 bg-background/95 backdrop-blur-md">
-      <SidebarContent className="px-0 py-0 mt-[60px] h-[calc(100vh-60px)]">
+      <SidebarContent className="px-0 py-0 mt-[60px] h-[calc(100vh-60px)] custom-scrollbar">
         <SidebarGroup className="h-full">
           <SidebarGroupContent className="h-full">
             <SidebarMenu className="space-y-1 h-full py-2 px-2">

@@ -3,6 +3,7 @@ import { Layout } from "@/components/Layout";
 import { MobileHeader } from "@/components/MobileHeader";
 import { useParams } from "react-router-dom";
 import { Filter, SlidersHorizontal, X, ChevronDown, MapPin, DollarSign, Calendar, Star } from "lucide-react";
+import { SortDialog } from "@/components/SortDialog";
 import { Button } from "@/components/ui/button";
 import { ProductGrid } from "@/components/ProductGrid";
 import { useState, useEffect, memo } from "react";
@@ -95,10 +96,13 @@ const FilterDialog = memo(({
         <div>
           <Label className="text-sm font-medium">Search</Label>
           <Input
+            type="search"
             placeholder="Search in this category..."
             value={filters.searchQuery}
             onChange={(e) => setFilters(prev => ({ ...prev, searchQuery: e.target.value }))}
             className="mt-2"
+            inputMode="search"
+            enterKeyHint="search"
           />
         </div>
 
@@ -544,10 +548,11 @@ const CategoryPage = () => {
                   conditions={conditions}
                   dateRanges={dateRanges}
                 />
-                <Button variant="outline" size="sm" className="flex items-center space-x-2">
-                  <SlidersHorizontal className="h-4 w-4" />
-                  <span className="hidden md:inline">Sort</span>
-                </Button>
+                <SortDialog 
+                  sortBy={filters.sortBy}
+                  onSortChange={(value) => setFilters(prev => ({ ...prev, sortBy: value }))}
+                  sortOptions={sortOptions}
+                />
               </div>
             )}
           </div>
@@ -566,10 +571,11 @@ const CategoryPage = () => {
                   conditions={conditions}
                   dateRanges={dateRanges}
                 />
-                <Button variant="outline" size="sm" className="flex items-center space-x-2">
-                  <SlidersHorizontal className="h-4 w-4" />
-                  <span>Sort</span>
-                </Button>
+                <SortDialog 
+                  sortBy={filters.sortBy}
+                  onSortChange={(value) => setFilters(prev => ({ ...prev, sortBy: value }))}
+                  sortOptions={sortOptions}
+                />
               </div>
               {/* Active Filters */}
               {activeFilters.length > 0 && (
@@ -607,10 +613,13 @@ const CategoryPage = () => {
                   <div className="lg:col-span-2">
                     <Label className="text-sm font-medium">Search</Label>
                     <Input
+                      type="search"
                       placeholder="Search in this category..."
                       value={filters.searchQuery}
                       onChange={(e) => setFilters(prev => ({ ...prev, searchQuery: e.target.value }))}
                       className="mt-1"
+                      inputMode="search"
+                      enterKeyHint="search"
                     />
                   </div>
 

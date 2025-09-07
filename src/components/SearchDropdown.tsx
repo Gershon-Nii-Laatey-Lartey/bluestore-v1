@@ -46,16 +46,21 @@ export const SearchDropdown = ({
   const handleSearch = async (searchQuery: string) => {
     if (!searchQuery.trim()) return;
 
-    // Add to search history with current location
-    await searchService.addToHistory(searchQuery, userLocation);
-    
-    // Update local state
-    setSearchHistory(searchService.getSearchHistory());
-    
-    // Close dropdown
+    // Dismiss keyboard immediately
+    const activeElement = document.activeElement as HTMLElement;
+    if (activeElement && activeElement.blur) {
+      activeElement.blur();
+    }
+
+    // Close dropdown immediately
     setIsOpen(false);
     setQuery("");
 
+    // Add to search history with current location (non-blocking)
+    searchService.addToHistory(searchQuery, userLocation).then(() => {
+      setSearchHistory(searchService.getSearchHistory());
+    }).catch(console.error);
+    
     // Call custom onSearch handler or navigate to search page
     if (onSearch) {
       onSearch(searchQuery);
@@ -96,13 +101,15 @@ export const SearchDropdown = ({
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
         <Input
-          type="text"
+          type="search"
           placeholder={placeholder}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={handleInputFocus}
           onKeyPress={handleKeyPress}
           className="pl-10 w-full"
+          inputMode="search"
+          enterKeyHint="search"
         />
       </div>
 

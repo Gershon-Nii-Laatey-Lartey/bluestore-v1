@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { SortDialog } from "@/components/SortDialog";
 
 // Memoized FilterDialog component to prevent re-renders
 const FilterDialog = memo(({ 
@@ -285,8 +286,8 @@ const Search = () => {
       setSearchQuery(query);
 
       if (query) {
-        // Add to search history with current location
-        await searchService.addToHistory(query, userLocation);
+        // Add to search history with current location (non-blocking)
+        searchService.addToHistory(query, userLocation).catch(console.error);
         
         // For now, we'll filter featured products by the search query
         // In a real implementation, this would be a proper search API call
@@ -488,10 +489,11 @@ const Search = () => {
               conditions={conditions}
               dateRanges={dateRanges}
             />
-            <Button variant="outline" size="sm" className="flex items-center space-x-2">
-              <SlidersHorizontal className="h-4 w-4" />
-              <span>Sort</span>
-            </Button>
+            <SortDialog 
+              sortBy={filters.sortBy}
+              onSortChange={(value) => setFilters(prev => ({ ...prev, sortBy: value }))}
+              sortOptions={sortOptions}
+            />
           </div>
           
           {/* Active Filters */}
