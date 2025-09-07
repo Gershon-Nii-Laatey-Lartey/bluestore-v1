@@ -28,7 +28,10 @@ export const packageService = {
       icon: this.getIconComponent(pkg.icon),
       recommended: pkg.recommended || false,
       popular: pkg.popular || false,
-      adsAllowed: pkg.ads_allowed
+      adsAllowed: pkg.ads_allowed,
+      plan_type: pkg.plan_type,
+      billing_cycle: pkg.billing_cycle,
+      is_subscription: pkg.is_subscription
     }));
   },
 
@@ -46,7 +49,10 @@ export const packageService = {
         icon: packageData.icon,
         recommended: packageData.recommended,
         popular: packageData.popular,
-        ads_allowed: packageData.adsAllowed
+        ads_allowed: packageData.adsAllowed,
+        plan_type: packageData.plan_type,
+        billing_cycle: packageData.billing_cycle,
+        is_subscription: packageData.is_subscription
       });
 
     if (error) {
@@ -68,6 +74,9 @@ export const packageService = {
     if (packageData.recommended !== undefined) updateData.recommended = packageData.recommended;
     if (packageData.popular !== undefined) updateData.popular = packageData.popular;
     if (packageData.adsAllowed !== undefined) updateData.ads_allowed = packageData.adsAllowed;
+    if (packageData.plan_type) updateData.plan_type = packageData.plan_type;
+    if (packageData.billing_cycle) updateData.billing_cycle = packageData.billing_cycle;
+    if (packageData.is_subscription !== undefined) updateData.is_subscription = packageData.is_subscription;
 
     const { error } = await supabase
       .from('ad_packages')

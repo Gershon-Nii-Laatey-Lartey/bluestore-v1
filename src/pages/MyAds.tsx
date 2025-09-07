@@ -315,7 +315,7 @@ const MyAds = () => {
               {/* Sidebar */}
               <div className="col-span-3">
                 <div className="sticky top-24 space-y-6">
-                  <div>
+          <div>
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">My Ads</h1>
                     <p className="text-gray-600 dark:text-gray-400 text-sm">Manage your product listings</p>
                   </div>
@@ -406,26 +406,26 @@ const MyAds = () => {
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                       {products.length} {products.length === 1 ? 'ad' : 'ads'} found
                     </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant={viewMode === 'list' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setViewMode('list')}
-                    >
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('list')}
+            >
                       <List className="h-4 w-4 mr-2" />
-                      List
-                    </Button>
-                    <Button
-                      variant={viewMode === 'grid' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setViewMode('grid')}
-                    >
+              List
+            </Button>
+            <Button
+              variant={viewMode === 'grid' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('grid')}
+            >
                       <Eye className="h-4 w-4 mr-2" />
-                      Grid
-                    </Button>
-                  </div>
-                </div>
+              Grid
+            </Button>
+          </div>
+        </div>
         
         {products.length === 0 ? (
           <Card>
@@ -1045,17 +1045,22 @@ const MyAds = () => {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between">
                                 <div className="flex-1 min-w-0">
-                                  <h3 className="font-semibold text-gray-900 truncate flex items-center gap-2">
+                                  <h3 className="font-semibold text-gray-900 truncate">
                                     {product.title}
+                                  </h3>
+                                  <div className="flex items-center gap-1 mt-1 flex-wrap">
                                     {product.edited && (
                                       <Badge variant="outline" className="text-orange-600 border-orange-300 text-xs">
                                         Edited
                                       </Badge>
                                     )}
                                     {getBoostStatus(product)}
-                                  </h3>
+                                  </div>
                                   <p className="text-gray-600 text-sm capitalize">{product.category} • {product.condition}</p>
                                   <p className="text-lg font-bold text-primary mt-1">{formatPrice(product.price)}</p>
+                                  {product.negotiable && (
+                                    <span className="text-xs text-gray-500">(Negotiable)</span>
+                                  )}
                                 </div>
                                 <div className="flex items-center space-x-2">
                                   <Badge className={getStatusColor(product.status)}>
@@ -1073,20 +1078,22 @@ const MyAds = () => {
                                     </PopoverTrigger>
                                     <PopoverContent className="w-48 p-1">
                                       <div className="space-y-1">
-                                        <Button 
-                                          variant="ghost" 
-                                          size="sm"
-                                          className="w-full justify-start"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setSelectedAdForShare(product);
-                                            setShareModalOpen(true);
-                                          }}
-                                        >
-                                          <Share className="h-4 w-4 mr-2" />
-                                          Share
-                                        </Button>
-                                        {product.status === 'pending' && (
+                                        {(product.status === 'approved' || product.status === 'closed') && (
+                                          <Button 
+                                            variant="ghost" 
+                                            size="sm"
+                                            className="w-full justify-start"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleShare(product);
+                                            }}
+                                          >
+                                            <Share className="h-4 w-4 mr-2" />
+                                            Share
+                                          </Button>
+                                        )}
+
+                                        {(product.status === 'approved' || product.status === 'pending' || product.status === 'rejected') && (
                                           <Button 
                                             variant="ghost" 
                                             size="sm"
@@ -1100,12 +1107,160 @@ const MyAds = () => {
                                             Edit
                                           </Button>
                                         )}
-                                        {/* Add other mobile actions here */}
+
+                                        {product.status === 'approved' && (
+                                          <>
+                                            <Button 
+                                              variant="ghost" 
+                                              size="sm"
+                                              className="w-full justify-start text-orange-600"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleBoostAd(product.id, 'boost');
+                                              }}
+                                            >
+                                              <TrendingUp className="h-4 w-4 mr-2" />
+                                              Boost
+                                            </Button>
+                                            <Button 
+                                              variant="ghost" 
+                                              size="sm"
+                                              className="w-full justify-start text-purple-600"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleBoostAd(product.id, '2x_boost');
+                                              }}
+                                            >
+                                              <Zap className="h-4 w-4 mr-2" />
+                                              2x Boost
+                                            </Button>
+                                          </>
+                                        )}
+
+                                        {product.status === 'approved' && (
+                                          <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                              <Button 
+                                                variant="ghost" 
+                                                size="sm" 
+                                                className="w-full justify-start"
+                                                onClick={(e) => e.stopPropagation()}
+                                              >
+                                                <Archive className="h-4 w-4 mr-2" />
+                                                Close
+                                              </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                              <AlertDialogHeader>
+                                                <AlertDialogTitle>Close this ad?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                  This will remove the ad from public view but keep it in your ads list. You can reactivate it later.
+                                                </AlertDialogDescription>
+                                              </AlertDialogHeader>
+                                              <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => handleCloseAd(product.id)}>
+                                                  Close Ad
+                                                </AlertDialogAction>
+                                              </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                          </AlertDialog>
+                                        )}
+
+                                        {product.status === 'closed' && (
+                                          <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                              <Button 
+                                                variant="ghost" 
+                                                size="sm" 
+                                                className="w-full justify-start text-green-600"
+                                                onClick={(e) => e.stopPropagation()}
+                                              >
+                                                <RotateCcw className="h-4 w-4 mr-2" />
+                                                Reactivate
+                                              </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                              <AlertDialogHeader>
+                                                <AlertDialogTitle>Reactivate this ad?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                  This will make your ad visible to the public again and mark it as approved.
+                                                </AlertDialogDescription>
+                                              </AlertDialogHeader>
+                                              <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => handleReactivateAd(product.id)}>
+                                                  Reactivate Ad
+                                                </AlertDialogAction>
+                                              </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                          </AlertDialog>
+                                        )}
+
+                                        <AlertDialog>
+                                          <AlertDialogTrigger asChild>
+                                            <Button 
+                                              variant="ghost" 
+                                              size="sm" 
+                                              className="w-full justify-start text-red-600"
+                                              onClick={(e) => e.stopPropagation()}
+                                            >
+                                              <Trash2 className="h-4 w-4 mr-2" />
+                                              Delete
+                                            </Button>
+                                          </AlertDialogTrigger>
+                                          <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                              <AlertDialogTitle className="flex items-center gap-2">
+                                                <AlertTriangle className="h-5 w-5 text-red-500" />
+                                                Delete this ad permanently?
+                                              </AlertDialogTitle>
+                                              <AlertDialogDescription>
+                                                This action cannot be undone. This will permanently delete your ad and remove all associated data.
+                                              </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                              <AlertDialogAction 
+                                                onClick={() => handleDeleteAd(product.id)}
+                                                className="bg-red-600 hover:bg-red-700"
+                                              >
+                                                Delete Permanently
+                                              </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                          </AlertDialogContent>
+                                        </AlertDialog>
                                       </div>
                                     </PopoverContent>
                                   </Popover>
                                 </div>
                               </div>
+                              
+                              {/* Additional Info */}
+                              <div className="mt-2 text-xs text-gray-500 space-y-1">
+                                <p><strong>Location:</strong> {product.location}</p>
+                                <p><strong>Listed:</strong> {formatDate(product.submittedAt)}</p>
+                                <ExpiryDate product={product} />
+                              </div>
+                              
+                              {/* Show rejection reason if present */}
+                              {product.status === 'rejected' && product.rejection_reason && (
+                                <div className="mt-2 bg-red-50 border border-red-200 rounded p-2">
+                                  <p className="text-xs font-medium text-red-800 mb-1">Rejection Reason:</p>
+                                  <p className="text-xs text-red-700">{product.rejection_reason}</p>
+                                </div>
+                              )}
+                              
+                              {/* Show suggestions if present */}
+                              {product.suggestions && (
+                                <div className="mt-2 bg-yellow-50 border border-yellow-200 rounded p-2">
+                                  <p className="text-xs font-medium text-yellow-800 mb-1 flex items-center gap-1">
+                                    <Lightbulb className="h-3 w-3" />
+                                    Admin Suggestions:
+                                  </p>
+                                  <p className="text-xs text-yellow-700">{product.suggestions}</p>
+                                </div>
+                              )}
                             </div>
                           </div>
                         </CardContent>

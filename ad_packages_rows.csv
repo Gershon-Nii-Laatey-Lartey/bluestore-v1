@@ -1,0 +1,2 @@
+id,name,price,duration,features,best_for,color,icon,recommended,popular,ads_allowed,created_at,updated_at,active,plan_type,billing_cycle,is_subscription
+business_subscription,Business Subscription,75,Monthly,"[""All Professional features"",""Top search ranking"",""\""Urgent\"" tags"",""Homepage exposure"",""Advanced analytics"",""Bulk management tools"",""40 products per month""]",Growing businesses,border-green-400,Zap,true,false,40,2025-08-30 19:43:22.476291+00,2025-08-30 19:43:22.476291+00,true,subscription,monthly,true

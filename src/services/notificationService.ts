@@ -107,15 +107,18 @@ class NotificationService {
     try {
       // Get all admin users
       const { data: admins } = await supabase
-        .from('profiles')
-        .select('id, full_name')
-        .eq('role', 'admin');
+        .from('user_roles')
+        .select(`
+          user_id,
+          profiles!inner(id, full_name)
+        `)
+        .eq('app_role', 'admin');
 
       if (!admins || admins.length === 0) return;
 
       // Create notifications for all admins
       const notifications = admins.map(admin => ({
-        user_id: admin.id,
+        user_id: admin.user_id,
         title: "New Ad Submission",
         message: `A new ad "${productTitle}" has been submitted and requires review.`,
         type: "info",
@@ -139,9 +142,12 @@ class NotificationService {
     try {
       // Get all admin users
       const { data: admins } = await supabase
-        .from('profiles')
-        .select('id, full_name')
-        .eq('role', 'admin');
+        .from('user_roles')
+        .select(`
+          user_id,
+          profiles!inner(id, full_name)
+        `)
+        .eq('app_role', 'admin');
 
       if (!admins || admins.length === 0) return;
 
@@ -171,9 +177,12 @@ class NotificationService {
     try {
       // Get all admin users
       const { data: admins } = await supabase
-        .from('profiles')
-        .select('id, full_name')
-        .eq('role', 'admin');
+        .from('user_roles')
+        .select(`
+          user_id,
+          profiles!inner(id, full_name)
+        `)
+        .eq('app_role', 'admin');
 
       if (!admins || admins.length === 0) return;
 
@@ -203,9 +212,12 @@ class NotificationService {
     try {
       // Get all admin users
       const { data: admins } = await supabase
-        .from('profiles')
-        .select('id, full_name')
-        .eq('role', 'admin');
+        .from('user_roles')
+        .select(`
+          user_id,
+          profiles!inner(id, full_name)
+        `)
+        .eq('app_role', 'admin');
 
       if (!admins || admins.length === 0) return;
 

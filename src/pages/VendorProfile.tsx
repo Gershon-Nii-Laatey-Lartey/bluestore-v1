@@ -565,182 +565,182 @@ const VendorProfile = () => {
         {/* Mobile Layout */}
         <div className="md:hidden">
           <div className="max-w-4xl mx-auto px-4 py-6">
-            <div className="animate-fade-in space-y-6">
-              {/* Header */}
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-4">
-                  <Avatar className="h-20 w-20 mr-4">
-                    <AvatarImage src={getProfileImageUrl() || undefined} />
-                    <AvatarFallback className="bg-primary/10 text-primary text-xl">
-                      {vendor.business_name?.charAt(0) || vendor.profiles?.full_name?.charAt(0) || 'V'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="text-left">
-                    <h1 className="text-3xl font-bold text-foreground mb-2">{vendor.business_name || vendor.profiles?.full_name}</h1>
-                    <p className="text-muted-foreground mb-2">{vendor.profiles?.full_name && vendor.business_name ? `${vendor.profiles.full_name} • ` : ''}BlueStore Vendor</p>
-                    <div className="flex items-center space-x-2">
-                      {getVerificationBadge()}
-                      {isOwnProfile && getActivePackageInfo()}
+          <div className="animate-fade-in space-y-6">
+            {/* Header */}
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-4">
+                <Avatar className="h-20 w-20 mr-4">
+                  <AvatarImage src={getProfileImageUrl() || undefined} />
+                  <AvatarFallback className="bg-primary/10 text-primary text-xl">
+                    {vendor.business_name?.charAt(0) || vendor.profiles?.full_name?.charAt(0) || 'V'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="text-left">
+                  <h1 className="text-3xl font-bold text-foreground mb-2">{vendor.business_name || vendor.profiles?.full_name}</h1>
+                  <p className="text-muted-foreground mb-2">{vendor.profiles?.full_name && vendor.business_name ? `${vendor.profiles.full_name} • ` : ''}BlueStore Vendor</p>
+                  <div className="flex items-center space-x-2">
+                    {getVerificationBadge()}
+                    {isOwnProfile && getActivePackageInfo()}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Action buttons for own profile */}
+              {isOwnProfile && (
+                <div className="flex items-center justify-center space-x-4 mb-6">
+                  <Button 
+                    onClick={() => navigate('/edit-vendor-profile')} 
+                    variant="outline"
+                    className="flex items-center space-x-2"
+                  >
+                    <Edit className="h-4 w-4" />
+                    <span>Edit Profile</span>
+                  </Button>
+                  <Button 
+                    onClick={() => navigate('/my-ads')} 
+                    variant="outline"
+                    className="flex items-center space-x-2"
+                  >
+                    <Package className="h-4 w-4" />
+                    <span>My Ads</span>
+                  </Button>
+                  <Button 
+                    onClick={() => handleShareProfile()}
+                    variant="outline"
+                    className="flex items-center space-x-2"
+                  >
+                    <Share2 className="h-4 w-4" />
+                    <span>Share Profile</span>
+                  </Button>
+                </div>
+              )}
+              
+              {/* Action buttons for other profiles */}
+              {!isOwnProfile && (
+                <div className="flex items-center justify-center space-x-4 mb-6">
+                  <Button 
+                    onClick={() => handleShareProfile()}
+                    variant="outline"
+                    className="flex items-center space-x-2"
+                  >
+                    <Share2 className="h-4 w-4" />
+                    <span>Share Profile</span>
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Profile Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                    <span className="text-primary font-bold text-lg">
+                      {(vendor.business_name || vendor.profiles?.full_name || 'V').charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-semibold text-card-foreground">{vendor.business_name || vendor.profiles?.full_name}</h2>
+                    <p className="text-sm text-muted-foreground">Vendor Profile</p>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-3">
+                      <MapPin className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium">Location</p>
+                        <p className="text-muted-foreground">{vendor.location || 'Not specified'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <Phone className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium">Contact</p>
+                        {user ? (
+                          <p className="text-muted-foreground">{vendor.phone || 'Not specified'}</p>
+                        ) : (
+                          <div className="flex items-center space-x-2">
+                            <Lock className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-muted-foreground text-sm">Login to view</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-3">
+                      <Mail className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium">Email</p>
+                        <p className="text-muted-foreground">{vendor.profiles?.email || vendor.email || 'Not specified'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <Shield className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium">Verification</p>
+                        <Badge variant={vendor.verified ? "default" : "secondary"}>
+                          {vendor.verified ? "Verified" : "Not Verified"}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
                 </div>
                 
-                {/* Action buttons for own profile */}
-                {isOwnProfile && (
-                  <div className="flex items-center justify-center space-x-4 mb-6">
-                    <Button 
-                      onClick={() => navigate('/edit-vendor-profile')} 
-                      variant="outline"
-                      className="flex items-center space-x-2"
-                    >
-                      <Edit className="h-4 w-4" />
-                      <span>Edit Profile</span>
-                    </Button>
-                    <Button 
-                      onClick={() => navigate('/my-ads')} 
-                      variant="outline"
-                      className="flex items-center space-x-2"
-                    >
-                      <Package className="h-4 w-4" />
-                      <span>My Ads</span>
-                    </Button>
-                    <Button 
-                      onClick={() => handleShareProfile()}
-                      variant="outline"
-                      className="flex items-center space-x-2"
-                    >
-                      <Share2 className="h-4 w-4" />
-                      <span>Share Profile</span>
-                    </Button>
-                  </div>
-                )}
-                
-                {/* Action buttons for other profiles */}
-                {!isOwnProfile && (
-                  <div className="flex items-center justify-center space-x-4 mb-6">
-                    <Button 
-                      onClick={() => handleShareProfile()}
-                      variant="outline"
-                      className="flex items-center space-x-2"
-                    >
-                      <Share2 className="h-4 w-4" />
-                      <span>Share Profile</span>
-                    </Button>
-                  </div>
-                )}
-              </div>
-
-              {/* Profile Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                      <span className="text-primary font-bold text-lg">
-                        {(vendor.business_name || vendor.profiles?.full_name || 'V').charAt(0).toUpperCase()}
-                      </span>
-                    </div>
+                {vendor.description && (
+                  <>
+                    <Separator className="my-6" />
                     <div>
-                      <h2 className="text-xl font-semibold text-card-foreground">{vendor.business_name || vendor.profiles?.full_name}</h2>
-                      <p className="text-sm text-muted-foreground">Vendor Profile</p>
+                      <h3 className="font-medium mb-2">About</h3>
+                      <p className="text-muted-foreground">{vendor.description}</p>
                     </div>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div className="flex items-center space-x-3">
-                        <MapPin className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <p className="font-medium">Location</p>
-                          <p className="text-muted-foreground">{vendor.location || 'Not specified'}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <Phone className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <p className="font-medium">Contact</p>
-                          {user ? (
-                            <p className="text-muted-foreground">{vendor.phone || 'Not specified'}</p>
-                          ) : (
-                            <div className="flex items-center space-x-2">
-                              <Lock className="h-4 w-4 text-muted-foreground" />
-                              <span className="text-muted-foreground text-sm">Login to view</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="space-y-4">
-                      <div className="flex items-center space-x-3">
-                        <Mail className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <p className="font-medium">Email</p>
-                          <p className="text-muted-foreground">{vendor.profiles?.email || vendor.email || 'Not specified'}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <Shield className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <p className="font-medium">Verification</p>
-                          <Badge variant={vendor.verified ? "default" : "secondary"}>
-                            {vendor.verified ? "Verified" : "Not Verified"}
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {vendor.description && (
-                    <>
-                      <Separator className="my-6" />
-                      <div>
-                        <h3 className="font-medium mb-2">About</h3>
-                        <p className="text-muted-foreground">{vendor.description}</p>
-                      </div>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
+                  </>
+                )}
+              </CardContent>
+            </Card>
 
-              {/* Products Section */}
-              <div>
-                <h2 className="text-2xl font-bold text-foreground mb-6">Products by this Vendor</h2>
-                {vendorProducts && vendorProducts.length > 0 ? (
+            {/* Products Section */}
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-6">Products by this Vendor</h2>
+              {vendorProducts && vendorProducts.length > 0 ? (
                   <div className="product-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                    {vendorProducts.map((product) => (
-                      <Card key={product.id} className="product-card group transition-all duration-300 cursor-pointer">
+                  {vendorProducts.map((product) => (
+                    <Card key={product.id} className="product-card group transition-all duration-300 cursor-pointer">
                         <CardContent className="p-0">
                           <div className="product-image-container aspect-square mb-4">
-                            {product.images && product.images.length > 0 ? (
-                              <img 
-                                src={getMainImageWithFallback(product.images, product.main_image_index)} 
-                                alt={product.title}
+                          {product.images && product.images.length > 0 ? (
+                            <img 
+                              src={getMainImageWithFallback(product.images, product.main_image_index)} 
+                              alt={product.title}
                                 className="product-image"
-                              />
-                            ) : (
+                            />
+                          ) : (
                               <div className="product-image-placeholder text-3xl">📱</div>
-                            )}
-                          </div>
+                          )}
+                        </div>
                           <h4 className="product-title text-card-foreground mb-3 text-sm line-clamp-2">
-                            {product.title}
-                          </h4>
+                          {product.title}
+                        </h4>
                           <p className="product-price text-lg text-primary mb-2">
-                            {formatPrice(product.price)}
-                          </p>
+                          {formatPrice(product.price)}
+                        </p>
                           <p className="product-location text-xs capitalize">
-                            {product.category} • {product.condition}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <Card>
-                    <CardContent className="p-6 text-center">
-                      <p className="text-muted-foreground">No products available from this vendor yet.</p>
-                    </CardContent>
-                  </Card>
-                )}
+                          {product.category} • {product.condition}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <Card>
+                  <CardContent className="p-6 text-center">
+                    <p className="text-muted-foreground">No products available from this vendor yet.</p>
+                  </CardContent>
+                </Card>
+              )}
               </div>
             </div>
           </div>

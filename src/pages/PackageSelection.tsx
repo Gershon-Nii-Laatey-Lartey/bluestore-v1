@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { PaymentCheckout } from "@/components/payment/PaymentCheckout";
 import { adPackages, AdPackage } from "@/types/adPackage";
 import { paymentService } from "@/services/paymentService";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const PackageSelection = () => {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ const PackageSelection = () => {
   const [selectedPackage, setSelectedPackage] = useState<string>(adPackages.find(pkg => pkg.recommended)?.id || adPackages[0].id);
   const [showCheckout, setShowCheckout] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [activeTab, setActiveTab] = useState("one-time");
 
   // Handle payment success callback
   useEffect(() => {
@@ -84,7 +86,33 @@ const PackageSelection = () => {
     }).format(price);
   };
 
+  // Categorize packages based on their plan_type from database
+  const categorizePackages = (packages: AdPackage[]) => {
+    const oneTimePackages: AdPackage[] = [];
+    const subscriptionPackages: AdPackage[] = [];
+
+    packages.forEach(pkg => {
+      // Use plan_type field from database to categorize packages
+      if (pkg.plan_type === 'subscription') {
+        subscriptionPackages.push(pkg);
+      } else {
+        oneTimePackages.push(pkg);
+      }
+    });
+
+    return { oneTimePackages, subscriptionPackages };
+  };
+
+  const { oneTimePackages, subscriptionPackages } = categorizePackages(adPackages);
   const selectedPkg = adPackages.find(pkg => pkg.id === selectedPackage);
+
+  // Auto-select first package when switching tabs
+  useEffect(() => {
+    const currentTabPackages = activeTab === "one-time" ? oneTimePackages : subscriptionPackages;
+    if (currentTabPackages.length > 0 && !currentTabPackages.find(pkg => pkg.id === selectedPackage)) {
+      setSelectedPackage(currentTabPackages[0].id);
+    }
+  }, [activeTab, oneTimePackages, subscriptionPackages, selectedPackage]);
 
   if (showCheckout && selectedPkg) {
     return (
@@ -135,72 +163,160 @@ const PackageSelection = () => {
           <p className="text-gray-600 mt-1">Select the best subscription to promote your ads effectively</p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-          {adPackages.map((pkg) => {
-            const IconComponent = pkg.icon;
-            return (
-              <Card 
-                key={pkg.id}
-                className={`relative cursor-pointer transition-all duration-200 ${
-                  selectedPackage === pkg.id 
-                    ? `${pkg.color} shadow-lg scale-105` 
-                    : 'border-gray-200 hover:border-blue-400 hover:shadow-md'
-                }`}
-                onClick={() => setSelectedPackage(pkg.id)}
-              >
-                {pkg.recommended && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-xs font-medium px-3 py-1 rounded-full">
-                    Recommended
-                  </div>
-                )}
-                {pkg.popular && (
-                  <div className="absolute -top-3 right-4 bg-orange-500 text-white text-xs font-medium px-3 py-1 rounded-full">
-                    Popular
-                  </div>
-                )}
-                <CardHeader className="text-center pb-4">
-                  <div className="mx-auto mb-2">
-                    <IconComponent className="h-8 w-8 text-blue-600" />
-                  </div>
-                  <CardTitle className="text-lg">{pkg.name}</CardTitle>
-                  <div className="text-center">
-                    <span className="text-2xl md:text-3xl font-bold text-gray-900">
-                      {formatPrice(pkg.price)}
-                    </span>
-                    <p className="text-sm text-gray-500 mt-1">{pkg.duration}</p>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <ul className="space-y-2">
-                    {pkg.features.map((feature, index) => (
-                      <li key={index} className="flex items-start">
-                        <Check className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm text-gray-700">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="pt-2 border-t border-gray-100">
-                    <p className="text-xs text-gray-600">
-                      <strong>Best for:</strong> {pkg.bestFor}
-                    </p>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    className={`w-full ${
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="one-time" className="flex items-center gap-2">
+              <span>One-Time Plans</span>
+              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                {oneTimePackages.length}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="subscription" className="flex items-center gap-2">
+              <span>Monthly Subscriptions</span>
+              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                {subscriptionPackages.length}
+              </span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="one-time" className="space-y-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+              {oneTimePackages.map((pkg) => {
+                const IconComponent = pkg.icon;
+                return (
+                  <Card 
+                    key={pkg.id}
+                    className={`relative cursor-pointer transition-all duration-200 ${
                       selectedPackage === pkg.id 
-                        ? 'bg-blue-600 hover:bg-blue-700' 
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? `${pkg.color} shadow-lg scale-105` 
+                        : 'border-gray-200 hover:border-blue-400 hover:shadow-md'
                     }`}
-                    variant={selectedPackage === pkg.id ? 'default' : 'outline'}
+                    onClick={() => setSelectedPackage(pkg.id)}
                   >
-                    {selectedPackage === pkg.id ? 'Selected' : 'Select Plan'}
-                  </Button>
-                </CardFooter>
-              </Card>
-            );
-          })}
-        </div>
+                    {pkg.recommended && (
+                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-xs font-medium px-3 py-1 rounded-full">
+                        Recommended
+                      </div>
+                    )}
+                    {pkg.popular && (
+                      <div className="absolute -top-3 right-4 bg-orange-500 text-white text-xs font-medium px-3 py-1 rounded-full">
+                        Popular
+                      </div>
+                    )}
+                    <CardHeader className="text-center pb-4">
+                      <div className="mx-auto mb-2">
+                        <IconComponent className="h-8 w-8 text-blue-600" />
+                      </div>
+                      <CardTitle className="text-lg">{pkg.name}</CardTitle>
+                      <div className="text-center">
+                        <span className="text-2xl md:text-3xl font-bold text-gray-900">
+                          {formatPrice(pkg.price)}
+                        </span>
+                        <p className="text-sm text-gray-500 mt-1">{pkg.duration}</p>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <ul className="space-y-2">
+                        {pkg.features.map((feature, index) => (
+                          <li key={index} className="flex items-start">
+                            <Check className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
+                            <span className="text-sm text-gray-700">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="pt-2 border-t border-gray-100">
+                        <p className="text-xs text-gray-600">
+                          <strong>Best for:</strong> {pkg.bestFor}
+                        </p>
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <Button 
+                        className={`w-full ${
+                          selectedPackage === pkg.id 
+                            ? 'bg-blue-600 hover:bg-blue-700' 
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                        variant={selectedPackage === pkg.id ? 'default' : 'outline'}
+                      >
+                        {selectedPackage === pkg.id ? 'Selected' : 'Select Plan'}
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                );
+              })}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="subscription" className="space-y-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+              {subscriptionPackages.map((pkg) => {
+                const IconComponent = pkg.icon;
+                return (
+                  <Card 
+                    key={pkg.id}
+                    className={`relative cursor-pointer transition-all duration-200 ${
+                      selectedPackage === pkg.id 
+                        ? `${pkg.color} shadow-lg scale-105` 
+                        : 'border-gray-200 hover:border-blue-400 hover:shadow-md'
+                    }`}
+                    onClick={() => setSelectedPackage(pkg.id)}
+                  >
+                    {pkg.recommended && (
+                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-xs font-medium px-3 py-1 rounded-full">
+                        Recommended
+                      </div>
+                    )}
+                    {pkg.popular && (
+                      <div className="absolute -top-3 right-4 bg-orange-500 text-white text-xs font-medium px-3 py-1 rounded-full">
+                        Popular
+                      </div>
+                    )}
+                    <CardHeader className="text-center pb-4">
+                      <div className="mx-auto mb-2">
+                        <IconComponent className="h-8 w-8 text-blue-600" />
+                      </div>
+                      <CardTitle className="text-lg">{pkg.name}</CardTitle>
+                      <div className="text-center">
+                        <span className="text-2xl md:text-3xl font-bold text-gray-900">
+                          {formatPrice(pkg.price)}
+                        </span>
+                        <p className="text-sm text-gray-500 mt-1">{pkg.duration}</p>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <ul className="space-y-2">
+                        {pkg.features.map((feature, index) => (
+                          <li key={index} className="flex items-start">
+                            <Check className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
+                            <span className="text-sm text-gray-700">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="pt-2 border-t border-gray-100">
+                        <p className="text-xs text-gray-600">
+                          <strong>Best for:</strong> {pkg.bestFor}
+                        </p>
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <Button 
+                        className={`w-full ${
+                          selectedPackage === pkg.id 
+                            ? 'bg-blue-600 hover:bg-blue-700' 
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                        variant={selectedPackage === pkg.id ? 'default' : 'outline'}
+                      >
+                        {selectedPackage === pkg.id ? 'Selected' : 'Select Plan'}
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                );
+              })}
+            </div>
+          </TabsContent>
+        </Tabs>
 
         <div className="bg-blue-50 rounded-lg p-4 flex items-start space-x-3">
           <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />

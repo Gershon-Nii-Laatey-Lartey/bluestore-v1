@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { RefreshCw, Bell, Menu, X, ArrowLeft } from "lucide-react";
 import { dataService, ProductSubmission, KYCSubmission } from "@/services/dataService";
 import { notificationService } from "@/services/notificationService";
+import { supabase } from "@/integrations/supabase/client";
 import { ProductReviewTab } from "@/components/admin/ProductReviewTab";
 import { PackageStatsCard } from "@/components/admin/PackageStatsCard";
 import { KYCVerificationTab } from "@/components/admin/KYCVerificationTab";
@@ -66,10 +67,33 @@ const Admin = () => {
 
   useEffect(() => {
     loadData();
-    // Seed default packages if needed
-    seedDefaultPackagesIfEmpty();
     // Check notification permission
     checkNotificationPermission();
+  }, []);
+
+  // Separate effect for seeding - only run if packages don't exist
+  useEffect(() => {
+    const checkAndSeedPackages = async () => {
+      try {
+        // Check if any packages exist
+        const { data: existingPackages } = await supabase
+          .from('ad_packages')
+          .select('id')
+          .limit(1);
+        
+        // Only seed if no packages exist
+        if (!existingPackages || existingPackages.length === 0) {
+          console.log('No packages found, seeding default packages...');
+          await seedDefaultPackagesIfEmpty();
+        } else {
+          console.log('Packages already exist, skipping seeding');
+        }
+      } catch (error) {
+        console.error('Error checking packages:', error);
+      }
+    };
+    
+    checkAndSeedPackages();
   }, []);
 
   const checkNotificationPermission = () => {
@@ -111,6 +135,8 @@ const Admin = () => {
       await seedDefaultPackages();
     } catch (error) {
       console.error('Error seeding packages:', error);
+      // Don't let seeding errors break the admin page
+      // The packages might already exist, which is fine
     }
   };
 

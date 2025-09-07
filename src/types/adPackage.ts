@@ -13,6 +13,9 @@ export interface AdPackage {
   recommended?: boolean;
   popular?: boolean;
   adsAllowed?: number | null; // null means unlimited
+  plan_type?: string; // 'one_time' or 'subscription'
+  billing_cycle?: string; // 'monthly', 'yearly', etc.
+  is_subscription?: boolean;
 }
 
 export const adPackages: AdPackage[] = [

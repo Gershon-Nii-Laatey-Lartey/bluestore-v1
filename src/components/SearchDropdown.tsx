@@ -69,9 +69,31 @@ export const SearchDropdown = ({
     }
   };
 
-  const handleHistoryItemClick = (historyQuery: string) => {
-    setQuery(historyQuery);
-    handleSearch(historyQuery);
+  const handleHistoryItemClick = (historyQuery: string, event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Dismiss keyboard immediately
+    const activeElement = document.activeElement as HTMLElement;
+    if (activeElement && activeElement.blur) {
+      activeElement.blur();
+    }
+
+    // Close dropdown immediately
+    setIsOpen(false);
+    setQuery("");
+
+    // Add to search history with current location (non-blocking)
+    searchService.addToHistory(historyQuery, userLocation).then(() => {
+      setSearchHistory(searchService.getSearchHistory());
+    }).catch(console.error);
+    
+    // Call custom onSearch handler or navigate to search page
+    if (onSearch) {
+      onSearch(historyQuery);
+    } else {
+      navigate(`/search?q=${encodeURIComponent(historyQuery)}`);
+    }
   };
 
   const handleRemoveHistoryItem = (id: string, event: React.MouseEvent) => {
@@ -134,7 +156,7 @@ export const SearchDropdown = ({
                   <div
                     key={item.id}
                     className="flex items-center justify-between px-4 py-2 hover:bg-gray-50 cursor-pointer group"
-                    onClick={() => handleHistoryItemClick(item.query)}
+                    onClick={(e) => handleHistoryItemClick(item.query, e)}
                   >
                     <div className="flex items-center space-x-3 flex-1 min-w-0">
                       <Clock className="h-4 w-4 text-gray-400 flex-shrink-0" />

@@ -68,8 +68,11 @@ export const usePaymentProcessor = ({ onPublishNow }: PaymentProcessorProps) => 
       return;
     }
 
-    // If promo code makes it free, handle directly
-    if (selectedPkg.price === 0 || finalAmount === 0) {
+    // Calculate the actual amount to charge (considering promo codes)
+    const amountToCharge = finalAmount > 0 ? finalAmount : selectedPkg.price;
+
+    // If package is free or promo code makes it free, handle directly
+    if (selectedPkg.price === 0 || amountToCharge === 0) {
       onPublishNow(selectedPkg.id);
       return;
     }
@@ -95,7 +98,6 @@ export const usePaymentProcessor = ({ onPublishNow }: PaymentProcessorProps) => 
     setProcessingPayment(true);
 
     try {
-      const amountToCharge = finalAmount > 0 ? finalAmount : selectedPkg.price;
       console.log('Initializing payment for package:', selectedPkg.name, 'Amount:', amountToCharge);
       
       const paymentData = {
@@ -115,44 +117,52 @@ export const usePaymentProcessor = ({ onPublishNow }: PaymentProcessorProps) => 
       console.log('Payment data:', paymentData);
 
       const response = await paymentService.initializePayment(paymentData);
+      console.log('Payment initialization response:', response);
 
-      if (!response.success) {
+      if (!response.status) {
         throw new Error(response.message || 'Failed to initialize payment');
       }
 
       const handler = window.PaystackPop.setup({
-        key: response.data.authorization_url.split('?')[0].split('/').pop() || 'pk_test_...',
+        key: response.data.public_key || 'pk_test_0d4e4b6c6b82e5e72cfe9cf92d6f5e6c5f7a2c3d',
         email: user.email,
         amount: amountToCharge * 100, // Paystack expects amount in kobo
         currency: 'GHS',
         ref: response.data.reference,
-        callback: async (response: any) => {
+        callback: function(response: any) {
+          console.log('Paystack callback received:', response);
           if (response.status === 'success') {
-            try {
-              await paymentService.verifyPayment(response.reference);
-              toast({
-                title: "Payment Successful!",
-                description: "Your payment has been processed successfully.",
+            // Handle successful payment
+            paymentService.verifyPayment(response.reference)
+              .then(() => {
+                toast({
+                  title: "Payment Successful!",
+                  description: "Your payment has been processed successfully.",
+                });
+                onPublishNow(selectedPkg.id);
+              })
+              .catch((verifyError) => {
+                console.error('Payment verification failed:', verifyError);
+                toast({
+                  title: "Payment Verification Failed",
+                  description: "Please contact support if you were charged.",
+                  variant: "destructive"
+                });
+              })
+              .finally(() => {
+                setProcessingPayment(false);
               });
-              onPublishNow(selectedPkg.id);
-            } catch (verifyError) {
-              console.error('Payment verification failed:', verifyError);
-              toast({
-                title: "Payment Verification Failed",
-                description: "Please contact support if you were charged.",
-                variant: "destructive"
-              });
-            }
           } else {
             toast({
               title: "Payment Failed",
               description: "Payment was not completed. Please try again.",
               variant: "destructive"
             });
+            setProcessingPayment(false);
           }
-          setProcessingPayment(false);
         },
-        onClose: () => {
+        onClose: function() {
+          console.log('Paystack popup closed');
           toast({
             title: "Payment Cancelled",
             description: "Payment was cancelled. You can try again anytime.",
