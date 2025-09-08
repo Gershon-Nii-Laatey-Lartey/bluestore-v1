@@ -20,6 +20,12 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: any }>;
+  sendOTP: (email: string) => Promise<{ error: any; otp?: string }>;
+  verifyOTP: (email: string, otp: string) => Promise<{ error: any }>;
+  isOTPVerified: (email: string) => boolean;
+  clearOTPData: () => void;
+  updatePassword: (newPassword: string) => Promise<{ error: any }>;
   updateProfile: (updates: Partial<Profile>) => Promise<{ error: any }>;
 }
 
@@ -107,6 +113,101 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     await supabase.auth.signOut();
   };
 
+  const resetPassword = async (email: string) => {
+    const redirectUrl = `${window.location.origin}/reset-password`;
+    
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: redirectUrl
+    });
+    
+    return { error };
+  };
+
+  const sendOTP = async (email: string) => {
+    try {
+      // Use password recovery flow to send OTP for password reset
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: undefined, // Don't set redirectTo to get OTP instead of magic link
+      });
+      
+      return { error };
+    } catch (error) {
+      return { error: error as Error };
+    }
+  };
+
+  const verifyOTP = async (email: string, otp: string) => {
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: email,
+        token: otp,
+        type: 'recovery' // Use 'recovery' type for password reset OTP
+      });
+      
+      if (error) {
+        return { error };
+      }
+      
+      // Store verification in localStorage for password reset flow
+      localStorage.setItem('otp_verified', JSON.stringify({
+        email: email,
+        verifiedAt: Date.now(),
+        session: data.session
+      }));
+      
+      return { error: null };
+    } catch (error) {
+      return { error: error as Error };
+    }
+  };
+
+  const isOTPVerified = (email: string) => {
+    try {
+      const verifiedData = localStorage.getItem('otp_verified');
+      if (!verifiedData) return false;
+      
+      const data = JSON.parse(verifiedData);
+      // Check if verification is still valid (10 minutes)
+      return data.email === email && (Date.now() - data.verifiedAt) < (10 * 60 * 1000);
+    } catch {
+      return false;
+    }
+  };
+
+  const clearOTPData = () => {
+    localStorage.removeItem('otp_verified');
+  };
+
+  const updatePassword = async (newPassword: string) => {
+    try {
+      // Get the session from OTP verification
+      const verifiedData = localStorage.getItem('otp_verified');
+      if (!verifiedData) {
+        return { error: new Error('No verified session found. Please verify your OTP first.') };
+      }
+      
+      const data = JSON.parse(verifiedData);
+      if (!data.session) {
+        return { error: new Error('Invalid session. Please verify your OTP again.') };
+      }
+      
+      // Set the session first
+      const { error: sessionError } = await supabase.auth.setSession(data.session);
+      if (sessionError) {
+        return { error: sessionError };
+      }
+      
+      // Update password
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      
+      return { error };
+    } catch (error) {
+      return { error: error as Error };
+    }
+  };
+
   const updateProfile = async (updates: Partial<Profile>) => {
     if (!user) return { error: new Error('No user logged in') };
 
@@ -130,6 +231,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     signUp,
     signIn,
     signOut,
+    resetPassword,
+    sendOTP,
+    verifyOTP,
+    isOTPVerified,
+    clearOTPData,
+    updatePassword,
     updateProfile
   };
 

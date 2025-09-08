@@ -135,16 +135,33 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
           </Button>
         </form>
 
-        <div className="text-center">
-          <Button
-            variant="link"
-            onClick={toggleMode}
-            className="text-sm"
-          >
-            {isSignUp
-              ? "Already have an account? Sign in"
-              : "Don't have an account? Sign up"}
-          </Button>
+        <div className="text-center space-y-2">
+          {!isSignUp && (
+            <div>
+              <Button
+                variant="link"
+                onClick={() => {
+                  onOpenChange(false);
+                  window.location.href = '/forgot-password';
+                }}
+                className="text-sm"
+              >
+                Forgot your password?
+              </Button>
+            </div>
+          )}
+          
+          <div>
+            <Button
+              variant="link"
+              onClick={toggleMode}
+              className="text-sm"
+            >
+              {isSignUp
+                ? "Already have an account? Sign in"
+                : "Don't have an account? Sign up"}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

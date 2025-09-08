@@ -216,16 +216,30 @@ const Auth = () => {
               </p>
             )}
 
-            <div className="text-center">
-              <button
-                type="button"
-                onClick={toggleMode}
-                className="text-sm text-muted-foreground hover:text-primary"
-              >
-                {isSignUp
-                  ? "Already have an account? Login."
-                  : "Don't have an account? Sign up"}
-              </button>
+            <div className="text-center space-y-2">
+              {!isSignUp && (
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/forgot-password')}
+                    className="text-sm text-muted-foreground hover:text-primary"
+                  >
+                    Forgot your password?
+                  </button>
+                </div>
+              )}
+              
+              <div>
+                <button
+                  type="button"
+                  onClick={toggleMode}
+                  className="text-sm text-muted-foreground hover:text-primary"
+                >
+                  {isSignUp
+                    ? "Already have an account? Login."
+                    : "Don't have an account? Sign up"}
+                </button>
+              </div>
             </div>
           </form>
         </div>

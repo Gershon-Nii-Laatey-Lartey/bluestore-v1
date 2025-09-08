@@ -12,6 +12,9 @@ import { CSWorkerProtectedRoute } from "@/components/CSWorkerProtectedRoute";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import ForgotPassword from "./pages/ForgotPassword";
+import VerifyOTP from "./pages/VerifyOTP";
+import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import MyAds from "./pages/MyAds";
 import PublishAd from "./pages/PublishAd";
@@ -146,6 +149,9 @@ const App = () => (
               </ErrorBoundary>
             } />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/verify-otp" element={<VerifyOTP />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/search" element={<Search />} />
             <Route path="/category/:category" element={<CategoryPage />} />
