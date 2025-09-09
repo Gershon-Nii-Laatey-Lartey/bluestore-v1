@@ -2,7 +2,7 @@
 
 Modern e-commerce platform for Ghanaian marketplace built with React, TypeScript, and Supabase.
 
-## 🌟 Features
+##  Features
 
 ### Core Features
 - **Multi-category Marketplace** - Electronics, Fashion, Automotive, Gaming, Sports, Home & Garden
