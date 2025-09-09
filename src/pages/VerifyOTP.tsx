@@ -152,12 +152,6 @@ const VerifyOTP = () => {
                 disabled={loading}
                 length={6}
               />
-              
-              {timeLeft > 0 && (
-                <div className="text-center text-sm text-muted-foreground">
-                  <p>Code expires in <span className="font-semibold text-primary">{formatTime(timeLeft)}</span></p>
-                </div>
-              )}
             </div>
 
             {error && (
@@ -167,12 +161,12 @@ const VerifyOTP = () => {
             )}
 
             <div className="space-y-3">
-              {canResend ? (
+              <div className="flex items-center justify-between text-sm">
                 <Button 
                   onClick={handleResendOTP}
-                  variant="outline"
-                  className="w-full"
-                  disabled={loading}
+                  variant="link"
+                  className="px-0 h-auto"
+                  disabled={loading || !canResend}
                 >
                   {loading ? (
                     <>
@@ -182,33 +176,30 @@ const VerifyOTP = () => {
                   ) : (
                     <>
                       <RefreshCw className="mr-2 h-4 w-4" />
-                      Resend Code
+                      Resend code
                     </>
                   )}
                 </Button>
-              ) : (
-                <div className="text-center text-sm text-muted-foreground">
-                  <p>Resend code in {formatTime(timeLeft)}</p>
+
+                <div className="flex items-center gap-4">
+                  <Button 
+                    onClick={handleBackToForgotPassword}
+                    variant="link"
+                    className="px-0 h-auto"
+                    disabled={loading}
+                  >
+                    Use different email
+                  </Button>
+                  <Button 
+                    onClick={handleBackToLogin}
+                    variant="link"
+                    className="px-0 h-auto"
+                    disabled={loading}
+                  >
+                    Back to login
+                  </Button>
                 </div>
-              )}
-
-              <Button 
-                onClick={handleBackToForgotPassword}
-                variant="outline"
-                className="w-full"
-                disabled={loading}
-              >
-                Use Different Email
-              </Button>
-
-              <Button 
-                onClick={handleBackToLogin}
-                variant="outline"
-                className="w-full"
-                disabled={loading}
-              >
-                Back to Login
-              </Button>
+              </div>
             </div>
           </div>
         </div>
