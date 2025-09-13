@@ -72,7 +72,20 @@ class PaymentService {
   }
 
   async verifyPayment(reference: string) {
-    return this.callPaystackFunction('paystack-verify', { reference });
+    console.log('🔍 Calling paystack-verify with reference:', reference);
+    try {
+      const result = await this.callPaystackFunction('paystack-verify', { reference });
+      console.log('✅ paystack-verify result:', result);
+      if (result.debug_info) {
+        console.log('🔍 Debug info from function:', result.debug_info);
+        console.log('🔍 Plan ID received:', result.debug_info.plan_id);
+        console.log('🔍 Plan config received:', result.debug_info.plan_config);
+      }
+      return result;
+    } catch (error) {
+      console.error('❌ paystack-verify error:', error);
+      throw error;
+    }
   }
 
   async createSubscription(data: SubscriptionData) {
@@ -113,12 +126,11 @@ class PaymentService {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // Get plan configuration
-      const planConfig = this.getPlanConfiguration(planId);
+      // Get plan configuration from database
+      const planConfig = await this.getPlanConfiguration(planId);
       
-      // Ensure planId is one of the valid plan types
-      const validPlanTypes = ['free', 'starter', 'standard', 'rising', 'pro', 'business', 'premium'] as const;
-      const planType = validPlanTypes.includes(planId as any) ? planId as typeof validPlanTypes[number] : 'free';
+      // Use the plan_type from database (one_time or subscription)
+      const planType = planConfig.plan_type;
       
       // ALWAYS create a brand new subscription record for EVERY payment
       // This ensures each purchase is completely independent
@@ -134,7 +146,10 @@ class PaymentService {
         start_date: new Date().toISOString(),
         end_date: new Date(Date.now() + planConfig.duration * 24 * 60 * 60 * 1000).toISOString(),
         features: planConfig.features || {},
-        status: 'active'
+        status: 'active',
+        package_id: planId, // Store the actual package ID from ad_packages
+        billing_cycle: planConfig.billing_cycle,
+        is_subscription: planConfig.is_subscription
       };
 
       console.log(`Creating brand new subscription for plan ${planId} - each purchase is independent`);
@@ -156,17 +171,37 @@ class PaymentService {
     }
   }
 
-  private getPlanConfiguration(planId: string) {
-    const plans: Record<string, any> = {
-      'starter': { name: 'Starter Plan', price: 15, duration: 7, adsAllowed: 1 },
-      'standard': { name: 'Standard Plan', price: 30, duration: 30, adsAllowed: 1 },
-      'rising': { name: 'Rising Seller Plan', price: 50, duration: 14, adsAllowed: 25 },
-      'pro': { name: 'Pro Seller Plan', price: 120, duration: 30, adsAllowed: 50 },
-      'business': { name: 'Business Plan', price: 250, duration: 90, adsAllowed: 100 },
-      'premium': { name: 'Premium Brand Plan', price: 500, duration: 150, adsAllowed: null },
-    };
-    
-    return plans[planId] || { name: 'Unknown Plan', price: 0, duration: 30, adsAllowed: 1 };
+  private async getPlanConfiguration(planId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('ad_packages')
+        .select('*')
+        .eq('id', planId)
+        .eq('active', true)
+        .single();
+
+      if (error || !data) {
+        console.error('Error fetching plan configuration:', error);
+        return { name: 'Unknown Plan', price: 0, duration: 30, adsAllowed: 1, plan_type: 'one_time' };
+      }
+
+      // Parse duration to days
+      const durationMatch = data.duration.match(/(\d+)/);
+      const durationDays = durationMatch ? parseInt(durationMatch[1]) : 30;
+      
+      return {
+        name: data.name,
+        price: data.price,
+        duration: durationDays,
+        adsAllowed: data.ads_allowed,
+        plan_type: data.plan_type,
+        billing_cycle: data.billing_cycle,
+        is_subscription: data.is_subscription
+      };
+    } catch (error) {
+      console.error('Error in getPlanConfiguration:', error);
+      return { name: 'Unknown Plan', price: 0, duration: 30, adsAllowed: 1, plan_type: 'one_time' };
+    }
   }
 
   async getPaymentHistory(userId: string) {

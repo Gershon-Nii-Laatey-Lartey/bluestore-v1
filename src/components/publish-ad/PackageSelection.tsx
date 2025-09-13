@@ -2,12 +2,13 @@
 import { useState, useEffect } from "react";
 import { AdPackage } from "@/types/adPackage";
 import { PackageCard } from "./PackageCard";
-import { usePaymentProcessor } from "./PaymentProcessor";
 import { PackageInformation } from "./PackageInformation";
-import { PublishButton } from "./PublishButton";
+import { PackageReview } from "./PackageReview";
 import { packageService } from "@/services/packageService";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
 interface PackageSelectionProps {
   selectedPackage: string;
@@ -29,11 +30,18 @@ export const PackageSelection = ({
   const [packages, setPackages] = useState<AdPackage[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("one-time");
-  const { processPayment, processingPayment } = usePaymentProcessor({ onPublishNow });
+  const [showReview, setShowReview] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     loadPackages();
+    // Preload Paystack script to reduce wait in the review screen
+    if (!document.querySelector('script[src*="paystack"]')) {
+      const script = document.createElement('script');
+      script.src = 'https://js.paystack.co/v1/inline.js';
+      script.async = true;
+      document.body.appendChild(script);
+    }
   }, []);
 
   const loadPackages = async () => {
@@ -53,11 +61,16 @@ export const PackageSelection = ({
     }
   };
 
-  const handlePublishWithSelectedPackage = async () => {
-    const selectedPkg = packages.find(pkg => pkg.id === selectedPackage);
-    if (!selectedPkg) return;
+  const handleContinueToReview = () => {
+    setShowReview(true);
+  };
 
-    await processPayment(selectedPkg);
+  const handleBackToSelection = () => {
+    setShowReview(false);
+  };
+
+  const handlePaymentSuccess = () => {
+    onPublishNow(selectedPackage);
   };
 
   // Categorize packages based on their plan_type from database
@@ -95,6 +108,19 @@ export const PackageSelection = ({
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
+    );
+  }
+
+  // Show review component if user has selected a package and clicked continue
+  if (showReview && selectedPkg) {
+    return (
+      <PackageReview
+        selectedPackage={selectedPkg}
+        onBack={handleBackToSelection}
+        onPaymentSuccess={handlePaymentSuccess}
+        userActiveAds={userActiveAds}
+        freeAdsCount={freeAdsCount}
+      />
     );
   }
 
@@ -145,17 +171,34 @@ export const PackageSelection = ({
         </TabsContent>
       </Tabs>
 
-      <PublishButton
-        formData={{}}
-        selectedPackage={selectedPkg}
-        isDisabled={false}
-        isFreeLimitReached={isFreeLimitReached}
-        processingPayment={processingPayment}
-        onPublishSuccess={() => {}}
-        onPublish={handlePublishWithSelectedPackage}
-      />
+      {/* Continue Button - only show when a package is selected */}
+      {selectedPkg && (
+        <div className="space-y-4">
+          <Button
+            onClick={handleContinueToReview}
+            className="w-full"
+            size="lg"
+            disabled={isFreeLimitReached}
+          >
+            {isFreeLimitReached ? (
+              'Free Limit Reached'
+            ) : (
+              <>
+                Continue with {selectedPkg.name}
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </>
+            )}
+          </Button>
+          
+          {isFreeLimitReached && (
+            <p className="text-sm text-muted-foreground text-center">
+              You've reached the limit for free ads. Please select a paid package.
+            </p>
+          )}
+        </div>
+      )}
 
-      <PackageInformation hasActiveSubscription={hasActiveSubscription} />
+      {/* Info banners removed per feedback */}
     </div>
   );
 };

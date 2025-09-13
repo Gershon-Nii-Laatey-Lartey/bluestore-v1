@@ -44,6 +44,9 @@ serve(async (req) => {
 
     const body: PaystackInitializeRequest = await req.json();
     
+    console.log('🚀 Paystack initialize request body:', body);
+    console.log('📦 Metadata being sent:', body.metadata);
+    
     // Generate reference if not provided
     const reference = body.reference || `ref_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     

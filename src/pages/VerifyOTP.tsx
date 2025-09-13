@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Shield, ArrowLeft, RefreshCw } from "lucide-react";
+import { Loader2, Shield, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { OTPInput } from "@/components/ui/otp-input";
@@ -11,8 +10,7 @@ const VerifyOTP = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
-  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes in seconds
-  const [canResend, setCanResend] = useState(false);
+  const [canResend, setCanResend] = useState(true);
 
   const { verifyOTP, sendOTP, clearOTPData } = useAuth();
   const navigate = useNavigate();
@@ -25,27 +23,8 @@ const VerifyOTP = () => {
       return;
     }
     setEmail(storedEmail);
-
-    // Start countdown timer
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          setCanResend(true);
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
   }, [navigate]);
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
 
   const handleOTPComplete = async (otpValue: string) => {
     if (otpValue.length !== 6) return;
@@ -79,22 +58,6 @@ const VerifyOTP = () => {
       const { error } = await sendOTP(email);
       if (error) {
         setError(error.message);
-      } else {
-        // Reset timer
-        setTimeLeft(300);
-        setCanResend(false);
-        
-        // Start new countdown
-        const timer = setInterval(() => {
-          setTimeLeft((prev) => {
-            if (prev <= 1) {
-              setCanResend(true);
-              clearInterval(timer);
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
       }
     } catch (err) {
       setError("An unexpected error occurred");
@@ -152,6 +115,7 @@ const VerifyOTP = () => {
                 disabled={loading}
                 length={6}
               />
+              
             </div>
 
             {error && (
@@ -160,45 +124,38 @@ const VerifyOTP = () => {
               </Alert>
             )}
 
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-sm">
-                <Button 
-                  onClick={handleResendOTP}
-                  variant="link"
-                  className="px-0 h-auto"
-                  disabled={loading || !canResend}
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      Resend code
-                    </>
-                  )}
-                </Button>
+            <div className="space-y-4 text-center">
+              <button
+                onClick={handleResendOTP}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors underline"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 inline mr-1 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>Resend Code</>
+                )}
+              </button>
 
-                <div className="flex items-center gap-4">
-                  <Button 
-                    onClick={handleBackToForgotPassword}
-                    variant="link"
-                    className="px-0 h-auto"
-                    disabled={loading}
-                  >
-                    Use different email
-                  </Button>
-                  <Button 
-                    onClick={handleBackToLogin}
-                    variant="link"
-                    className="px-0 h-auto"
-                    disabled={loading}
-                  >
-                    Back to login
-                  </Button>
-                </div>
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={handleBackToForgotPassword}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors underline"
+                  disabled={loading}
+                >
+                  Use Different Email
+                </button>
+
+                <button
+                  onClick={handleBackToLogin}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors underline"
+                  disabled={loading}
+                >
+                  Back to Login
+                </button>
               </div>
             </div>
           </div>

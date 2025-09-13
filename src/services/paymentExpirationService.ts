@@ -55,7 +55,7 @@ class PaymentExpirationService {
         .select('*')
         .eq('id', paymentId)
         .eq('status', 'pending')
-        .single();
+        .maybeSingle();
 
       if (fetchError || !payment) {
         return false;

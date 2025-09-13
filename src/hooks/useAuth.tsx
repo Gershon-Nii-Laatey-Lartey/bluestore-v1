@@ -2,6 +2,8 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { productService } from '@/services/productService';
+import { dataService } from '@/services/dataService';
 
 interface Profile {
   id: string;
@@ -57,6 +59,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
+          // Fire-and-forget: sync expired ads in DB for this user
+          productService.expireApprovedAdsForUser(session.user.id).catch(() => {});
+
+          // Check if user is admin and trigger global expiry sync
+          setTimeout(async () => {
+            try {
+              const isAdmin = await dataService.isAdmin();
+              if (isAdmin) {
+                // Admin signed in - expire all overdue ads in background
+                productService.expireAllApprovedAds().catch(() => {});
+              }
+            } catch (error) {
+              // Silently fail - don't block login
+              console.error('Error checking admin status for expiry sync:', error);
+            }
+          }, 1000); // Small delay to not block login
+
           // Fetch user profile
           setTimeout(async () => {
             const { data: profileData } = await supabase
@@ -76,11 +95,46 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    (async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error('Error getting session:', error);
+        // Clear invalid/expired local session to recover from invalid refresh token
+        try {
+          // Local scope avoids network call when tokens are invalid
+          // @ts-ignore - scope is supported in supabase-js v2
+          await supabase.auth.signOut({ scope: 'local' });
+        } catch {}
+        setSession(null);
+        setUser(null);
+        setProfile(null);
+        setLoading(false);
+        return;
+      }
+      setSession(data.session);
+      setUser(data.session?.user ?? null);
+
+      // On initial session restore, also perform expiry sync
+      if (data.session?.user) {
+        productService.expireApprovedAdsForUser(data.session.user.id).catch(() => {});
+        
+        // Check if user is admin and trigger global expiry sync on session restore
+        setTimeout(async () => {
+          try {
+            const isAdmin = await dataService.isAdmin();
+            if (isAdmin) {
+              // Admin session restored - expire all overdue ads in background
+              productService.expireAllApprovedAds().catch(() => {});
+            }
+          } catch (error) {
+            // Silently fail - don't block session restore
+            console.error('Error checking admin status for expiry sync on restore:', error);
+          }
+        }, 1000); // Small delay to not block session restore
+      }
+
       setLoading(false);
-    });
+    })();
 
     return () => subscription.unsubscribe();
   }, []);

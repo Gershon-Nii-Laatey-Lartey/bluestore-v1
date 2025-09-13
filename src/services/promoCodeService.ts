@@ -46,10 +46,13 @@ class PromoCodeService {
       if (error) throw error;
 
       const result = data?.[0];
+      const discountValueRaw = result?.discount_value;
       return {
-        is_valid: result?.is_valid || false,
+        is_valid: !!result?.is_valid,
         discount_type: result?.discount_type,
-        discount_value: result?.discount_value,
+        discount_value: discountValueRaw !== undefined && discountValueRaw !== null
+          ? parseFloat(discountValueRaw)
+          : undefined,
         message: result?.message || 'Invalid promo code'
       };
     } catch (error) {
@@ -76,10 +79,18 @@ class PromoCodeService {
       if (error) throw error;
 
       const result = data?.[0];
+      const discountRaw = result?.discount_amount;
+      const finalRaw = result?.final_amount;
+      const discount = discountRaw !== undefined && discountRaw !== null
+        ? parseFloat(discountRaw)
+        : 0;
+      const finalAmount = finalRaw !== undefined && finalRaw !== null
+        ? parseFloat(finalRaw)
+        : originalAmount;
       return {
-        success: result?.success || false,
-        discount_amount: result?.discount_amount || 0,
-        final_amount: result?.final_amount || originalAmount,
+        success: !!result?.success,
+        discount_amount: discount,
+        final_amount: finalAmount,
         message: result?.message || 'Error applying promo code'
       };
     } catch (error) {

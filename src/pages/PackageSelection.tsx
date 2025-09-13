@@ -8,18 +8,48 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { PaymentCheckout } from "@/components/payment/PaymentCheckout";
-import { adPackages, AdPackage } from "@/types/adPackage";
+import { AdPackage } from "@/types/adPackage";
 import { paymentService } from "@/services/paymentService";
+import { packageService } from "@/services/packageService";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const PackageSelection = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
-  const [selectedPackage, setSelectedPackage] = useState<string>(adPackages.find(pkg => pkg.recommended)?.id || adPackages[0].id);
+  const [packages, setPackages] = useState<AdPackage[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedPackage, setSelectedPackage] = useState<string>('');
   const [showCheckout, setShowCheckout] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
   const [activeTab, setActiveTab] = useState("one-time");
+
+  // Load packages from database
+  useEffect(() => {
+    loadPackages();
+  }, []);
+
+  const loadPackages = async () => {
+    try {
+      setLoading(true);
+      const data = await packageService.getPackages();
+      setPackages(data);
+      
+      // Auto-select first recommended package or first package
+      const recommendedPkg = data.find(pkg => pkg.recommended);
+      const firstPkg = data[0];
+      setSelectedPackage(recommendedPkg?.id || firstPkg?.id || '');
+    } catch (error) {
+      console.error('Error loading packages:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load packages",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Handle payment success callback
   useEffect(() => {
@@ -61,7 +91,7 @@ const PackageSelection = () => {
   };
 
   const handleContinue = () => {
-    const selected = adPackages.find(pkg => pkg.id === selectedPackage);
+    const selected = packages.find(pkg => pkg.id === selectedPackage);
     
     if (!selected) return;
     
@@ -103,8 +133,8 @@ const PackageSelection = () => {
     return { oneTimePackages, subscriptionPackages };
   };
 
-  const { oneTimePackages, subscriptionPackages } = categorizePackages(adPackages);
-  const selectedPkg = adPackages.find(pkg => pkg.id === selectedPackage);
+  const { oneTimePackages, subscriptionPackages } = categorizePackages(packages);
+  const selectedPkg = packages.find(pkg => pkg.id === selectedPackage);
 
   // Auto-select first package when switching tabs
   useEffect(() => {
@@ -132,6 +162,20 @@ const PackageSelection = () => {
             onSuccess={handlePaymentSuccess2}
             onCancel={() => setShowCheckout(false)}
           />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-lg font-semibold">Loading packages...</p>
+            <p className="text-gray-600">Please wait while we fetch available packages.</p>
+          </div>
         </div>
       </Layout>
     );

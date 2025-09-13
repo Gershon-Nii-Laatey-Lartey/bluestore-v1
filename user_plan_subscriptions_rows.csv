@@ -1,0 +1,3 @@
+id,user_id,plan_type,plan_name,plan_price,duration_days,ads_allowed,ads_used,features,start_date,end_date,status,auto_renew,created_at,updated_at,package_id,billing_cycle,is_subscription
+0247fcd8-6b76-4540-bc34-eecfa574b9ca,0da36e21-f014-44b7-95dc-3745c651683d,starter,Unknown Plan,0.00,30,1,0,{},2025-09-12 16:33:05.462+00,2025-10-12 16:33:05.462+00,active,false,2025-09-12 16:33:05.516127+00,2025-09-12 16:33:05.516127+00,,one_time,false
+c998bd5d-abdf-4fd5-880b-4846603151d4,0da36e21-f014-44b7-95dc-3745c651683d,starter,Unknown Plan,0.00,30,1,0,{},2025-09-12 16:42:59.262+00,2025-10-12 16:42:59.262+00,active,false,2025-09-12 16:42:59.320593+00,2025-09-12 16:42:59.320593+00,,one_time,false

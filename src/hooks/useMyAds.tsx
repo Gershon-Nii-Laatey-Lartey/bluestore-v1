@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useCallback } from "react";
 import { ProductSubmission } from "@/types/product";
+import { productService } from "@/services/productService";
 
 export const useMyAds = () => {
   const { user } = useAuth();
@@ -11,15 +12,8 @@ export const useMyAds = () => {
   const fetchMyAds = useCallback(async (): Promise<ProductSubmission[]> => {
     if (!user) return [];
 
-    const { data: products, error } = await supabase
-      .from('product_submissions')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-
-    return products || [];
+    // Use productService to get products with proper expiry calculation
+    return await productService.getProductSubmissions();
   }, [user]);
 
   const {

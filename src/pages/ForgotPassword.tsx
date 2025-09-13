@@ -11,7 +11,6 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
 
   const { sendOTP } = useAuth();
   const navigate = useNavigate();
@@ -26,7 +25,7 @@ const ForgotPassword = () => {
       if (error) {
         setError(error.message);
       } else {
-        // Store email for OTP verification page and go straight to OTP screen
+        // Store email for OTP verification page and navigate directly
         localStorage.setItem('reset_email', email);
         navigate('/verify-otp');
       }
@@ -41,7 +40,6 @@ const ForgotPassword = () => {
     navigate('/auth');
   };
 
-  
 
   return (
     <div className="min-h-screen flex relative">
@@ -103,16 +101,17 @@ const ForgotPassword = () => {
               {loading ? "Sending Code..." : "Send Verification Code"}
             </Button>
 
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={handleBackToLogin}
-              className="w-full"
-              disabled={loading}
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Login
-            </Button>
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={handleBackToLogin}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors underline"
+                disabled={loading}
+              >
+                <ArrowLeft className="h-4 w-4 inline mr-1" />
+                Back to Login
+              </button>
+            </div>
           </form>
         </div>
       </div>

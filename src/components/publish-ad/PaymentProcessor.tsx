@@ -48,7 +48,7 @@ export const usePaymentProcessor = ({ onPublishNow }: PaymentProcessorProps) => 
     }
   }, []);
 
-  const handlePromoCodeApplied = (discount: number, final: number) => {
+  const handlePromoCodeApplied = (discount: number, final: number, promoCode: string) => {
     setDiscountAmount(discount);
     setFinalAmount(final);
   };
@@ -58,7 +58,7 @@ export const usePaymentProcessor = ({ onPublishNow }: PaymentProcessorProps) => 
     setFinalAmount(0);
   };
 
-  const processPayment = async (selectedPkg: AdPackage) => {
+  const processPayment = async (selectedPkg: AdPackage, overrideAmount?: number) => {
     if (!user?.email) {
       toast({
         title: "Authentication Required",
@@ -69,7 +69,9 @@ export const usePaymentProcessor = ({ onPublishNow }: PaymentProcessorProps) => 
     }
 
     // Calculate the actual amount to charge (considering promo codes)
-    const amountToCharge = finalAmount > 0 ? finalAmount : selectedPkg.price;
+    const amountToCharge = overrideAmount !== undefined
+      ? overrideAmount
+      : (finalAmount > 0 ? finalAmount : selectedPkg.price);
 
     // If package is free or promo code makes it free, handle directly
     if (selectedPkg.price === 0 || amountToCharge === 0) {
@@ -98,7 +100,9 @@ export const usePaymentProcessor = ({ onPublishNow }: PaymentProcessorProps) => 
     setProcessingPayment(true);
 
     try {
-      console.log('Initializing payment for package:', selectedPkg.name, 'Amount:', amountToCharge);
+      console.log('🎯 Initializing payment for package:', selectedPkg);
+      console.log('💰 Amount:', amountToCharge);
+      console.log('🆔 Package ID being sent:', selectedPkg.id);
       
       const paymentData = {
         email: user.email,
@@ -114,7 +118,7 @@ export const usePaymentProcessor = ({ onPublishNow }: PaymentProcessorProps) => 
         }
       };
 
-      console.log('Payment data:', paymentData);
+      console.log('📤 Payment data being sent:', paymentData);
 
       const response = await paymentService.initializePayment(paymentData);
       console.log('Payment initialization response:', response);
@@ -130,11 +134,13 @@ export const usePaymentProcessor = ({ onPublishNow }: PaymentProcessorProps) => 
         currency: 'GHS',
         ref: response.data.reference,
         callback: function(response: any) {
-          console.log('Paystack callback received:', response);
+          console.log('🎉 Paystack callback received:', response);
           if (response.status === 'success') {
+            console.log('✅ Payment successful, calling verifyPayment...');
             // Handle successful payment
             paymentService.verifyPayment(response.reference)
-              .then(() => {
+              .then((verifyResult) => {
+                console.log('✅ Payment verification successful:', verifyResult);
                 toast({
                   title: "Payment Successful!",
                   description: "Your payment has been processed successfully.",
@@ -142,7 +148,7 @@ export const usePaymentProcessor = ({ onPublishNow }: PaymentProcessorProps) => 
                 onPublishNow(selectedPkg.id);
               })
               .catch((verifyError) => {
-                console.error('Payment verification failed:', verifyError);
+                console.error('❌ Payment verification failed:', verifyError);
                 toast({
                   title: "Payment Verification Failed",
                   description: "Please contact support if you were charged.",

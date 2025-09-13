@@ -12,9 +12,10 @@ interface VendorInfoProps {
   vendorId?: string;
   vendorPhone?: string;
   productId?: string;
+  vendorCreatedAt?: string;
 }
 
-export const VendorInfo = ({ vendorName, vendorId, vendorPhone, productId }: VendorInfoProps) => {
+export const VendorInfo = ({ vendorName, vendorId, vendorPhone, productId, vendorCreatedAt }: VendorInfoProps) => {
   const { user } = useAuth();
   
   if (!vendorName) {
@@ -42,6 +43,14 @@ export const VendorInfo = ({ vendorName, vendorId, vendorPhone, productId }: Ven
               <MapPin className="h-3 w-3 mr-1" />
               <span>Verified Seller</span>
             </div>
+            {vendorCreatedAt && (
+              <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                Member since {new Date(vendorCreatedAt).toLocaleDateString('en-US', { 
+                  month: 'short', 
+                  year: 'numeric' 
+                })}
+              </div>
+            )}
           </div>
         </div>
         

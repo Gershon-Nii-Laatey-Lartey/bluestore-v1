@@ -151,6 +151,7 @@ const ProductDetail = () => {
         vendorName={vendorName}
         vendorId={vendorId}
         vendorPhone={vendor?.phone}
+        vendorCreatedAt={vendor?.createdAt}
         isOwner={isOwner}
         onEdit={() => setEditingAd(product)}
         onClose={handleCloseAd}

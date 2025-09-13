@@ -10,7 +10,7 @@ import { promoCodeService, PromoCodeValidation } from "@/services/promoCodeServi
 
 interface PromoCodeFieldProps {
   originalAmount: number;
-  onPromoCodeApplied: (discountAmount: number, finalAmount: number) => void;
+  onPromoCodeApplied: (discountAmount: number, finalAmount: number, promoCode: string) => void;
   onPromoCodeRemoved: () => void;
 }
 
@@ -44,7 +44,7 @@ export const PromoCodeField = ({
 
         if (application.success) {
           setAppliedPromoCode(promoCode.trim());
-          onPromoCodeApplied(application.discount_amount, application.final_amount);
+          onPromoCodeApplied(application.discount_amount, application.final_amount, promoCode.trim());
           toast({
             title: "Promo Code Applied!",
             description: `Discount: GHS ${application.discount_amount.toFixed(2)}`,

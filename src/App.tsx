@@ -25,6 +25,7 @@ import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import VendorRequired from "./pages/VendorRequired";
 import CreateVendorProfile from "./pages/CreateVendorProfile";
+import EditVendorProfile from "./pages/EditVendorProfile";
 
 import VendorProfile from "./pages/VendorProfile";
 
@@ -35,6 +36,7 @@ import Settings from "./pages/Settings";
 import PackageSelection from "./pages/PackageSelection";
 import ActivePackages from "./pages/ActivePackages";
 import Analytics from "./pages/Analytics";
+import Premium from "./pages/Premium";
 import ChatRooms from "./pages/ChatRooms";
 import Chat from "./pages/Chat";
 import Support from "./pages/Support";
@@ -212,6 +214,11 @@ const App = () => (
                 <Analytics />
               </VendorProtectedRoute>
             } />
+            <Route path="/premium" element={
+              <ProtectedRoute>
+                <Premium />
+              </ProtectedRoute>
+            } />
             <Route path="/chat" element={
               <ProtectedRoute>
                 <ChatRooms />
@@ -239,6 +246,11 @@ const App = () => (
             } />
             <Route path="/vendor-required" element={<VendorRequired />} />
             <Route path="/create-vendor-profile" element={<CreateVendorProfile />} />
+            <Route path="/edit-vendor-profile" element={
+              <VendorProtectedRoute>
+                <EditVendorProfile />
+              </VendorProtectedRoute>
+            } />
             <Route path="/my-vendor-profile" element={
               <VendorProtectedRoute>
                 <VendorProfileRedirect />

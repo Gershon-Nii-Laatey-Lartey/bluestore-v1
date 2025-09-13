@@ -236,13 +236,14 @@ const ResetPassword = () => {
                 Verify OTP
               </Button>
               
-              <Button 
-                onClick={handleBackToLogin} 
-                variant="outline"
-                className="w-full"
-              >
-                Back to Login
-              </Button>
+              <div className="text-center">
+                <button
+                  onClick={handleBackToLogin}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors underline"
+                >
+                  Back to Login
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -386,15 +387,16 @@ const ResetPassword = () => {
               {loading ? "Updating Password..." : "Update Password"}
             </Button>
 
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={handleBackToLogin}
-              className="w-full"
-              disabled={loading}
-            >
-              Back to Login
-            </Button>
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={handleBackToLogin}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors underline"
+                disabled={loading}
+              >
+                Back to Login
+              </button>
+            </div>
           </form>
         </div>
       </div>

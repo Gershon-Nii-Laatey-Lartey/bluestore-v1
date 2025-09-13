@@ -40,8 +40,8 @@ export const PromoCodeManagement = () => {
     code: "",
     name: "",
     description: "",
-    discount_type: "free" as 'free', // Only allow 100% discounts
-    discount_value: 100, // Always 100 for free
+    discount_type: "percentage" as 'percentage' | 'fixed' | 'free',
+    discount_value: 10,
     max_uses: "",
     valid_from: "",
     valid_until: "",
@@ -181,7 +181,9 @@ export const PromoCodeManagement = () => {
   };
 
   const getDiscountDisplay = (promoCode: PromoCode) => {
-    return '100% off'; // Only 100% discounts
+    if (promoCode.discount_type === 'percentage') return `${promoCode.discount_value}% off`;
+    if (promoCode.discount_type === 'fixed') return `GHS ${promoCode.discount_value.toFixed(2)} off`;
+    return '100% off';
   };
 
   const getStatusBadge = (promoCode: PromoCode) => {
@@ -243,11 +245,11 @@ export const PromoCodeManagement = () => {
               Create Promo Code
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Create New Promo Code</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="space-y-4 md:grid md:grid-cols-2 md:gap-6">
               <div>
                 <Label htmlFor="code">Code</Label>
                 <Input
@@ -266,7 +268,7 @@ export const PromoCodeManagement = () => {
                   placeholder="Welcome Discount"
                 />
               </div>
-              <div>
+              <div className="md:col-span-2">
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
@@ -275,32 +277,38 @@ export const PromoCodeManagement = () => {
                   placeholder="Optional description"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 md:col-span-2">
                 <div>
                   <Label htmlFor="discount_type">Discount Type</Label>
                   <Select
                     value={formData.discount_type}
-                    onValueChange={(value: 'free') => 
-                      setFormData({ ...formData, discount_type: value })
-                    }
+                    onValueChange={(value: 'percentage' | 'fixed' | 'free') => {
+                      const defaultValue = value === 'percentage' ? 10 : value === 'fixed' ? 10 : 100;
+                      setFormData({ ...formData, discount_type: value, discount_value: defaultValue });
+                    }}
                   >
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="percentage">Percentage (%)</SelectItem>
+                      <SelectItem value="fixed">Fixed Amount (GHS)</SelectItem>
                       <SelectItem value="free">Free (100%)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="discount_value">Value</Label>
+                  <Label htmlFor="discount_value">{formData.discount_type === 'percentage' ? 'Percentage (%)' : formData.discount_type === 'fixed' ? 'Amount (GHS)' : 'Value'}</Label>
                   <Input
                     id="discount_value"
                     type="number"
                     value={formData.discount_value}
                     onChange={(e) => setFormData({ ...formData, discount_value: parseFloat(e.target.value) || 0 })}
-                    placeholder="100"
-                    disabled={true}
+                    placeholder={formData.discount_type === 'percentage' ? 'e.g. 10' : formData.discount_type === 'fixed' ? 'e.g. 10' : '100'}
+                    min={formData.discount_type === 'percentage' ? 1 : 0}
+                    max={formData.discount_type === 'percentage' ? 100 : undefined}
+                    step={formData.discount_type === 'percentage' ? 1 : 0.01}
+                    disabled={formData.discount_type === 'free'}
                   />
                 </div>
               </div>
@@ -314,7 +322,7 @@ export const PromoCodeManagement = () => {
                   placeholder="100"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 md:col-span-2">
                 <div>
                   <Label htmlFor="valid_from">Valid From</Label>
                   <Input
@@ -334,7 +342,7 @@ export const PromoCodeManagement = () => {
                   />
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 md:col-span-2">
                 <input
                   type="checkbox"
                   id="is_active"
@@ -343,7 +351,7 @@ export const PromoCodeManagement = () => {
                 />
                 <Label htmlFor="is_active">Active</Label>
               </div>
-              <div className="flex justify-end space-x-2">
+              <div className="flex justify-end space-x-2 md:col-span-2">
                 <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
                   Cancel
                 </Button>
@@ -501,11 +509,11 @@ export const PromoCodeManagement = () => {
 
       {/* Edit Dialog */}
       <Dialog open={!!editingPromoCode} onOpenChange={() => setEditingPromoCode(null)}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Edit Promo Code</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-4 md:grid md:grid-cols-2 md:gap-6">
             <div>
               <Label htmlFor="edit-code">Code</Label>
               <Input
@@ -524,7 +532,7 @@ export const PromoCodeManagement = () => {
                 placeholder="Welcome Discount"
               />
             </div>
-            <div>
+            <div className="md:col-span-2">
               <Label htmlFor="edit-description">Description</Label>
               <Textarea
                 id="edit-description"
@@ -533,32 +541,38 @@ export const PromoCodeManagement = () => {
                 placeholder="Optional description"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 md:col-span-2">
               <div>
                 <Label htmlFor="edit-discount_type">Discount Type</Label>
                 <Select
                   value={formData.discount_type}
-                  onValueChange={(value: 'free') => 
-                    setFormData({ ...formData, discount_type: value })
-                  }
+                  onValueChange={(value: 'percentage' | 'fixed' | 'free') => {
+                    const defaultValue = value === 'percentage' ? 10 : value === 'fixed' ? 10 : 100;
+                    setFormData({ ...formData, discount_type: value, discount_value: defaultValue });
+                  }}
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="percentage">Percentage (%)</SelectItem>
+                    <SelectItem value="fixed">Fixed Amount (GHS)</SelectItem>
                     <SelectItem value="free">Free (100%)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label htmlFor="edit-discount_value">Value</Label>
+                <Label htmlFor="edit-discount_value">{formData.discount_type === 'percentage' ? 'Percentage (%)' : formData.discount_type === 'fixed' ? 'Amount (GHS)' : 'Value'}</Label>
                 <Input
                   id="edit-discount_value"
                   type="number"
                   value={formData.discount_value}
                   onChange={(e) => setFormData({ ...formData, discount_value: parseFloat(e.target.value) || 0 })}
-                  placeholder="100"
-                  disabled={true}
+                  placeholder={formData.discount_type === 'percentage' ? 'e.g. 10' : formData.discount_type === 'fixed' ? 'e.g. 10' : '100'}
+                  min={formData.discount_type === 'percentage' ? 1 : 0}
+                  max={formData.discount_type === 'percentage' ? 100 : undefined}
+                  step={formData.discount_type === 'percentage' ? 1 : 0.01}
+                  disabled={formData.discount_type === 'free'}
                 />
               </div>
             </div>
@@ -572,7 +586,7 @@ export const PromoCodeManagement = () => {
                 placeholder="100"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 md:col-span-2">
               <div>
                 <Label htmlFor="edit-valid_from">Valid From</Label>
                 <Input
@@ -592,7 +606,7 @@ export const PromoCodeManagement = () => {
                 />
               </div>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 md:col-span-2">
               <input
                 type="checkbox"
                 id="edit-is_active"
@@ -601,7 +615,7 @@ export const PromoCodeManagement = () => {
               />
               <Label htmlFor="edit-is_active">Active</Label>
             </div>
-            <div className="flex justify-end space-x-2">
+            <div className="flex justify-end space-x-2 md:col-span-2">
               <Button variant="outline" onClick={() => setEditingPromoCode(null)}>
                 Cancel
               </Button>

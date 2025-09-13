@@ -12,7 +12,14 @@ export const ExpiryDate = ({ product }: ExpiryDateProps) => {
       return null;
     }
 
+    if (!product.submittedAt) {
+      return null;
+    }
+
     const createdDate = new Date(product.submittedAt);
+    if (isNaN(createdDate.getTime())) {
+      return null;
+    }
     const packageId = product.package?.id;
 
     // Calculate expiry based on package type

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
 import { MobileHeader } from "@/components/MobileHeader";
-import { User, Settings, Plus, Bell, HelpCircle, LogOut, Package, ShoppingBag, Store, Edit, Calendar, MapPin, Phone, Mail, BarChart3, Shield, Users, MessageSquare } from "lucide-react";
+import { User, Settings, Plus, Bell, HelpCircle, LogOut, Package, ShoppingBag, Store, Edit, Calendar, MapPin, Phone, Mail, BarChart3, Shield, Users, MessageSquare, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -29,6 +29,7 @@ const Profile = () => {
     { icon: ShoppingBag, label: "My Ads", href: "/my-ads", description: "Manage your published advertisements" },
     { icon: Store, label: "My Vendor Profile", href: `/vendor/${user?.id}`, description: "View and edit your vendor profile" },
     { icon: Package, label: "Active Packages", href: "/active-packages", description: "Track your subscription packages" },
+    { icon: Crown, label: "Premium", href: "/premium", description: "Explore premium features and benefits" },
     { icon: BarChart3, label: "Analytics", href: "/analytics", description: "Track the performance of your ads" },
     { icon: Bell, label: "Notifications", href: "/notifications", description: "View your notifications and alerts" },
     { icon: Settings, label: "Settings", href: "/settings", description: "Manage your account settings" },

@@ -4,18 +4,28 @@ import { ShareModal } from "@/components/ShareModal";
 import { EditProductForm } from "@/components/EditProductForm";
 import { ProductGrid } from "@/components/ProductGrid";
 import { ExpiryDate } from "@/components/product/ExpiryDate";
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, Share, Edit, Trash2, Archive, AlertTriangle, RotateCcw, Lightbulb, TrendingUp, Zap, MoreVertical, Star, Plus, Package, CheckCircle, Clock, List } from "lucide-react";
+import { Eye, Share, Edit, Trash2, Archive, AlertTriangle, RotateCcw, Lightbulb, TrendingUp, Zap, MoreVertical, Star, Plus, Package, CheckCircle, Clock, List, CreditCard, Gift } from "lucide-react";
 import { productService } from "@/services/productService";
+import { packageService } from "@/services/packageService";
+import { dataService } from "@/services/dataService";
 import { ProductSubmission } from "@/types/product";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { paymentService } from "@/services/paymentService";
+
+declare global {
+  interface Window {
+    PaystackPop: any;
+  }
+}
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useMyAds } from "@/hooks/useMyAds";
 import { BackgroundLoadingIndicator } from "@/components/ui/background-loading-indicator";
@@ -40,11 +50,45 @@ const MyAds = () => {
   const [selectedAdForShare, setSelectedAdForShare] = useState<ProductSubmission | null>(null);
   const [editSubmitting, setEditSubmitting] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [reactivationModalOpen, setReactivationModalOpen] = useState(false);
+  const [selectedProductForReactivation, setSelectedProductForReactivation] = useState<ProductSubmission | null>(null);
+  const [packages, setPackages] = useState<any[]>([]);
+  const [loadingPackages, setLoadingPackages] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<string>('');
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [activeTab, setActiveTab] = useState("one-time");
+  const [isProcessingPayment, setProcessingPayment] = useState(false);
+  const [paystackLoaded, setPaystackLoaded] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { myAds: products, isLoading: loading, isFetching, refetch } = useMyAds();
+
+  // Load Paystack script
+  useEffect(() => {
+    if (!document.querySelector('script[src*="paystack"]')) {
+      const script = document.createElement('script');
+      script.src = 'https://js.paystack.co/v1/inline.js';
+      script.async = true;
+      script.onload = () => {
+        console.log('Paystack script loaded successfully');
+        setPaystackLoaded(true);
+      };
+      script.onerror = () => {
+        console.error('Failed to load Paystack script');
+        toast({
+          title: "Script Load Error",
+          description: "Failed to load payment system. Please refresh and try again.",
+          variant: "destructive"
+        });
+      };
+      document.body.appendChild(script);
+    } else {
+      setPaystackLoaded(true);
+    }
+
+  }, []);
 
   const loadMyProducts = async () => {
     refetch();
@@ -85,6 +129,276 @@ const MyAds = () => {
       });
     }
   };
+
+  const handleOpenReactivationModal = async (product: ProductSubmission) => {
+    setSelectedProductForReactivation(product);
+    setLoadingPackages(true);
+    setShowCheckout(false);
+    setActiveTab("one-time");
+    try {
+      const availablePackages = await packageService.getPackages();
+      console.log('🔍 Loaded packages for reactivation:', availablePackages);
+      setPackages(availablePackages);
+      
+      // Auto-select first recommended package or first package
+      const recommendedPkg = availablePackages.find(pkg => pkg.recommended);
+      const firstPkg = availablePackages[0];
+      setSelectedPackage(recommendedPkg?.id || firstPkg?.id || '');
+    } catch (error) {
+      console.error('Error loading packages:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load packages. Please try again later.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingPackages(false);
+    }
+    setReactivationModalOpen(true);
+  };
+
+  const handleReactivateWithPackage = async (packageId: string) => {
+    if (!user?.email) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to continue with payment",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!paystackLoaded) {
+      toast({
+        title: "Payment System Not Ready",
+        description: "Payment system is still loading. Please wait a moment and try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!window.PaystackPop) {
+      toast({
+        title: "Payment System Error",
+        description: "Payment system not available. Please refresh the page and try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setProcessingPayment(true);
+
+    try {
+      const selectedPkg = packages.find(pkg => pkg.id === packageId);
+      if (!selectedPkg) {
+        throw new Error('Package not found');
+      }
+
+      console.log('🔍 Selected package for reactivation:', selectedPkg);
+      console.log('🔍 Package price:', selectedPkg.price);
+      console.log('🔍 User email:', user.email);
+
+      // Validate required fields
+      if (!user.email) {
+        throw new Error('User email is required');
+      }
+      
+      if (!selectedPkg.price || selectedPkg.price <= 0) {
+        throw new Error('Invalid package price');
+      }
+
+      const paymentData = {
+        email: user.email,
+        amount: Number(selectedPkg.price), // Ensure it's a number
+        currency: 'GHS',
+        metadata: {
+          plan_id: selectedPkg.id,
+          plan_name: selectedPkg.name,
+          user_id: user.id,
+          reactivate_product_id: selectedProductForReactivation?.id,
+        }
+      };
+
+      console.log('🔍 Payment data being sent:', paymentData);
+
+      const response = await paymentService.initializePayment(paymentData);
+
+      if (!response.status) {
+        throw new Error(response.message || 'Failed to initialize payment');
+      }
+
+      const handler = window.PaystackPop.setup({
+        key: response.data.public_key || 'pk_test_0d4e4b6c6b82e5e72cfe9cf92d6f5e6c5f7a2c3d',
+        email: user.email,
+        amount: selectedPkg.price * 100, // Paystack expects amount in kobo
+        currency: 'GHS',
+        ref: response.data.reference,
+        callback: function(response: any) {
+          console.log('🎉 Paystack callback received:', response);
+          if (response.status === 'success') {
+            console.log('✅ Payment successful, calling verifyPayment...');
+            // Handle successful payment
+            paymentService.verifyPayment(response.reference)
+              .then(async (verifyResult) => {
+                console.log('✅ Payment verification successful:', verifyResult);
+                
+                if (verifyResult.status === true || verifyResult.status === 'success') {
+                  console.log('🔄 Starting ad reactivation process...');
+                  // Update the product with the new package and reactivate
+                  if (selectedProductForReactivation) {
+                    console.log('🗑️ Deleting old ad:', selectedProductForReactivation.id);
+                    // Delete the old ad and create a new one with fresh timestamps
+                    const oldAd = selectedProductForReactivation;
+                    await productService.deleteProductSubmission(oldAd.id);
+                    console.log('✅ Old ad deleted successfully');
+                    
+                    // Create a new ad with the same data but fresh timestamps
+                    const newAdData = {
+                      ...oldAd,
+                      id: undefined, // Let database generate new ID
+                      package: { 
+                        id: selectedPkg.id, 
+                        name: selectedPkg.name, 
+                        price: selectedPkg.price 
+                      },
+                      status: 'approved' as const,
+                      created_at: undefined, // Let database set current timestamp
+                      updated_at: undefined, // Let database set current timestamp
+                      submittedAt: undefined // Reset submission time
+                    };
+                    
+                    console.log('✨ Creating new ad with data:', newAdData);
+                    await dataService.createProductSubmission(newAdData);
+                    console.log('✅ New ad created successfully');
+                    
+                    toast({
+                      title: "Payment Successful!",
+                      description: "Ad has been reactivated successfully!",
+                    });
+                    console.log('🔄 Refreshing ad list...');
+                    loadMyProducts();
+                    console.log('✅ Ad reactivation process completed!');
+                  } else {
+                    console.log('❌ No selected product for reactivation');
+                  }
+                } else {
+                  console.log('❌ Payment verification failed:', verifyResult);
+                }
+              })
+              .catch((verifyError) => {
+                console.error('❌ Payment verification failed:', verifyError);
+                
+                toast({
+                  title: "Payment Verification Failed",
+                  description: "Please contact support if you were charged.",
+                  variant: "destructive"
+                });
+              })
+              .finally(() => {
+                setProcessingPayment(false);
+              });
+          } else {
+            toast({
+              title: "Payment Failed",
+              description: "Payment was not completed. Please try again.",
+              variant: "destructive"
+            });
+            setProcessingPayment(false);
+          }
+        },
+        onClose: function() {
+          console.log('Paystack popup closed');
+          
+          toast({
+            title: "Payment Cancelled",
+            description: "Payment was cancelled. You can try again anytime.",
+          });
+          setProcessingPayment(false);
+        }
+      });
+
+      // Close our modal completely to prevent z-index conflicts
+      setReactivationModalOpen(false);
+
+      handler.openIframe();
+    } catch (error) {
+      console.error('Payment processing error:', error);
+      toast({
+        title: "Payment Error",
+        description: "Failed to process payment. Please try again.",
+        variant: "destructive"
+      });
+      setProcessingPayment(false);
+    }
+  };
+
+  const handleReactivateWithFree = async (productId: string) => {
+    try {
+      // Get the current ad data
+      const currentAd = products.find(ad => ad.id === productId);
+      if (!currentAd) {
+        throw new Error('Ad not found');
+      }
+
+      // Delete the old ad and create a new one with fresh timestamps
+      await productService.deleteProductSubmission(productId);
+      
+      // Create a new ad with the same data but fresh timestamps
+      const newAdData = {
+        ...currentAd,
+        id: undefined, // Let database generate new ID
+        package: { id: 'free', name: 'Free Package', price: 0 },
+        status: 'approved' as const,
+        created_at: undefined, // Let database set current timestamp
+        updated_at: undefined, // Let database set current timestamp
+        submittedAt: undefined // Reset submission time
+      };
+      
+      await productService.createProductSubmission(newAdData);
+      
+      toast({
+        title: "Success",
+        description: "Ad has been reactivated with free package",
+      });
+      setReactivationModalOpen(false);
+      loadMyProducts();
+    } catch (error) {
+      console.error('Error reactivating with free package:', error);
+      toast({
+        title: "Error",
+        description: "Failed to reactivate ad. Please try again later.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Categorize packages based on their plan_type from database
+  const categorizePackages = (packages: any[]) => {
+    const oneTimePackages: any[] = [];
+    const subscriptionPackages: any[] = [];
+
+    packages.forEach(pkg => {
+      // Use plan_type field from database to categorize packages
+      if (pkg.plan_type === 'subscription') {
+        subscriptionPackages.push(pkg);
+      } else {
+        oneTimePackages.push(pkg);
+      }
+    });
+
+    return { oneTimePackages, subscriptionPackages };
+  };
+
+  const { oneTimePackages, subscriptionPackages } = categorizePackages(packages);
+  const selectedPkg = packages.find(pkg => pkg.id === selectedPackage);
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-GH', {
+      style: 'currency',
+      currency: 'GHS',
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
+
 
   const handleDeleteAd = async (productId: string) => {
     try {
@@ -157,8 +471,11 @@ const MyAds = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'N/A';
+    return date.toLocaleDateString();
   };
 
   const handleShare = (product: ProductSubmission) => {
@@ -642,6 +959,21 @@ const MyAds = () => {
                                         </AlertDialog>
                                       )}
 
+                                      {product.status === 'expired' && (
+                                        <Button 
+                                          variant="ghost" 
+                                          size="sm" 
+                                          className="w-full justify-start text-orange-600"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleOpenReactivationModal(product);
+                                          }}
+                                        >
+                                          <RotateCcw className="h-4 w-4 mr-2" />
+                                          Reactivate
+                                        </Button>
+                                      )}
+
                                       <AlertDialog>
                                         <AlertDialogTrigger asChild>
                                           <Button 
@@ -908,6 +1240,21 @@ const MyAds = () => {
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
                               </AlertDialog>
+                            )}
+
+                            {product.status === 'expired' && (
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="text-orange-600 hover:text-orange-700"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleOpenReactivationModal(product);
+                                }}
+                              >
+                                <RotateCcw className="h-4 w-4 mr-1" />
+                                Reactivate
+                              </Button>
                             )}
 
                             <AlertDialog>
@@ -1197,6 +1544,21 @@ const MyAds = () => {
                                           </AlertDialog>
                                         )}
 
+                                        {product.status === 'expired' && (
+                                          <Button 
+                                            variant="ghost" 
+                                            size="sm" 
+                                            className="w-full justify-start text-orange-600"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleOpenReactivationModal(product);
+                                            }}
+                                          >
+                                            <RotateCcw className="h-4 w-4 mr-2" />
+                                            Reactivate
+                                          </Button>
+                                        )}
+
                                         <AlertDialog>
                                           <AlertDialogTrigger asChild>
                                             <Button 
@@ -1285,6 +1647,167 @@ const MyAds = () => {
             productUrl={`${window.location.origin}/product/${selectedAdForShare.id}`}
           />
         )}
+
+        {/* Reactivation Modal */}
+        <Dialog open={reactivationModalOpen} onOpenChange={setReactivationModalOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Reactivate "{selectedProductForReactivation?.title}"</DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-6">
+                <p className="text-sm text-gray-600 text-center">
+                  Choose how you want to reactivate your ad:
+                </p>
+                
+                {/* Free Package Option */}
+                <div className="border rounded-lg p-6 space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-green-100 rounded-full">
+                      <Gift className="h-6 w-6 text-green-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold">Reactivate with Free Package</h3>
+                      <p className="text-sm text-gray-500">7 days visibility</p>
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={() => selectedProductForReactivation && handleReactivateWithFree(selectedProductForReactivation.id)}
+                    className="w-full"
+                    variant="outline"
+                    size="lg"
+                  >
+                    Reactivate Free
+                  </Button>
+                </div>
+
+                {/* Paid Package Options */}
+                <div className="border rounded-lg p-6 space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-blue-100 rounded-full">
+                      <CreditCard className="h-6 w-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold">Reactivate with Paid Package</h3>
+                      <p className="text-sm text-gray-500">Choose a package for better visibility</p>
+                    </div>
+                  </div>
+                  
+                  {loadingPackages ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                      <p className="text-sm text-gray-500 mt-2">Loading packages...</p>
+                    </div>
+                  ) : (
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="one-time">One-time Packages</TabsTrigger>
+                        <TabsTrigger value="subscription">Subscription Packages</TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="one-time" className="space-y-4 mt-6">
+                        {oneTimePackages.length === 0 ? (
+                          <p className="text-center text-gray-500 py-8">No one-time packages available</p>
+                        ) : (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {oneTimePackages.map((pkg) => (
+                              <Card 
+                                key={pkg.id} 
+                                className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
+                                  selectedPackage === pkg.id ? 'ring-2 ring-primary' : ''
+                                }`}
+                                onClick={() => setSelectedPackage(pkg.id)}
+                              >
+                                <CardHeader className="pb-3">
+                                  <div className="flex items-center justify-between">
+                                    <CardTitle className="text-lg">{pkg.name}</CardTitle>
+                                    {pkg.recommended && (
+                                      <Badge className="bg-primary text-primary-foreground">Recommended</Badge>
+                                    )}
+                                  </div>
+                                </CardHeader>
+                                <CardContent className="pb-3">
+                                  <div className="text-2xl font-bold text-primary mb-2">
+                                    {formatPrice(pkg.price)}
+                                  </div>
+                                  <p className="text-sm text-gray-600 mb-3">{pkg.duration}</p>
+                                  <ul className="space-y-1 text-sm text-gray-600">
+                                    {pkg.features?.slice(0, 3).map((feature: string, index: number) => (
+                                      <li key={index} className="flex items-center gap-2">
+                                        <CheckCircle className="h-4 w-4 text-green-500" />
+                                        {feature}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </CardContent>
+                                <CardFooter>
+                                  <Button 
+                                    className="w-full"
+                                    onClick={() => handleReactivateWithPackage(pkg.id)}
+                                  >
+                                    Select Package
+                                  </Button>
+                                </CardFooter>
+                              </Card>
+                            ))}
+                          </div>
+                        )}
+                      </TabsContent>
+                      
+                      <TabsContent value="subscription" className="space-y-4 mt-6">
+                        {subscriptionPackages.length === 0 ? (
+                          <p className="text-center text-gray-500 py-8">No subscription packages available</p>
+                        ) : (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {subscriptionPackages.map((pkg) => (
+                              <Card 
+                                key={pkg.id} 
+                                className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
+                                  selectedPackage === pkg.id ? 'ring-2 ring-primary' : ''
+                                }`}
+                                onClick={() => setSelectedPackage(pkg.id)}
+                              >
+                                <CardHeader className="pb-3">
+                                  <div className="flex items-center justify-between">
+                                    <CardTitle className="text-lg">{pkg.name}</CardTitle>
+                                    {pkg.recommended && (
+                                      <Badge className="bg-primary text-primary-foreground">Recommended</Badge>
+                                    )}
+                                  </div>
+                                </CardHeader>
+                                <CardContent className="pb-3">
+                                  <div className="text-2xl font-bold text-primary mb-2">
+                                    {formatPrice(pkg.price)}
+                                  </div>
+                                  <p className="text-sm text-gray-600 mb-3">{pkg.duration}</p>
+                                  <ul className="space-y-1 text-sm text-gray-600">
+                                    {pkg.features?.slice(0, 3).map((feature: string, index: number) => (
+                                      <li key={index} className="flex items-center gap-2">
+                                        <CheckCircle className="h-4 w-4 text-green-500" />
+                                        {feature}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </CardContent>
+                                <CardFooter>
+                                  <Button 
+                                    className="w-full"
+                                    onClick={() => handleReactivateWithPackage(pkg.id)}
+                                  >
+                                    Select Package
+                                  </Button>
+                                </CardFooter>
+                              </Card>
+                            ))}
+                          </div>
+                        )}
+                      </TabsContent>
+                    </Tabs>
+                  )}
+                </div>
+              </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );

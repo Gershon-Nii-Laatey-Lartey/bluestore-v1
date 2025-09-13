@@ -108,11 +108,8 @@ class NotificationService {
       // Get all admin users
       const { data: admins } = await supabase
         .from('user_roles')
-        .select(`
-          user_id,
-          profiles!inner(id, full_name)
-        `)
-        .eq('app_role', 'admin');
+        .select('user_id')
+        .eq('role', 'admin');
 
       if (!admins || admins.length === 0) return;
 
@@ -143,11 +140,8 @@ class NotificationService {
       // Get all admin users
       const { data: admins } = await supabase
         .from('user_roles')
-        .select(`
-          user_id,
-          profiles!inner(id, full_name)
-        `)
-        .eq('app_role', 'admin');
+        .select('user_id')
+        .eq('role', 'admin');
 
       if (!admins || admins.length === 0) return;
 
@@ -178,11 +172,8 @@ class NotificationService {
       // Get all admin users
       const { data: admins } = await supabase
         .from('user_roles')
-        .select(`
-          user_id,
-          profiles!inner(id, full_name)
-        `)
-        .eq('app_role', 'admin');
+        .select('user_id')
+        .eq('role', 'admin');
 
       if (!admins || admins.length === 0) return;
 
@@ -213,11 +204,8 @@ class NotificationService {
       // Get all admin users
       const { data: admins } = await supabase
         .from('user_roles')
-        .select(`
-          user_id,
-          profiles!inner(id, full_name)
-        `)
-        .eq('app_role', 'admin');
+        .select('user_id')
+        .eq('role', 'admin');
 
       if (!admins || admins.length === 0) return;
 

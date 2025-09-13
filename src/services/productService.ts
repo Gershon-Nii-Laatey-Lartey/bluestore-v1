@@ -3,6 +3,42 @@ import { useAuth } from "@/hooks/useAuth";
 import { ProductSubmission } from "@/types/product";
 import { optimizedProductService } from "./optimizedProductService";
 
+// Helper: compute expiry date based on package id and submission time
+const computeExpiryDate = (product: ProductSubmission): Date | null => {
+  // Do not compute for already terminal states
+  if (product.status === 'expired' || product.status === 'closed' || product.status === 'rejected') {
+    return null;
+  }
+
+  const submittedAt = product.submittedAt || product.created_at;
+  if (!submittedAt) return null;
+
+  const createdDate = new Date(submittedAt);
+  if (isNaN(createdDate.getTime())) return null;
+
+  const packageId = (product.package as any)?.id as string | undefined;
+
+  switch (packageId) {
+    case 'free':
+      return new Date(createdDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+    case 'starter':
+      return new Date(createdDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+    case 'standard':
+      return new Date(createdDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+    case 'rising':
+      return new Date(createdDate.getTime() + 14 * 24 * 60 * 60 * 1000);
+    case 'pro':
+      return new Date(createdDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+    case 'business':
+      return new Date(createdDate.getTime() + 90 * 24 * 60 * 60 * 1000);
+    case 'premium':
+      return null; // Unlimited
+    default:
+      // No package or unknown → treat like free
+      return new Date(createdDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+  }
+};
+
 export const incrementUserAdsUsed = async (userId: string) => {
   try {
     console.log('Attempting to increment ads used for user:', userId);
@@ -165,7 +201,20 @@ class ProductService {
       throw error;
     }
 
-    return (data || []).map(transformProductData);
+    const products = (data || []).map(transformProductData);
+
+    // Locally mark as expired if past computed expiry
+    const now = Date.now();
+    const productsWithLocalExpiry = products.map((p) => {
+      if (p.status !== 'approved') return p;
+      const expiry = computeExpiryDate(p);
+      if (expiry && now >= expiry.getTime()) {
+        return { ...p, status: 'expired' as const };
+      }
+      return p;
+    });
+
+    return productsWithLocalExpiry;
   }
 
   // Update product submission (authenticated)
@@ -261,6 +310,118 @@ class ProductService {
     }
 
     return transformProductData(data);
+  }
+
+  // New: Expire approved ads for a specific user directly in the database
+  async expireApprovedAdsForUser(userId: string): Promise<number> {
+    try {
+      if (!userId) return 0;
+
+      // Fetch this user's approved ads
+      const { data, error } = await supabase
+        .from('product_submissions')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('status', 'approved');
+
+      if (error) {
+        console.error('Error fetching approved ads for expiry:', error);
+        return 0;
+      }
+
+      const list = (data || []).map(transformProductData);
+      const now = Date.now();
+
+      // Determine which ones are actually expired
+      const expiredIds: string[] = [];
+      for (const p of list) {
+        const expiry = computeExpiryDate(p);
+        if (expiry && now >= expiry.getTime()) {
+          expiredIds.push(p.id);
+        }
+      }
+
+      if (expiredIds.length === 0) return 0;
+
+      // Update in chunks to avoid payload limits
+      const chunkSize = 50;
+      let updatedCount = 0;
+      for (let i = 0; i < expiredIds.length; i += chunkSize) {
+        const chunk = expiredIds.slice(i, i + chunkSize);
+        const { error: updateError, count } = await supabase
+          .from('product_submissions')
+          .update({ status: 'expired', updated_at: new Date().toISOString() })
+          .in('id', chunk)
+          .select('id', { count: 'exact' });
+
+        if (updateError) {
+          console.error('Error updating expired ads chunk:', updateError);
+          // continue with others
+          continue;
+        }
+        updatedCount += typeof count === 'number' ? count : chunk.length;
+      }
+
+      return updatedCount;
+    } catch (e) {
+      console.error('Unexpected error expiring ads for user:', e);
+      return 0;
+    }
+  }
+
+  // New: Expire all approved ads in the database (admin function)
+  async expireAllApprovedAds(): Promise<number> {
+    try {
+      // Fetch all approved ads
+      const { data, error } = await supabase
+        .from('product_submissions')
+        .select('*')
+        .eq('status', 'approved');
+
+      if (error) {
+        console.error('Error fetching all approved ads for expiry:', error);
+        return 0;
+      }
+
+      const list = (data || []).map(transformProductData);
+      const now = Date.now();
+
+      // Determine which ones are actually expired
+      const expiredIds: string[] = [];
+      for (const p of list) {
+        const expiry = computeExpiryDate(p);
+        if (expiry && now >= expiry.getTime()) {
+          expiredIds.push(p.id);
+        }
+      }
+
+      if (expiredIds.length === 0) return 0;
+
+      // Update in chunks to avoid payload limits
+      const chunkSize = 50;
+      let updatedCount = 0;
+      for (let i = 0; i < expiredIds.length; i += chunkSize) {
+        const chunk = expiredIds.slice(i, i + chunkSize);
+        const { error: updateError, count } = await supabase
+          .from('product_submissions')
+          .update({ status: 'expired', updated_at: new Date().toISOString() })
+          .in('id', chunk)
+          .select('id', { count: 'exact' });
+
+        if (updateError) {
+          console.error('Error updating expired ads chunk:', updateError);
+          // continue with others
+          continue;
+        }
+        updatedCount += typeof count === 'number' ? count : chunk.length;
+      }
+
+      console.log(`Admin expiry sync: marked ${updatedCount} ads as expired`);
+      return updatedCount;
+    } catch (e) {
+      console.error('Unexpected error expiring all ads:', e);
+      return 0;
+    }
   }
 }
 

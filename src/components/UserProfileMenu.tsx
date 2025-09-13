@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { LogOut, User, FileText, Store, Shield, Package, MessageCircle, BarChart3, Settings, Sparkles } from "lucide-react";
+import { LogOut, User, FileText, Store, Shield, Package, MessageCircle, BarChart3, Settings, Sparkles, Crown } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Popover,
@@ -34,6 +34,7 @@ export const UserProfileMenu = () => {
     { name: "My Ads", href: "/my-ads", icon: FileText },
     { name: "My Vendor Profile", href: `/vendor/${user?.id}`, icon: Store },
     { name: "Active Packages", href: "/active-packages", icon: Package },
+    { name: "Premium", href: "/premium", icon: Crown },
   ];
 
   useEffect(() => {

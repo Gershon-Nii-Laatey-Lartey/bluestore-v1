@@ -13,6 +13,7 @@ interface ProductDetailContentProps {
   vendorName: string;
   vendorId?: string;
   vendorPhone?: string;
+  vendorCreatedAt?: string;
   isOwner: boolean;
   onEdit: () => void;
   onClose: () => void;
@@ -25,6 +26,7 @@ export const ProductDetailContent = ({
   vendorName,
   vendorId,
   vendorPhone,
+  vendorCreatedAt,
   isOwner,
   onEdit,
   onClose,
@@ -68,7 +70,13 @@ export const ProductDetailContent = ({
           </div>
           
           {!isOwner && (
-            <VendorInfo vendorName={vendorName} vendorId={vendorId} vendorPhone={vendorPhone} productId={product.id} />
+            <VendorInfo 
+              vendorName={vendorName} 
+              vendorId={vendorId} 
+              vendorPhone={vendorPhone} 
+              vendorCreatedAt={vendorCreatedAt}
+              productId={product.id} 
+            />
           )}
         </div>
       </div>

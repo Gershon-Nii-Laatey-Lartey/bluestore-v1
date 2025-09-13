@@ -1,10 +1,10 @@
 import { Layout } from "@/components/Layout";
 import { MobileHeader } from "@/components/MobileHeader";
-import { ArrowRight, Tag, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+ 
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -16,7 +16,7 @@ import { imageService } from "@/services/imageService";
 import { paymentService } from "@/services/paymentService";
 import { packageService } from "@/services/packageService";
 import { notificationService } from "@/services/notificationService";
-import { promoCodeService } from "@/services/promoCodeService";
+ 
 import { adPackages } from "@/types/adPackage";
 import { BasicInformationForm } from "@/components/publish-ad/BasicInformationForm";
 import { PricingForm } from "@/components/publish-ad/PricingForm";
@@ -54,11 +54,7 @@ const PublishAd = () => {
   const [processingPayment, setProcessingPayment] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   
-  // Promo code state
-  const [promoCode, setPromoCode] = useState("");
-  const [isValidatingPromoCode, setIsValidatingPromoCode] = useState(false);
-  const [appliedPromoCode, setAppliedPromoCode] = useState<string | null>(null);
-  const [promoCodeValidation, setPromoCodeValidation] = useState<any>(null);
+  // Promo code removed from publish form – handled in review step
 
   // Form persistence - save form data to localStorage
   const saveFormData = () => {
@@ -68,8 +64,7 @@ const PublishAd = () => {
       mainImageIndex,
       selectedPackage,
       currentStep,
-      promoCode,
-      appliedPromoCode
+      
     };
     localStorage.setItem('publishAdFormData', JSON.stringify(dataToSave));
   };
@@ -84,8 +79,7 @@ const PublishAd = () => {
         setMainImageIndex(parsed.mainImageIndex || 0);
         setSelectedPackage(parsed.selectedPackage || 'free');
         setCurrentStep(parsed.currentStep || 1);
-        setPromoCode(parsed.promoCode || "");
-        setAppliedPromoCode(parsed.appliedPromoCode || null);
+        
         console.log('Restored form data from localStorage');
       } catch (error) {
         console.error('Error loading saved form data:', error);
@@ -96,7 +90,7 @@ const PublishAd = () => {
   // Save form data whenever it changes
   useEffect(() => {
     saveFormData();
-  }, [formData, images, mainImageIndex, selectedPackage, currentStep, promoCode, appliedPromoCode]);
+  }, [formData, images, mainImageIndex, selectedPackage, currentStep]);
 
   // Handle payment success callback
   useEffect(() => {
@@ -245,49 +239,7 @@ const PublishAd = () => {
   };
 
 
-  // Promo code validation
-  const handleValidatePromoCode = async () => {
-    if (!promoCode.trim() || !user) return;
-
-    setIsValidatingPromoCode(true);
-    try {
-      const result = await promoCodeService.validatePromoCode(promoCode.trim(), user.id);
-      setPromoCodeValidation(result);
-
-      if (result.is_valid) {
-        setAppliedPromoCode(promoCode.trim());
-        toast({
-          title: "Promo Code Applied!",
-          description: "100% discount applied - you can skip package selection!",
-        });
-      } else {
-        toast({
-          title: "Invalid Promo Code",
-          description: result.message,
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error('Error validating promo code:', error);
-      toast({
-        title: "Error",
-        description: "Failed to validate promo code",
-        variant: "destructive"
-      });
-    } finally {
-      setIsValidatingPromoCode(false);
-    }
-  };
-
-  const handleRemovePromoCode = () => {
-    setPromoCode("");
-    setPromoCodeValidation(null);
-    setAppliedPromoCode(null);
-    toast({
-      title: "Promo Code Removed",
-      description: "You'll need to select a package",
-    });
-  };
+  // Promo code logic moved to review step
 
   const handleContinueToPackageSelection = (e: React.FormEvent) => {
     e.preventDefault();
@@ -303,17 +255,7 @@ const PublishAd = () => {
       return;
     }
     
-    // If promo code is applied (100% discount), skip to package selection and immediately publish
-    if (appliedPromoCode) {
-      setCurrentStep(2);
-      // Automatically select free package and publish
-      setTimeout(() => {
-        handlePublishNow('free');
-      }, 100);
-      return;
-    }
-    
-    // Otherwise, go to package selection normally
+    // Go to package selection
     setCurrentStep(2);
   };
 
@@ -339,6 +281,8 @@ const PublishAd = () => {
       return;
     }
 
+    let submissionCreated = false;
+    let createdProductId: string | null = null;
     try {
       setSubmitting(true);
       
@@ -371,14 +315,24 @@ const PublishAd = () => {
         package: selectedPkg,
         main_image_index: mainImageIndex
       });
+      submissionCreated = true;
+      createdProductId = productId;
 
-      // Upload images using the product ID
-      const imageUrls = await imageService.uploadImages(images, productId);
-      
-      // Update the product submission with the uploaded image URLs
-      await dataService.updateProductSubmission(productId, {
-        images: imageUrls
-      });
+      // Upload images using the product ID (non-fatal)
+      try {
+        const imageUrls = await imageService.uploadImages(images, productId);
+        // Update the product submission with the uploaded image URLs
+        await dataService.updateProductSubmission(productId, {
+          images: imageUrls
+        });
+      } catch (imageError) {
+        console.error('Error uploading images or updating submission:', imageError);
+        toast({
+          title: 'Ad created with warnings',
+          description: 'Your ad is pending review, but there was an issue uploading images. You can edit the ad to retry image upload.',
+          variant: 'destructive'
+        });
+      }
 
       // Notify admins about the new ad submission
       try {
@@ -389,7 +343,7 @@ const PublishAd = () => {
       }
 
       // For paid packages, increment the subscription usage AFTER successful product creation
-      if (selectedPkg && selectedPkg.price > 0 && !appliedPromoCode) {
+      if (selectedPkg && selectedPkg.price > 0) {
         try {
           console.log('Incrementing ads used for paid package:', selectedPkg.id);
           const { error: incrementError } = await supabase.rpc('increment_user_ads_used', {
@@ -411,7 +365,7 @@ const PublishAd = () => {
         }
       }
       
-      const packageMessage = selectedPkg?.price === 0 || appliedPromoCode
+      const packageMessage = selectedPkg?.price === 0
         ? "Your ad has been submitted and is pending review."
         : "Your paid ad has been submitted and is pending review. This ad has been counted towards your subscription usage.";
       
@@ -426,11 +380,22 @@ const PublishAd = () => {
       navigate('/my-ads');
     } catch (error) {
       console.error('Error creating product:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create product. Please try again.",
-        variant: "destructive"
-      });
+      if (!submissionCreated) {
+        toast({
+          title: 'Error',
+          description: 'Failed to create product. Please try again.',
+          variant: 'destructive'
+        });
+      } else {
+        // Submission exists but a later step failed
+        toast({
+          title: 'Ad created with warnings',
+          description: 'Your ad is pending review, but some finalization steps failed. You can manage your ad from My Ads.',
+          variant: 'destructive'
+        });
+        // Best-effort navigation to My Ads so user sees the created item
+        navigate('/my-ads');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -525,70 +490,7 @@ const PublishAd = () => {
               loadingProfile={loadingProfile}
             />
 
-            {/* Promo Code Field */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Tag className="h-4 w-4 text-gray-500" />
-                <Label htmlFor="promo-code" className="text-sm font-medium">
-                  Promo Code (Optional)
-                </Label>
-              </div>
-
-              {appliedPromoCode ? (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="bg-green-100 text-green-800">
-                      <CheckCircle className="h-3 w-3 mr-1" />
-                      {appliedPromoCode}
-                    </Badge>
-                    <Badge variant="outline" className="text-green-600">
-                      100% off
-                    </Badge>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleRemovePromoCode}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                  <p className="text-sm text-green-600 font-medium">
-                    🎉 You can skip package selection and publish directly!
-                  </p>
-                </div>
-              ) : (
-                <div className="flex gap-2">
-                  <Input
-                    id="promo-code"
-                    placeholder="Enter promo code"
-                    value={promoCode}
-                    onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                    onKeyPress={(e) => e.key === 'Enter' && handleValidatePromoCode()}
-                    className="flex-1"
-                    disabled={isValidatingPromoCode}
-                  />
-                  <Button
-                    onClick={handleValidatePromoCode}
-                    disabled={!promoCode.trim() || isValidatingPromoCode}
-                    size="sm"
-                  >
-                    {isValidatingPromoCode ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      "Apply"
-                    )}
-                  </Button>
-                </div>
-              )}
-
-              {promoCodeValidation && !promoCodeValidation.is_valid && !appliedPromoCode && (
-                <div className="flex items-center gap-2 text-red-600 text-sm">
-                  <XCircle className="h-4 w-4" />
-                  {promoCodeValidation.message}
-                </div>
-              )}
-            </div>
+            {/* Promo code moved to the review step to reduce clutter */}
 
             <div className="flex justify-center">
               <Button 
